@@ -30,23 +30,6 @@ class DependencyContainer
     private $_instances = [];
 
     /**
-     * Load a singleton instance of the given class.
-     *
-     * @param $className
-     * @param $args
-     * @return mixed
-     * @throws \Exception
-     */
-    public function getSingleton($className, $args)
-    {
-        if (!array_key_exists($className, $this->_instances)) {
-            $this->_instances[$className] = $this->get($className, $args);
-        }
-
-        return $this->_instances[$className];
-    }
-
-    /**
      * Try to load the given class name and inject the dependencies that are asked for in it's constructor
      *
      * @param $className
@@ -58,6 +41,10 @@ class DependencyContainer
     {
         if (!class_exists($className)) {
             throw new \Exception(sprintf('Dependency Container: Missing class %s', $className));
+        }
+
+        if (substr($className, -9) == 'Singleton' && array_key_exists($className, $this->_instances)) {
+            return $this->_instances[$className];
         }
 
         if (!is_array($args)) {
@@ -84,12 +71,21 @@ class DependencyContainer
             }
         }
 
-        $injections = array_merge($injections, $args);
+        array_push($injections, $args);
 
-        if ($reflection->getConstructor()) {
-            return $reflection->newInstanceArgs($injections);
+        if (substr($className, -9) == 'Singleton') {
+                if ($reflection->getConstructor()) {
+                    $this->_instances[$className] = $reflection->newInstanceArgs($injections);
+                } else {
+                    $this->_instances[$className] = $reflection->newInstance();
+                }
+            return $this->_instances[$className];
         } else {
-            return $reflection->newInstance();
+            if ($reflection->getConstructor()) {
+                return $reflection->newInstanceArgs($injections);
+            } else {
+                return $reflection->newInstance();
+            }
         }
     }
 }
