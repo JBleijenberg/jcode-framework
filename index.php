@@ -27,6 +27,7 @@
 define('BP', dirname(realpath(__FILE__)));
 define('DS', DIRECTORY_SEPARATOR);
 
+require_once 'lib/Functions.php';
 require_once 'lib/Autoloader.php';
 
 $di = new \Jcode\DependencyContainer;
