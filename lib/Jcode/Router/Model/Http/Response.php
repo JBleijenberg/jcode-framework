@@ -23,13 +23,10 @@
  * 
  * @license     http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
-namespace Jcode\Application;
+namespace Jcode\Router\Model\Http;
 
-class ConfigSingleton
+class Response
 {
 
-    public function __construct()
-    {
-        echo 'herp';
-    }
+
 }

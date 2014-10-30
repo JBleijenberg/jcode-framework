@@ -27,7 +27,6 @@ namespace Jcode;
 
 class DependencyContainer
 {
-    private $_instances = [];
 
     /**
      * Try to load the given class name and inject the dependencies that are asked for in it's constructor
@@ -41,10 +40,6 @@ class DependencyContainer
     {
         if (!class_exists($className)) {
             throw new \Exception(sprintf('Dependency Container: Missing class %s', $className));
-        }
-
-        if (substr($className, -9) == 'Singleton' && array_key_exists($className, $this->_instances)) {
-            return $this->_instances[$className];
         }
 
         if (!is_array($args)) {
@@ -61,11 +56,7 @@ class DependencyContainer
                     $injectClassName = $param->getClass()->name;
 
                     if (is_string($injectClassName)) {
-                        if ($injectClassName == get_class($this)) {
-                            array_push($injections, $this);
-                        } else {
-                            array_push($injections, $this->get($injectClassName));
-                        }
+                        array_push($injections, $this->get($injectClassName));
                     }
                 }
             }
@@ -73,19 +64,11 @@ class DependencyContainer
 
         array_push($injections, $args);
 
-        if (substr($className, -9) == 'Singleton') {
-                if ($reflection->getConstructor()) {
-                    $this->_instances[$className] = $reflection->newInstanceArgs($injections);
-                } else {
-                    $this->_instances[$className] = $reflection->newInstance();
-                }
-            return $this->_instances[$className];
+
+        if ($reflection->getConstructor()) {
+            return $reflection->newInstanceArgs($injections);
         } else {
-            if ($reflection->getConstructor()) {
-                return $reflection->newInstanceArgs($injections);
-            } else {
-                return $reflection->newInstance();
-            }
+            return $reflection->newInstance();
         }
     }
 }

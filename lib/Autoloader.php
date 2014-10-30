@@ -28,7 +28,7 @@ function appClassLoader($className)
 {
     $className = ltrim($className, '\\');
     $namespace = '';
-    $fileName = BP . DS . 'application' . DS . 'code' . DS . 'modules' . DS;
+    $fileName = BP . DS . 'application' . DS;
 
     if ($lastNsPos = strripos($className, '\\')) {
         $namespace = substr($className, 0, $lastNsPos);

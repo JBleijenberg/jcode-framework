@@ -23,10 +23,13 @@
  * 
  * @license     http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
-namespace Jcode\Router\Model;
+namespace Jcode\Core\Controller;
 
-class Response
+class IndexController extends \Jcode\Router\Model\Controller
 {
 
-
+    public function indexAction()
+    {
+        $this->loadLayout();
+    }
 }

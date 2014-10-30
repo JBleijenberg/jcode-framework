@@ -31,9 +31,9 @@ class Application
 {
 
     /**
-     * @var Router\Model\Request\Http
+     * @var Router\Model\Http
      */
-    protected $_request;
+    protected $_http;
 
     /**
      * @var DependencyContainer
@@ -46,14 +46,23 @@ class Application
     protected $_phrase;
 
     /**
-     * @param DependencyContainer $dc
-     * @param \Jcode\Router\Model\Request\Http $request
+     * @var array
      */
-    public function __construct(DependencyContainer $dc, Router\Model\Request\Http $request, Translate\Phrase $phrase)
+    private $_modules = [];
+
+    /**
+     * @param DependencyContainer $dc
+     * @param Router\Model\Http $http
+     * @param Phrase $phrase
+     * @param Application\Model\Config $config
+     */
+    public function __construct(DependencyContainer $dc, Router\Model\Http $http, Translate\Model\Phrase $phrase,
+        Application\Model\Config $config)
     {
-        $this->_request = $request;
+        $this->_http = $http;
         $this->_dc = $dc;
         $this->_phrase = $phrase;
+        $this->_config = $config;
     }
 
     public function translate()
@@ -63,12 +72,13 @@ class Application
 
     public function run()
     {
-        if (!$this->_request instanceof \Jcode\Router\Model\Request\Http) {
-            throw new \Exception($this->translate('Invalid request object. Expecting instance of \Jcode\Router\Model\Request\Http. %s Given instead', get_class($this->_request)));
+        if (!$this->_http instanceof Router\Model\Http) {
+            throw new \Exception($this->translate('Invalid request object. Expecting instance of \Jcode\Router\Model\Request\Http. %s Given instead', get_class($this->_http)));
         }
 
         try {
-            $this->_request->dispatch();
+            $this->_config->initModules();
+            $this->_http->dispatch($this->_config);
         } catch (\Exception $e) {
             echo $e->getMessage();
         }
