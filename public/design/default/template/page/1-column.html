@@ -1,0 +1,18 @@
+{% set application =  "Jcode\\Application\\Model\\Config" | dc %}
+
+<html lang="en">
+    <head>
+        {% include "/page/html/head.html" %}
+    </head>
+    <body>
+        <div class="container">
+            <div class="row">
+
+            </div>
+            <div class="row">
+                {% block content %}
+                {% endblock %}
+            </div>
+        </div>
+    </body>
+</html>

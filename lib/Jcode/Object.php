@@ -48,6 +48,24 @@ class Object implements \Iterator, \Countable
     public function __construct(Translate\Model\Phrase $phrase)
     {
         $this->_phrase = $phrase;
+
+        return $this;
+    }
+
+    public function xmlElementToObject(\SimpleXMLElement $elements)
+    {
+        $obj = $this->_dc->get('\Jcode\Object');
+
+        foreach ($elements as $element) {
+            debug($element);
+            foreach ($element as $k => $v) {
+                debug($k);
+                debug($v, true);
+            }
+            $obj->setData($k, $this->xmlElementToObject($v));
+        }
+
+        return $obj;
     }
 
     public function __call($method, $args)
@@ -64,7 +82,7 @@ class Object implements \Iterator, \Countable
 
                 break;
             default:
-                throw new \Exception($this->translate('Call to undefined method: %s', $method));
+                return $this->getData($method);
         }
 
         return false;

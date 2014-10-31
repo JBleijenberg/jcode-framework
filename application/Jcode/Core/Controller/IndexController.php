@@ -30,6 +30,13 @@ class IndexController extends \Jcode\Router\Model\Controller
 
     public function indexAction()
     {
-        $this->loadLayout();
+        $layout = $this->loadLayout();
+
+        $user = $this->_dc->get('Jcode\Object');
+        $user->setName('Jeroen');
+
+        $layout->setUser($user);
+        $layout->render();
+
     }
 }

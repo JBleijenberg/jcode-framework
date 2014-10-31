@@ -186,6 +186,13 @@ class Loader
         if (isset($this->paths[$template . $from])) {
             $path = $this->paths[$template . $from];
         } else {
+            /**
+             * Somehow the absolute path doesn't work. Fixed it here
+             */
+            if (substr($template, 0, 1) == '/') {
+                $from = '';
+            }
+
             $path = $this->resolvePath($template, $from);
             $this->paths[$template . $from] = $path;
         }

@@ -27,7 +27,7 @@ namespace Jcode\Application\Model;
 
 use Jcode\DependencyContainer;
 
-class Config
+class Config extends \Jcode\Object
 {
 
     /**
@@ -66,11 +66,45 @@ class Config
      * @param \Jcode\Config $config
      * @param DependencyContainer $dc
      */
-    public function __construct(\Jcode\Config $config, DependencyContainer $dc, \Jcode\Log $log)
+    public function __construct(DependencyContainer $dc, \Jcode\Log $log)
     {
-        $this->_applictaionClass = $config;
         $this->_dc = $dc;
         $this->_log = $log;
+
+        $this->getConfig();
+    }
+
+    public function config()
+    {
+        return $this->getConfig();
+    }
+
+    public function getConfig()
+    {
+        if (!$this->_applicationConfig) {
+            $xml = simplexml_load_file(BP . DS . 'application' . DS . 'application.xml');
+
+            $config = $this->_dc->get('Jcode\Object');
+
+            foreach ($xml as $section => $content) {
+                foreach ((array)$content as $c) {
+                    $obj = $this->_dc->get('Jcode\Object');
+
+                    $obj->setData($c);
+
+                    $config->setData($section, $obj);
+                }
+            }
+
+            $this->_applicationConfig = $config;
+        }
+
+        return $this->_applicationConfig;
+    }
+
+    public function getLayout()
+    {
+        return $this->getConfig()->getDesign()->getLayout();
     }
 
     /**
@@ -78,7 +112,7 @@ class Config
      */
     public function initModules()
     {
-        $configFiles = glob(BP . DS . 'application' . DS . '*' . DS . '*' .  DS . 'Config.xml');
+        $configFiles = glob(BP . DS . 'application' . DS . '*' . DS . '*' .  DS . 'config.xml');
 
         foreach ($configFiles as $config) {
             try {
@@ -88,16 +122,28 @@ class Config
                     $obj = $this->_dc->get('Jcode\Object');
 
                     foreach ($xml as $element => $val) {
-                        foreach ((array)$val as $v) {
-                            $att = $this->_dc->get('Jcode\Object');
-                            $att->setData($v);
+                        if ($element == 'design') {
+                            $design = $this->_dc->get('Jcode\Object');
 
-                            $obj->setData($element, $att);
+                            if ($val->layout) {
+                                foreach ($val->layout as $k => $v) {
+                                    $design->setData((string)$v['path'], (string)$v['template']);
+                                }
+
+                            }
+
+                            $obj->setDesign($design);
+                        } else {
+                            foreach ((array)$val as $v) {
+                                $att = $this->_dc->get('Jcode\Object');
+                                $att->setData($v);
+
+                                $obj->setData($element, $att);
+                            }
                         }
                     }
 
                     $obj->setModulePath(dirname($config) . DS);
-                    $obj->setViewPath(sprintf('%s%s', $obj->getModulePath(), 'Views' . DS));
 
                     $this->_modules[$obj->getModule()->getCode()] = $obj;
                     $this->_registeredModuleNames[$obj->getModule()->getName()] = &$this->_modules[$obj->getModule()->getCode()];

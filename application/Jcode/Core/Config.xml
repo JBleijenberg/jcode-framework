@@ -28,4 +28,9 @@
 <config>
     <module name="Jcode_Core" code="core" version="2.0.0" active="true"/>
     <controller class="Jcode\Core\Controller" frontname="core"/>
+    <design>
+        <layout path="core_index_index" template="core/index/home.html"/>
+        <layout path="core_index_index2" template="core/test2.html"/>
+        <layout path="core_index_index3" template="core/test3.html"/>
+    </design>
 </config>

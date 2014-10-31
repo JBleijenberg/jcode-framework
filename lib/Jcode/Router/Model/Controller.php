@@ -45,10 +45,19 @@ class Controller
      */
     protected $_config;
 
-    public function __construct(\Jcode\Layout\Block\Layout $layout, \Jcode\Translate\Model\Phrase $phrase)
-    {
+    /**
+     * @var \Jcode\DependencyContainer
+     */
+    protected $_dc;
+
+    public function __construct(
+        \Jcode\Layout\Model\Layout $layout,
+        \Jcode\Translate\Model\Phrase $phrase,
+        \Jcode\DependencyContainer $dc
+    ) {
         $this->_layout = $layout;
         $this->_phrase = $phrase;
+        $this->_dc = $dc;
     }
 
     /**
@@ -106,7 +115,7 @@ class Controller
     }
 
     /**
-     * @return \Jcode\Layout\Block\Layout
+     * @return \Jcode\Layout\Model\Layout
      */
     public function getLayout()
     {
@@ -126,7 +135,41 @@ class Controller
             $module = $this->getConfig()->getModule($this->getRequest()->getModuleCode());
         }
 
-        debug($module);
+        $sourceDir = sprintf('%s/public/design/%s/template', BP, $this->getConfig()->getLayout());
+        $targetDir = sprintf('%s/public/var/cache', BP);
+
+        $helpers = [
+            'dc' => function($class) { return $this->_dc->get($class); },
+            'translate' => function($string) { return $this->_phrase->translate($string); }
+        ];
+
+        $flow = $this->_dc->get('Flow\Loader',
+            [
+                'source' => $sourceDir,
+                'target' => $targetDir,
+                'mode' => \Flow\Loader::RECOMPILE_ALWAYS,
+                'helpers' => $helpers,
+            ]);
+
+        $layout = $this->getLayout();
+
+        $layout->setElement($element);
+        $layout->setFlow($flow);
+        $layout->setModule($module);
+        $layout->setConfig($this->getConfig());
+
+        $this->_layout = $layout;
+
+        return $this->_layout;
+    }
+
+    public function renderLayout()
+    {
+        if ($this->getLayout() instanceof \Jcode\Layout\Model\Layout) {
+            $this->getLayout()->render();
+        }
+
+        return $this;
     }
 
     /**
