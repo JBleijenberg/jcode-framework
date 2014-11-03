@@ -1,5 +1,4 @@
-<?xml version="1.0"?>
-<!--
+<?php
 /**
  *
  * NOTICE OF LICENSE
@@ -18,22 +17,19 @@
  * versions in the future. If you wish to customize Magento for your
  * needs please refer to http://www.magentocommerce.com for more information.
  *
- * @category    MaxServ
- * @package     MaxServ
+ * @category    J!Code Framework
+ * @package     J!Code Framework
  * @author      Jeroen Bleijenberg <jeroen@maxserv.nl>
- * @copyright   Copyright (c) 2014 MaxServ (http://www.maxserv.nl)
+ * 
  * @license     http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
- -->
-<config>
-    <module name="Jcode_Core" code="core" version="2.0.0" active="true"/>
-    <controller class="Jcode\Core\Controller" frontname="core"/>
-    <design>
-        <layout path="core_index_index" template="core/index/home.html"/>
-        <layout path="core_index_index2" template="core/test2.html"/>
-        <layout path="core_index_index3" template="core/test3.html"/>
-    </design>
-    <observers>
-        <event name="triggerMe" handle="controller_init_before" class="Jcode\Core\Model\Observer" method="onControllerInit"/>
-    </observers>
-</config>
+namespace Jcode\Core\Model;
+
+class Observer
+{
+
+    public function onControllerInit(\Jcode\Event\Observer $observer)
+    {
+        debug($observer);
+    }
+}
