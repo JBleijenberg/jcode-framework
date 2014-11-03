@@ -31,7 +31,7 @@ class Application
 {
 
     /**
-     * @var Router\Model\Http
+     * @var Router\Http
      */
     protected $_http;
 
@@ -52,12 +52,12 @@ class Application
 
     /**
      * @param DependencyContainer $dc
-     * @param Router\Model\Http $http
+     * @param Router\\Http $http
      * @param Phrase $phrase
-     * @param Application\Model\Config $config
+     * @param Application\Config $config
      */
-    public function __construct(DependencyContainer $dc, Router\Model\Http $http, Translate\Model\Phrase $phrase,
-        Application\Model\Config $config)
+    public function __construct(DependencyContainer $dc, Router\Http $http, Translate\Phrase $phrase,
+        Application\Config $config)
     {
         $this->_http = $http;
         $this->_dc = $dc;
@@ -72,7 +72,7 @@ class Application
 
     public function run()
     {
-        if (!$this->_http instanceof Router\Model\Http) {
+        if (!$this->_http instanceof Router\Http) {
             throw new \Exception($this->translate('Invalid request object. Expecting instance of \Jcode\Router\Model\Request\Http. %s Given instead', get_class($this->_http)));
         }
 

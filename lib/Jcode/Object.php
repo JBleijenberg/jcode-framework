@@ -43,10 +43,10 @@ class Object implements \Iterator, \Countable
     protected $_hasChangedData = false;
 
     /**
-     * @param Translate\Model\Phrase $phrase
+     * @param Translate\Phrase $phrase
      * @param null $data
      */
-    public function __construct(Translate\Model\Phrase $phrase, $data = null)
+    public function __construct(Translate\Phrase $phrase, $data = null)
     {
         $this->_phrase = $phrase;
 

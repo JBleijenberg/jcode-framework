@@ -23,7 +23,7 @@
  * 
  * @license     http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
-namespace Jcode\Layout\Model;
+namespace Jcode\Application;
 
 class Layout extends \Jcode\Object
 {
@@ -72,7 +72,7 @@ class Layout extends \Jcode\Object
     /**
      * @param \Jcode\Application\Model\Config $config
      */
-    public function setConfig(\Jcode\Application\Model\Config $config)
+    public function setConfig(\Jcode\Application\Config $config)
     {
         $this->_config = $config;
     }

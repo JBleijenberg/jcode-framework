@@ -25,7 +25,7 @@
  */
 namespace Jcode\Core\Controller;
 
-class IndexController extends \Jcode\Router\Model\Controller
+class IndexController extends \Jcode\Router\Controller
 {
 
     public function indexAction()

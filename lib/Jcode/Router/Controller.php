@@ -23,25 +23,28 @@
  *
  * @license     http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
-namespace Jcode\Router\Model;
+namespace Jcode\Router;
 
 class Controller
 {
 
+    /**
+     * @var \Jcode\Application\Layout
+     */
     protected $layout;
 
     /**
-     * @var \Jcode\Router\Model\Http\Request
+     * @var \Jcode\Router\Http\Request
      */
     protected $_request;
 
     /**
-     * @var \Jcode\Router\Model\Http\Response
+     * @var \Jcode\Router\Http\Response
      */
     protected $_response;
 
     /**
-     * @var \Jcode\Application\Model\Config
+     * @var \Jcode\Application\Config
      */
     protected $_config;
 
@@ -51,8 +54,8 @@ class Controller
     protected $_dc;
 
     public function __construct(
-        \Jcode\Layout\Model\Layout $layout,
-        \Jcode\Translate\Model\Phrase $phrase,
+        \Jcode\Application\Layout $layout,
+        \Jcode\Translate\Phrase $phrase,
         \Jcode\DependencyContainer $dc
     ) {
         $this->_layout = $layout;
@@ -64,7 +67,7 @@ class Controller
      * @param Http\Request $request
      * @return $this
      */
-    public function setRequest(\Jcode\Router\Model\Http\Request $request)
+    public function setRequest(\Jcode\Router\Http\Request $request)
     {
         $this->_request = $request;
 
@@ -83,7 +86,7 @@ class Controller
      * @param Http\Response $response
      * @return $this
      */
-    public function setResponse(\Jcode\Router\Model\Http\Response $response)
+    public function setResponse(\Jcode\Router\Http\Response $response)
     {
         $this->_response = $response;
 
@@ -91,15 +94,15 @@ class Controller
     }
 
     /**
-     * @param \Jcode\Application\Model\Config $config
+     * @param \Jcode\Application\Config $config
      */
-    public function setConfig(\Jcode\Application\Model\Config $config)
+    public function setConfig(\Jcode\Application\Config $config)
     {
         $this->_config = $config;
     }
 
     /**
-     * @return \Jcode\Application\Model\Config
+     * @return \Jcode\Application\Config
      */
     public function getConfig()
     {
@@ -115,7 +118,7 @@ class Controller
     }
 
     /**
-     * @return \Jcode\Layout\Model\Layout
+     * @return \Jcode\Application\Layout
      */
     public function getLayout()
     {
@@ -165,7 +168,7 @@ class Controller
 
     public function renderLayout()
     {
-        if ($this->getLayout() instanceof \Jcode\Layout\Model\Layout) {
+        if ($this->getLayout() instanceof \Jcode\Application\Layout) {
             $this->getLayout()->render();
         }
 

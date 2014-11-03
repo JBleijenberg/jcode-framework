@@ -23,7 +23,7 @@
  * 
  * @license     http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
-namespace Jcode\Application\Model;
+namespace Jcode\Application;
 
 use Jcode\DependencyContainer;
 
@@ -113,7 +113,7 @@ class Config extends \Jcode\Object
                 $xml = simplexml_load_file($config);
 
                 if ($xml->module['active'] == 'true'){
-                    $obj = $this->_dc->get('Jcode\Application\Model\Module');
+                    $obj = $this->_dc->get('Jcode\Application\Module');
 
                     foreach ($xml as $element => $val) {
                         $func = sprintf('set%s', ucfirst($element));
@@ -161,6 +161,20 @@ class Config extends \Jcode\Object
     }
 
     /**
+     * Initialize modules
+     *
+     * @return mixed
+     */
+    public function getModules()
+    {
+        if (!parent::getModules()) {
+            $this->initModules();
+        }
+
+        return parent::getModules();
+    }
+
+    /**
      * Try to get module by frontname
      *
      * @param $frontName
@@ -173,6 +187,25 @@ class Config extends \Jcode\Object
         }
 
         return false;
+    }
+
+    /**
+     * Find all observers that hook into the current event
+     *
+     * @param $handle
+     * @return object
+     * @throws \Exception
+     */
+    public function getObservers($handle) {
+        $observers = $this->_dc->get('Jcode\Object');
+
+        foreach ($this->getModules() as $module) {
+            if (($moduleObservers = $module->getObservers()->getData($handle))) {
+                $observers->addData($moduleObservers);
+            }
+        }
+
+        return $observers;
     }
 
     protected function _attributesToArray($data)

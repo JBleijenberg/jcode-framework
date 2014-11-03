@@ -23,7 +23,7 @@
  * 
  * @license     http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
-namespace Jcode\Router\Model\Http;
+namespace Jcode\Router\Http;
 
 class Request
 {
@@ -49,7 +49,7 @@ class Request
     protected $_actionName;
 
     /**
-     * @var \Jcode\Application\Model\Config
+     * @var \Jcode\Application\Config
      */
     protected $_config;
 
@@ -59,7 +59,7 @@ class Request
         $this->_log = $log;
     }
 
-    public function setConfig(\Jcode\Application\Model\Config $config)
+    public function setConfig(\Jcode\Application\Config $config)
     {
         $this->_config = $config;
     }
@@ -82,10 +82,10 @@ class Request
         $baseClass = trim($this->_module->getController()->getClass(), '\\');
         $controllerClass = sprintf('%s\%s', $baseClass, sprintf('%sController', ucfirst($this->_controllerName)));
 
-        try {
-            $controller = $this->_dc->get($controllerClass);
+        $controller = $this->_dc->get($controllerClass);
 
-            if ($controller instanceof \Jcode\Router\Model\Controller) {
+        try {
+            if ($controller instanceof \Jcode\Router\Controller) {
                 $this->_controllerInstance = $controller;
             } else {
                 $this->_noRoute();
@@ -98,7 +98,7 @@ class Request
     }
 
     /**
-     * @return \Jcode\Router\Model\Controller
+     * @return \Jcode\Router\Controller
      */
     public function getControllerInstance()
     {

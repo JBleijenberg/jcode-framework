@@ -23,7 +23,7 @@
  * 
  * @license     http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
-namespace Jcode\Application\Model;
+namespace Jcode\Application;
 
 class Module extends \Jcode\Object
 {
@@ -34,11 +34,11 @@ class Module extends \Jcode\Object
     protected $_dc;
 
     /**
-     * @param \Jcode\Translate\Model\Phrase $phrase
+     * @param \Jcode\Translate\Phrase $phrase
      * @param \Jcode\DependencyContainer $dc
      * @param null $data
      */
-    public function __construct(\Jcode\Translate\Model\Phrase $phrase, \Jcode\DependencyContainer $dc, $data = null)
+    public function __construct(\Jcode\Translate\Phrase $phrase, \Jcode\DependencyContainer $dc, $data = null)
     {
         parent::__construct($phrase, $data);
 
