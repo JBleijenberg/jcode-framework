@@ -34,6 +34,7 @@
         <layout path="core_index_index3" template="core/test3.html"/>
     </design>
     <observers>
-        <event name="triggerMe" handle="controller_init_before" class="Jcode\Core\Model\Observer" method="onControllerInit"/>
+        <event name="addFlowHelpers" handle="layout_load_helpers_after" class="Jcode\Core\Model\Observer" method="addFlowHelpers"/>
+        <event name="flowInitBefore" handle="layout_flow_init_before" class="Jcode\Core\Model\Observer" method="flowInitBefore"/>
     </observers>
 </config>

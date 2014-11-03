@@ -23,7 +23,7 @@
  * 
  * @license     http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
-namespace Jcode\Event;
+namespace Jcode;
 
 class Event extends \Jcode\Object
 {
@@ -55,24 +55,22 @@ class Event extends \Jcode\Object
      * Dispatch event.
      *
      * @param $name
-     * @param array $data
+     * @param \Jcode\Object $data
+     * @return $this
      * @throws \Exception
      */
-    public function dispatchEvent($name, array $data = [])
+    public function dispatchEvent($name, \Jcode\Object $data)
     {
+        $this->setEventData($data);
+
         foreach ($this->_config->getObservers($name) as $observer) {
-            $observerObject = $this->_dc->get('Jcode\Event\Observer');
-
-            $observerObject->setConfig($this->_config);
-            $observerObject->setEventData($data);
-
             if (class_exists($observer->getClass())) {
                 $class = $this->_dc->get($observer->getClass());
 
                 if (method_exists($class, $observer->getMethod())) {
                     $func = $observer->getMethod();
-                    
-                    $class->$func($observerObject);
+
+                    $class->$func($this);
                 } else {
                     throw new \Exception($this->translate('Call to undefined method: %s::%s()', $observer->getClass(), $observer->getMethod()));
                 }
@@ -80,5 +78,7 @@ class Event extends \Jcode\Object
                 throw new \Exception($this->translate('Class not found: %s', $observer->getClass()));
             }
         }
+
+        return $this;
     }
 }

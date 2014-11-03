@@ -39,10 +39,15 @@ class Http
     protected $_response;
 
     /**
+     * @var \Jcode\Event
+     */
+    protected $_eventHandler;
+
+    /**
      * @param Http\Request $request
      * @param Http\Response $response
      */
-    public function __construct(Http\Request $request, Http\Response $response, \Jcode\Event\Event $eventHandler)
+    public function __construct(Http\Request $request, Http\Response $response, \Jcode\Event $eventHandler)
     {
         $this->_request = $request;
         $this->_response = $response;
@@ -67,8 +72,9 @@ class Http
         $action = sprintf('%sAction', $request->getActionName());
 
         if (method_exists($controller, $action)) {
-            $this->_eventHandler->dispatchEvent('controller_init_before',
-                ['request' => $request, 'response' => $response]);
+            $arr = ['request' => $request, 'response' => $response];
+
+            //$this->_eventHandler->dispatchEvent('controller_init_before', $arr);
 
             $controller->setRequest($request);
             $controller->setResponse($response);
@@ -76,6 +82,8 @@ class Http
             $controller->preDispatch();
             $controller->$action();
             $controller->postDispatch();
+
+            //$this->_eventHandler->dispatchEvent('controller_init_after', $arr);
         } else {
             $controller->noRoute();
         }

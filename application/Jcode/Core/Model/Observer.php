@@ -28,8 +28,25 @@ namespace Jcode\Core\Model;
 class Observer
 {
 
-    public function onControllerInit(\Jcode\Event\Observer $observer)
+    /**
+     * @param \Jcode\Event $observer
+     */
+    public function addFlowHelpers(\Jcode\Event $observer)
     {
-        debug($observer);
+        $helpersObject = $observer->getEventData();
+
+        $helpersObject->setDerp(function() {return 'herp';});
+    }
+
+    /**
+     * Set flow mode to never, for development purposes
+     *
+     * @param \Jcode\Event $observer
+     */
+    public function flowInitBefore(\Jcode\Event $observer)
+    {
+        $flowSettings = $observer->getEventData();
+
+        $flowSettings->setMode(\Flow\Loader::RECOMPILE_NEVER);
     }
 }

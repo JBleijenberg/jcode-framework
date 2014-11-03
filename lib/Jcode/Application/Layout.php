@@ -29,7 +29,7 @@ class Layout extends \Jcode\Object
 {
 
     /**
-     * @var \Jcode\Application\Model\Config
+     * @var \Jcode\Application\Config
      */
     protected $_config;
 
@@ -70,7 +70,7 @@ class Layout extends \Jcode\Object
     }
 
     /**
-     * @param \Jcode\Application\Model\Config $config
+     * @param \Jcode\Application\Config $config
      */
     public function setConfig(\Jcode\Application\Config $config)
     {

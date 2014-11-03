@@ -53,14 +53,21 @@ class Controller
      */
     protected $_dc;
 
+    /**
+     * @var \Jcode\Event
+     */
+    protected $_eventHandler;
+
     public function __construct(
         \Jcode\Application\Layout $layout,
         \Jcode\Translate\Phrase $phrase,
-        \Jcode\DependencyContainer $dc
+        \Jcode\DependencyContainer $dc,
+        \Jcode\Event $eventHandler
     ) {
         $this->_layout = $layout;
         $this->_phrase = $phrase;
         $this->_dc = $dc;
+        $this->_eventHandler = $eventHandler;
     }
 
     /**
@@ -127,6 +134,9 @@ class Controller
 
     public function loadLayout($element = null, $moduleCode = null)
     {
+        $this->_eventHandler->dispatchEvent('layout_load_before',
+            $this->_dc->get('Jcode\Object', ['controller' => $this]));
+
         if ($element === null) {
             $element = sprintf('%s_%s_%s', $this->getRequest()->getModuleCode(),
                 $this->getRequest()->getControllerName(), $this->getRequest()->getActionName());
@@ -142,17 +152,29 @@ class Controller
         $targetDir = sprintf('%s/public/var/cache', BP);
 
         $helpers = [
-            'dc' => function($class) { return $this->_dc->get($class); },
-            'translate' => function($string) { return $this->_phrase->translate($string); }
+            'dc' => function ($class) {
+                return $this->_dc->get($class);
+            },
+            'translate' => function ($string) {
+                return $this->_phrase->translate($string);
+            }
         ];
 
-        $flow = $this->_dc->get('Flow\Loader',
-            [
-                'source' => $sourceDir,
-                'target' => $targetDir,
-                'mode' => \Flow\Loader::RECOMPILE_ALWAYS,
-                'helpers' => $helpers,
-            ]);
+        $helpers = $this->_dc->get('Jcode\Object', $helpers);
+
+        $this->_eventHandler->dispatchEvent('layout_load_helpers_after', $helpers);
+
+        $flowSettings = $this->_dc->get('Jcode\Object');
+
+        $flowSettings->setSource($sourceDir);
+        $flowSettings->setTarget($targetDir);
+        $flowSettings->setMode(\Flow\Loader::RECOMPILE_ALWAYS);
+
+        $this->_eventHandler->dispatchEvent('layout_flow_init_before', $flowSettings);
+
+        $flowSettings->setHelpers($helpers->getData());
+
+        $flow = $this->_dc->get('Flow\Loader', $flowSettings->getData());
 
         $layout = $this->getLayout();
 
@@ -162,6 +184,9 @@ class Controller
         $layout->setConfig($this->getConfig());
 
         $this->_layout = $layout;
+
+        $this->_eventHandler->dispatchEvent('layout_load_after',
+            $this->_dc->get('\Jcode\Object', ['controller' => $this, 'layout' => $this->_layout]));
 
         return $this->_layout;
     }
