@@ -78,7 +78,12 @@ class Application
 
         try {
             $this->_config->initModules();
+
+            $umask = umask(0);
+
             $this->_http->dispatch($this->_config);
+
+            umask($umask);
         } catch (\Exception $e) {
             echo $e->getMessage();
         }
