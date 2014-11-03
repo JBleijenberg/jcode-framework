@@ -94,12 +94,12 @@ class Layout extends \Jcode\Object
 
     public function render()
     {
-        $templateFile = $this->getModule()->getDesign()->getData($this->getElement());
+        $layout = $this->getModule()->getDesign()->getData($this->getElement());
 
         try {
-            $this->setData('application', $this->getConfig()->getConfig());
+            $this->setData('application', $this->getConfig());
 
-            $template = $this->getFlow()->load($templateFile);
+            $template = $this->getFlow()->load($layout->getTemplate());
 
             $template->display($this->getData());
         } catch(\Exception $e) {

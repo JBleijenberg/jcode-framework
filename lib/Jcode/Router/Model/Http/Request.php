@@ -151,8 +151,8 @@ class Request
     /**
      * No route has been found. Write 404 page
      */
-    protected function _noRoute()
+    protected function _noRoute($code = 404)
     {
-        die('noRoute');
+        echo $code; exit;
     }
 }

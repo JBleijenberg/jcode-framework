@@ -33,7 +33,7 @@ class Object implements \Iterator, \Countable
     protected $_origData = [];
 
     /**
-     * @var Translate\Phrase
+     * @var Translate\Model\Phrase
      */
     protected $_phrase;
 
@@ -44,28 +44,21 @@ class Object implements \Iterator, \Countable
 
     /**
      * @param Translate\Model\Phrase $phrase
+     * @param null $data
      */
-    public function __construct(Translate\Model\Phrase $phrase)
+    public function __construct(Translate\Model\Phrase $phrase, $data = null)
     {
         $this->_phrase = $phrase;
 
-        return $this;
-    }
-
-    public function xmlElementToObject(\SimpleXMLElement $elements)
-    {
-        $obj = $this->_dc->get('\Jcode\Object');
-
-        foreach ($elements as $element) {
-            debug($element);
-            foreach ($element as $k => $v) {
-                debug($k);
-                debug($v, true);
+        if ($data !== null) {
+            if (!is_array($data)) {
+                $data = [$data];
             }
-            $obj->setData($k, $this->xmlElementToObject($v));
+
+            $this->setData($data);
         }
 
-        return $obj;
+        return $this;
     }
 
     public function __call($method, $args)
@@ -164,9 +157,10 @@ class Object implements \Iterator, \Countable
      * Get data from object. Return null if there is no data with the given key
      *
      * @param null|string $key
+     * @param null $default
      * @return mixed
      */
-    public function getData($key = null)
+    public function getData($key = null, $default = null)
     {
         if ($key === null) {
             return $this->_data;
@@ -176,7 +170,7 @@ class Object implements \Iterator, \Countable
             }
         }
 
-        return null;
+        return $default;
     }
 
     /**
@@ -207,7 +201,7 @@ class Object implements \Iterator, \Countable
      */
     public function hasData()
     {
-        return (empty($this->_data));
+        return !(empty($this->_data));
     }
 
     /**

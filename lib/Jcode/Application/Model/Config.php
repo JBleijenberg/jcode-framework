@@ -74,17 +74,12 @@ class Config extends \Jcode\Object
         $this->getConfig();
     }
 
-    public function config()
-    {
-        return $this->getConfig();
-    }
-
     public function getConfig()
     {
-        if (!$this->_applicationConfig) {
+        if (!$this->hasData()) {
             $xml = simplexml_load_file(BP . DS . 'application' . DS . 'application.xml');
 
-            $config = $this->_dc->get('Jcode\Object');
+            $this->_dc->get('Jcode\Object');
 
             foreach ($xml as $section => $content) {
                 foreach ((array)$content as $c) {
@@ -92,14 +87,12 @@ class Config extends \Jcode\Object
 
                     $obj->setData($c);
 
-                    $config->setData($section, $obj);
+                    $this->setData($section, $obj);
                 }
             }
-
-            $this->_applicationConfig = $config;
         }
 
-        return $this->_applicationConfig;
+        return $this;
     }
 
     public function getLayout()
@@ -113,49 +106,41 @@ class Config extends \Jcode\Object
     public function initModules()
     {
         $configFiles = glob(BP . DS . 'application' . DS . '*' . DS . '*' .  DS . 'config.xml');
+        $modules = $this->_dc->get('Jcode\Object');
 
         foreach ($configFiles as $config) {
             try {
                 $xml = simplexml_load_file($config);
 
                 if ($xml->module['active'] == 'true'){
-                    $obj = $this->_dc->get('Jcode\Object');
+                    $obj = $this->_dc->get('Jcode\Application\Model\Module');
 
                     foreach ($xml as $element => $val) {
-                        if ($element == 'design') {
-                            $design = $this->_dc->get('Jcode\Object');
+                        $func = sprintf('set%s', ucfirst($element));
 
-                            if ($val->layout) {
-                                foreach ($val->layout as $k => $v) {
-                                    $design->setData((string)$v['path'], (string)$v['template']);
-                                }
-
-                            }
-
-                            $obj->setDesign($design);
-                        } else {
-                            foreach ((array)$val as $v) {
-                                $att = $this->_dc->get('Jcode\Object');
-                                $att->setData($v);
-
-                                $obj->setData($element, $att);
+                        foreach ((array)$val as $k => $v) {
+                            if ($k == '@attributes') {
+                                $obj->$func($this->_dc->get('Jcode\Object', $v));
+                            } else {
+                                $obj->$func($this->_attributesToArray($v));
                             }
                         }
                     }
 
-                    $obj->setModulePath(dirname($config) . DS);
+                    $modules->setData($obj->getModule()->getCode(), $obj);
 
-                    $this->_modules[$obj->getModule()->getCode()] = $obj;
-                    $this->_registeredModuleNames[$obj->getModule()->getName()] = &$this->_modules[$obj->getModule()->getCode()];
+                    $this->_registeredModuleNames[$obj->getModule()->getName()] = $obj;
 
                     if (($frontName = $obj->getController()->getFrontname()) && ($className =$obj->getController()->getClass())) {
-                        $this->_registeredFrontNames[$frontName] =  &$this->_modules[$obj->getModule()->getCode()];
+                        $this->_registeredFrontNames[$frontName] =  $obj;
                     }
                 }
             } catch (\Exception $e) {
                 $this->_log->write($e->getMessage());
             }
         }
+
+        $this->setData('modules', $modules);
 
         return $this;
     }
@@ -168,8 +153,8 @@ class Config extends \Jcode\Object
      */
     public function getModule($code)
     {
-        if (array_key_exists($code, $this->_modules)) {
-            return $this->_modules[$code];
+        if (($module = $this->getModules()->getData($code))) {
+            return $module;
         }
 
         return false;
@@ -188,5 +173,26 @@ class Config extends \Jcode\Object
         }
 
         return false;
+    }
+
+    protected function _attributesToArray($data)
+    {
+        if ($data instanceof \SimpleXMLElement) {
+            $data = [$data];
+        }
+
+        $resultArray = [];
+
+        foreach ($data as $element) {
+            $obj = $this->_dc->get('Jcode\Object');
+
+            foreach($element->attributes() as $name => $val) {
+                $obj->setData((string)$name, (string)$val);
+            }
+
+            array_push($resultArray, $obj);
+        }
+
+        return $resultArray;
     }
 }

@@ -42,7 +42,7 @@ class DependencyContainer
             throw new \Exception(sprintf('Dependency Container: Missing class %s', $className));
         }
 
-        if (!is_array($args)) {
+        if (!is_array($args) && $args !== null) {
             $args = [$args];
         }
 
@@ -62,8 +62,13 @@ class DependencyContainer
             }
         }
 
-        array_push($injections, $args);
+        if (!empty($args)) {
+            array_push($injections, $args);
+        }
 
+        if (empty($injections)) {
+            $injections = null;
+        }
 
         if ($reflection->getConstructor()) {
             return $reflection->newInstanceArgs($injections);
