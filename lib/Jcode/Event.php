@@ -81,4 +81,12 @@ class Event extends \Jcode\Object
 
         return $this;
     }
+
+    /**
+     * @return Application\Config
+     */
+    public function getConfig()
+    {
+        return $this->_config;
+    }
 }
