@@ -20,7 +20,7 @@
  * @category    J!Code Framework
  * @package     J!Code Framework
  * @author      Jeroen Bleijenberg <jeroen@maxserv.nl>
- * 
+ *
  * @license     http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 namespace Jcode\Core\Model;
@@ -29,13 +29,28 @@ class Observer
 {
 
     /**
+     * @var
+     */
+    protected $_config;
+
+    /**
+     * Add additional helpers to Flow
+     *
      * @param \Jcode\Event $observer
      */
     public function addFlowHelpers(\Jcode\Event $observer)
     {
         $helpersObject = $observer->getEventData();
+        $this->_config = $observer->getConfig();
 
-        $helpersObject->setDerp(function() {return 'herp';});
+        $helpersObject->addData('skinurl', function ($file) {
+            return sprintf('%s/design/%s/%s', $this->_config->getWeb()->getBaseUrl(),
+                $this->_config->getDesign()->getLayout(), $file);
+        });
+
+        $helpersObject->addData('url', function ($path) {
+            return sprintf('%s/%s', $this->_config->getWeb()->getBaseUrl(), $path);
+        });
     }
 
     /**
@@ -47,6 +62,6 @@ class Observer
     {
         $flowSettings = $observer->getEventData();
 
-        $flowSettings->setMode(\Flow\Loader::RECOMPILE_NEVER);
+        $flowSettings->setMode(\Flow\Loader::RECOMPILE_ALWAYS);
     }
 }
