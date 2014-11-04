@@ -73,12 +73,10 @@ class Application
     public function run()
     {
         if (!$this->_http instanceof Router\Http) {
-            throw new \Exception($this->translate('Invalid request object. Expecting instance of \Jcode\Router\Model\Request\Http. %s Given instead', get_class($this->_http)));
+            throw new \Exception($this->translate('Invalid request object. Expecting instance of \Jcode\Router\Request\Http. %s Given instead', get_class($this->_http)));
         }
 
         try {
-            $this->_config->initModules();
-
             $umask = umask(0);
 
             $this->_http->dispatch($this->_config);

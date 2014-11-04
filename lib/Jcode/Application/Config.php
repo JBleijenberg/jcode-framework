@@ -30,6 +30,8 @@ use Jcode\DependencyContainer;
 class Config extends \Jcode\Object
 {
 
+    const CACHE_KEY_MODULE_CONFIG = 'application_config::modules';
+
     /**
      * @var \Jcode\Config
      */
@@ -46,25 +48,9 @@ class Config extends \Jcode\Object
     protected $_log;
 
     /**
-     * Registered active modules
-     * @var array
-     */
-    private $_modules = [];
-
-    /**
-     * Registered module frontnames. Used for calling the correct module controller
-     * @var array
-     */
-    private $_registeredFrontNames = [];
-
-    /**
-     * @var array
-     */
-    private $_registeredModuleNames = [];
-
-    /**
-     * @param \Jcode\Config $config
      * @param DependencyContainer $dc
+     * @param \Jcode\Log $log
+     * @internal param \Jcode\Config $config
      */
     public function __construct(DependencyContainer $dc, \Jcode\Log $log)
     {
@@ -72,6 +58,15 @@ class Config extends \Jcode\Object
         $this->_log = $log;
 
         $this->getConfig();
+    }
+
+    public function getModules()
+    {
+        if (!parent::getModules()) {
+            $this->_initModules();
+        }
+
+        return parent::getModules();
     }
 
     public function getConfig()
@@ -103,44 +98,67 @@ class Config extends \Jcode\Object
     /**
      * Register all modules in the application/code/modules dir
      */
-    public function initModules()
+    protected function _initModules()
     {
-        $configFiles = glob(BP . DS . 'application' . DS . '*' . DS . '*' .  DS . 'config.xml');
-        $modules = $this->_dc->get('Jcode\Object');
-
-        foreach ($configFiles as $config) {
-            try {
-                $xml = simplexml_load_file($config);
-
-                if ($xml->module['active'] == 'true'){
-                    $obj = $this->_dc->get('Jcode\Application\Module');
-
-                    foreach ($xml as $element => $val) {
-                        $func = sprintf('set%s', ucfirst($element));
-
-                        foreach ((array)$val as $k => $v) {
-                            if ($k == '@attributes') {
-                                $obj->$func($this->_dc->get('Jcode\Object', $v));
-                            } else {
-                                $obj->$func($this->_attributesToArray($v));
-                            }
-                        }
-                    }
-
-                    $modules->setData($obj->getModule()->getCode(), $obj);
-
-                    $this->_registeredModuleNames[$obj->getModule()->getName()] = $obj;
-
-                    if (($frontName = $obj->getController()->getFrontname()) && ($className =$obj->getController()->getClass())) {
-                        $this->_registeredFrontNames[$frontName] =  $obj;
-                    }
-                }
-            } catch (\Exception $e) {
-                $this->_log->write($e->getMessage());
-            }
+        if ($this->getData('modules')) {
+            return $this;
         }
 
-        $this->setData('modules', $modules);
+        $configFiles = glob(BP . DS . 'application' . DS . '*' . DS . '*' .  DS . 'config.xml');
+
+        $cache = $this->_dc->get('Jcode\Cache');
+
+        if(($modules = $cache->get(self::CACHE_KEY_MODULE_CONFIG))) {
+            $this->setModules($modules);
+            $this->setFrontNames($cache->get(self::CACHE_KEY_MODULE_CONFIG.'.frontnames'));
+
+            return $this;
+        } else {
+            $modules = $this->_dc->get('Jcode\Object');
+
+            foreach ($configFiles as $config) {
+                try {
+                    $xml = simplexml_load_file($config);
+
+                    if ($xml->module['active'] == 'true') {
+                        $obj = $this->_dc->get('Jcode\Application\Module');
+
+                        foreach ($xml as $element => $val) {
+                            $func = sprintf('set%s', ucfirst($element));
+
+                            foreach ((array)$val as $k => $v) {
+                                if ($k == '@attributes') {
+                                    $obj->$func($this->_dc->get('Jcode\Object', $v));
+                                } else {
+                                    $obj->$func($this->_attributesToArray($v));
+                                }
+                            }
+                        }
+
+                        $modules->setData($obj->getModule()->getCode(), $obj);
+
+                        if (($frontName = $obj->getController()->getFrontname()) && ($className = $obj->getController()->getClass())) {
+                            $frontNames = $this->getData('front_names', []);
+                            $frontNames[$frontName] = $obj;
+
+                            $this->setFrontNames($frontNames);
+                        }
+                    }
+                } catch (\Exception $e) {
+                    $this->_log->write($e->getMessage());
+                }
+            }
+
+            $this->setModules($modules);
+
+            $cache->set(self::CACHE_KEY_MODULE_CONFIG, $modules);
+            $cache->set(self::CACHE_KEY_MODULE_CONFIG.'.frontnames', $this->getData('front_names'));
+
+            if ($cache->getResultCode() != \Memcached::RES_SUCCESS) {
+                $cache->delete(self::CACHE_KEY_MODULE_CONFIG);
+                $cache->delete(self::CACHE_KEY_MODULE_CONFIG.'.frontnames');
+            }
+        }
 
         return $this;
     }
@@ -161,20 +179,6 @@ class Config extends \Jcode\Object
     }
 
     /**
-     * Initialize modules
-     *
-     * @return mixed
-     */
-    public function getModules()
-    {
-        if (!parent::getModules()) {
-            $this->initModules();
-        }
-
-        return parent::getModules();
-    }
-
-    /**
      * Try to get module by frontname
      *
      * @param $frontName
@@ -182,8 +186,12 @@ class Config extends \Jcode\Object
      */
     public function getModuleByFrontName($frontName)
     {
-        if (array_key_exists($frontName, $this->_registeredFrontNames)) {
-            return $this->_registeredFrontNames[$frontName];
+        $this->_initModules();
+
+        $frontNames = $this->getFrontNames();
+
+        if (array_key_exists($frontName, $frontNames)) {
+            return $frontNames[$frontName];
         }
 
         return false;

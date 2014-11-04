@@ -100,7 +100,7 @@ class Layout extends \Jcode\Object
             $this->setData('application', $this->getConfig());
 
             $template = $this->getFlow()->load($layout->getTemplate());
-
+            $this->getFlow()->compile($layout->getTemplate());
             $template->display($this->getData());
         } catch(\Exception $e) {
             die($e->getMessage());
