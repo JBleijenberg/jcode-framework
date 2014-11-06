@@ -33,6 +33,8 @@ class IndexController extends \Jcode\Router\Controller
         $testModel = $this->_dc->get('Jcode\Core\Model\Test');
         $collection = $testModel->getResource();
 
+        $collection->addColumnsToSelect(['id', 'value']);
+
         $collection->addJoin(['second_test_table' => 'alias'], 'alias.other_id = main_table.id', ['other_id', 'other_value']);
         $collection->addFilter('value', ['eq' => ['derp', 'derp', 'merp']]);
         $collection->addFilter('id', 1);
