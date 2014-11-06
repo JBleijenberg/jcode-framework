@@ -207,6 +207,89 @@ class Resource extends \Jcode\Application\Model\Collection
     }
 
     /**
+     * Add column to select statement
+     * If columns of main_table are added, remove main_table.*
+     *
+     * @param $column
+     * @return $this;
+     */
+    public function addColumnToSelect($column)
+    {
+        if (!strstr($column, '.')) {
+            $column = sprintf('main_table.%s', $column);
+
+            $search = array_search('main_table.*', $this->_select);
+
+            if ($search !== false) {
+                unset($this->_select[$search]);
+            }
+        }
+
+        array_push($this->_select, $column);
+
+        return $this;
+    }
+
+    /**
+     * Mass add column to select statement
+     *
+     * @param $columns
+     * @return $this
+     */
+    public function addColumnsToSelect($columns)
+    {
+        if (!is_array($columns)) {
+            $columns = [$columns];
+        }
+
+        foreach ($columns as $column) {
+            $this->addColumnToSelect($column);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Remove column from select statement
+     *
+     * @param $column
+     * @return $this
+     */
+    public function removeColumnFromSelect($column)
+    {
+        if (!strstr($column, '.')) {
+            $column = sprintf('main_table.%s', $column);
+        }
+
+        $search = array_search($column, $this->_select);
+
+        if ($search !== false) {
+            unset($this->_select[$search]);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Mass remove columns from select statement
+     *
+     * @param $columns
+     * @return $this
+     */
+    public function removeColumnsFromSelect($columns)
+    {
+        if (!is_array($columns)) {
+            $columns = [$columns];
+        }
+
+        foreach ($columns as $column) {
+            $this->removeColumnFromSelect($column);
+        }
+
+        return $this;
+    }
+
+    /**
      * Add filter to query. If condition is not an array, filter defaults to $column = $condition
      *
      * @param string $column
