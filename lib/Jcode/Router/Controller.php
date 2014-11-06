@@ -70,6 +70,11 @@ class Controller
         $this->_eventHandler = $eventHandler;
     }
 
+    public function translate()
+    {
+        return $this->_phrase->translate(func_get_args());
+    }
+
     /**
      * @param Http\Request $request
      * @return $this
