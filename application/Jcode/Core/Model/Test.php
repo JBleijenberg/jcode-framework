@@ -23,25 +23,13 @@
  * 
  * @license     http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
-namespace Jcode\Core\Controller;
+namespace Jcode\Core\Model;
 
-class IndexController extends \Jcode\Router\Controller
+class Test extends \Jcode\Application\Model
 {
 
-    public function indexAction()
+    protected function _construct()
     {
-        $testModel = $this->_dc->get('Jcode\Core\Model\Test');
-        $collection = $testModel->getResource();
-
-        $collection->addJoin(['second_test_table' => 'alias'], 'alias.other_id = main_table.id', ['other_id', 'other_value']);
-        $collection->addFilter('value', ['eq' => ['derp', 'derp', 'merp']]);
-        $collection->addFilter('id', 1);
-        $collection->addOrder('value', 'ASC');
-        $collection->addOrder('id', 'ASC');
-        $collection->addLimit(1);
-        $collection->addGroupBy('value');
-
-        debug($collection->getQuery());
-        debug($collection->getItems());
+        parent::_init('test_table', 'id');
     }
 }
