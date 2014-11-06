@@ -58,16 +58,30 @@ class Controller
      */
     protected $_eventHandler;
 
+    /**
+     * @var \Jcode\Log
+     */
+    protected $_log;
+
+    /**
+     * @param \Jcode\Application\Layout $layout
+     * @param \Jcode\Translate\Phrase $phrase
+     * @param \Jcode\DependencyContainer $dc
+     * @param \Jcode\Event $eventHandler
+     * @param \Jcode\Log $log
+     */
     public function __construct(
         \Jcode\Application\Layout $layout,
         \Jcode\Translate\Phrase $phrase,
         \Jcode\DependencyContainer $dc,
-        \Jcode\Event $eventHandler
+        \Jcode\Event $eventHandler,
+        \Jcode\Log $log
     ) {
         $this->_layout = $layout;
         $this->_phrase = $phrase;
         $this->_dc = $dc;
         $this->_eventHandler = $eventHandler;
+        $this->_log = $log;
     }
 
     public function translate()
