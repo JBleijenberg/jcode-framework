@@ -45,6 +45,23 @@ class Layout extends \Jcode\Object
 
     protected $_module;
 
+    /**
+     * @var \Jcode\Log
+     */
+    protected $_log;
+
+    /**
+     * @param \Jcode\Translate\Phrase $phrase
+     * @param \Jcode\Log $log
+     * @param null $data
+     */
+    public function __construct(\Jcode\Translate\Phrase $phrase, \Jcode\Log $log, $data = null)
+    {
+        parent::__construct($phrase, $data);
+
+        $this->_log = $log;
+    }
+
 
     public function setElement($element)
     {
@@ -103,7 +120,7 @@ class Layout extends \Jcode\Object
             $this->getFlow()->compile($layout->getTemplate());
             $template->display($this->getData());
         } catch(\Exception $e) {
-            die($e->getMessage());
+            $this->_log->writeException($e);
         }
     }
 }

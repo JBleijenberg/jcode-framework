@@ -46,23 +46,31 @@ class Application
     protected $_phrase;
 
     /**
+     * @var Log
+     */
+    protected $_log;
+
+    /**
      * @var array
      */
     private $_modules = [];
 
     /**
      * @param DependencyContainer $dc
-     * @param Router\\Http $http
+     * @param Router\Http $http
      * @param Phrase $phrase
      * @param Application\Config $config
+     * @param Log $log
+     * @internal param $ Router\\Http $http
      */
     public function __construct(DependencyContainer $dc, Router\Http $http, Translate\Phrase $phrase,
-        Application\Config $config)
+        Application\Config $config, Log $log)
     {
         $this->_http = $http;
         $this->_dc = $dc;
         $this->_phrase = $phrase;
         $this->_config = $config;
+        $this->_log = $log;
     }
 
     public function translate()
@@ -83,7 +91,7 @@ class Application
 
             umask($umask);
         } catch (\Exception $e) {
-            echo $e->getMessage();
+            $this->_log->writeException($e);
         }
     }
 }

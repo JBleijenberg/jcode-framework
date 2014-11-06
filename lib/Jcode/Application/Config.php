@@ -145,7 +145,7 @@ class Config extends \Jcode\Object
                         }
                     }
                 } catch (\Exception $e) {
-                    $this->_log->write($e->getMessage());
+                    $this->_log->writeException($e);
                 }
             }
 
