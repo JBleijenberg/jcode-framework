@@ -1,5 +1,4 @@
-<?xml version="1.0"?>
-<!--
+<?php
 /**
  *
  * NOTICE OF LICENSE
@@ -18,17 +17,47 @@
  * versions in the future. If you wish to customize Magento for your
  * needs please refer to http://www.magentocommerce.com for more information.
  *
- * @category    MaxServ
- * @package     MaxServ
+ * @category    J!Code Framework
+ * @package     J!Code Framework
  * @author      Jeroen Bleijenberg <jeroen@maxserv.nl>
- * @copyright   Copyright (c) 2014 MaxServ (http://www.maxserv.nl)
+ * 
  * @license     http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
- -->
-<application>
-    <web base_url="//framework.local" title="Derp App"/>
-    <database adapter="mysql" name="framework.local" user="framework" password="framework" host="127.0.0.1"/>
-    <design layout="default" />
-    <cache enabled="true" engine="memcached" host="127.0.0.1" port="11211"/>
-    <encryption key=""/>
-</application>
+namespace Jcode;
+
+class Validator
+{
+    /**
+     * @var DependencyContainer
+     */
+    protected $_dc;
+
+    /**
+     * @param DependencyContainer $dc
+     */
+    public function __construct(\Jcode\DependencyContainer $dc)
+    {
+        $this->_dc = $dc;
+    }
+
+    /**
+     * Validate the given args with the correct validator class
+     *
+     * @param $type
+     * @param $args
+     * @param array $options
+     * @return mixed
+     * @throws \Exception
+     */
+    public function validate($type, $args, array $options = array())
+    {
+        $validatorClass = sprintf('Jcode\Validator\%s', ucfirst($type));
+
+        $validator = $this->_dc->get($validatorClass);
+
+        $validator->setArgs($args);
+        $validator->setOptions($options);
+
+        return $validator->run();
+    }
+}
