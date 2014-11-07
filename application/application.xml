@@ -30,5 +30,4 @@
     <database adapter="mysql" name="framework.local" user="framework" password="framework" host="127.0.0.1"/>
     <design layout="default" />
     <cache enabled="true" engine="memcached" host="127.0.0.1" port="11211"/>
-    <encryption key=""/>
 </application>
