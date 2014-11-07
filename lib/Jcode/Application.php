@@ -59,12 +59,12 @@ class Application
      * @param DependencyContainer $dc
      * @param Router\Http $http
      * @param Phrase $phrase
-     * @param Application\Config $config
+     * @param Application\ConfigSingleton $config
      * @param Log $log
      * @internal param $ Router\\Http $http
      */
     public function __construct(DependencyContainer $dc, Router\Http $http, Translate\Phrase $phrase,
-        Application\Config $config, Log $log)
+        Application\ConfigSingleton $config, Log $log)
     {
         $this->_http = $http;
         $this->_dc = $dc;

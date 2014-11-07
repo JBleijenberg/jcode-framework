@@ -27,7 +27,7 @@ namespace Jcode\Application;
 
 use Jcode\DependencyContainer;
 
-class Config extends \Jcode\Object
+class ConfigSingleton extends \Jcode\Object
 {
 
     const CACHE_KEY_MODULE_CONFIG = 'application_config::modules';

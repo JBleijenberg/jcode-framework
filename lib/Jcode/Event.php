@@ -43,7 +43,7 @@ class Event extends \Jcode\Object
      * @param \Jcode\DependencyContainer $dc
      * @param null $data
      */
-    public function __construct(\Jcode\Translate\Phrase $phrase, \Jcode\Application\Config $config, \Jcode\DependencyContainer $dc, $data = null)
+    public function __construct(\Jcode\Translate\Phrase $phrase, \Jcode\Application\ConfigSingleton $config, \Jcode\DependencyContainer $dc, $data = null)
     {
         parent::__construct($phrase, $data);
 

@@ -87,9 +87,9 @@ class Layout extends \Jcode\Object
     }
 
     /**
-     * @param \Jcode\Application\Config $config
+     * @param \Jcode\Application\ConfigSingleton $config
      */
-    public function setConfig(\Jcode\Application\Config $config)
+    public function setConfig(\Jcode\Application\ConfigSingleton $config)
     {
         $this->_config = $config;
     }

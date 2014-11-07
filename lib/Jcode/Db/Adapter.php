@@ -33,11 +33,11 @@ class Adapter
     private $_instance;
 
     /**
-     * @param \Jcode\Application\Config $config
+     * @param \Jcode\Application\ConfigSingleton $config
      * @param \Jcode\DependencyContainer $dc
      * @throws \Exception
      */
-    public function __construct(\Jcode\Application\Config $config, \Jcode\DependencyContainer $dc)
+    public function __construct(\Jcode\Application\ConfigSingleton $config, \Jcode\DependencyContainer $dc)
     {
         switch ($config->getDatabase()->getAdapter()) {
             case 'mysql':
