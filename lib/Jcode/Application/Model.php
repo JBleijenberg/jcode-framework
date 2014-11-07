@@ -29,11 +29,6 @@ class Model extends \Jcode\Object
 {
 
     /**
-     * @var \Jcode\Db\Adapter
-     */
-    protected $_adapter;
-
-    /**
      * @var string
      */
     protected $_table;
@@ -54,16 +49,15 @@ class Model extends \Jcode\Object
     protected $_dc;
 
     /**
-     * @param \Jcode\Translate\Phrase $phrase
-     * @param \Jcode\Db\Adapter $adapter
+     * @param \Jcode\Application\Helper $helper
      * @param \Jcode\DependencyContainer $dc
      * @param null $data
+     * @internal param \Jcode\Db\Adapter $adapter
      */
-    public function __construct(\Jcode\Translate\Phrase $phrase, \Jcode\Db\Adapter $adapter, \Jcode\DependencyContainer $dc, $data = null)
+    public function __construct(\Jcode\Application\Helper $helper, \Jcode\DependencyContainer $dc, $data = null)
     {
-        parent::__construct($phrase, $data);
+        parent::__construct($helper, $data);
 
-        $this->_adapter = $adapter->getInstance();
         $this->_dc = $dc;
 
         $this->_construct();
@@ -125,13 +119,5 @@ class Model extends \Jcode\Object
         $resource->init($this);
 
         return $resource;
-    }
-
-    /**
-     * @return \Jcode\Db\Adapter
-     */
-    public function getAdapter()
-    {
-        return $this->_adapter;
     }
 }

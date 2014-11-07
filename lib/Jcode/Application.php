@@ -25,8 +25,6 @@
  */
 namespace Jcode;
 
-use Jcode\Translate\Phrase;
-
 class Application
 {
 
@@ -41,9 +39,9 @@ class Application
     protected $_dc;
 
     /**
-     * @var Phrase
+     * @var Helper
      */
-    protected $_phrase;
+    protected $_helper;
 
     /**
      * @var Log
@@ -58,30 +56,30 @@ class Application
     /**
      * @param DependencyContainer $dc
      * @param Router\Http $http
-     * @param Phrase $phrase
-     * @param Application\Config $config
+     * @param \Jcode\Application\Helper $helper
+     * @param Application\ConfigSingleton $config
      * @param Log $log
      * @internal param $ Router\\Http $http
      */
-    public function __construct(DependencyContainer $dc, Router\Http $http, Translate\Phrase $phrase,
-        Application\Config $config, Log $log)
+    public function __construct(DependencyContainer $dc, Router\Http $http, \Jcode\Application\Helper $helper,
+        Application\ConfigSingleton $config, Log $log)
     {
         $this->_http = $http;
         $this->_dc = $dc;
-        $this->_phrase = $phrase;
+        $this->_helper = $helper;
         $this->_config = $config;
         $this->_log = $log;
     }
 
     public function translate()
     {
-        return $this->_phrase->translate(func_get_args());
+        return $this->_helper->translate(func_get_args());
     }
 
     public function run()
     {
         if (!$this->_http instanceof Router\Http) {
-            throw new \Exception($this->translate('Invalid request object. Expecting instance of \Jcode\Router\Request\Http. %s Given instead', get_class($this->_http)));
+            throw new \Exception($this->_helper->translate('Invalid request object. Expecting instance of \Jcode\Router\Request\Http. %s Given instead', get_class($this->_http)));
         }
 
         try {

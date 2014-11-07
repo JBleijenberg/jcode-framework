@@ -38,14 +38,15 @@ class Event extends \Jcode\Object
     protected $_dc;
 
     /**
-     * @param \Jcode\Translate\Phrase $phrase
-     * @param \Jcode\Application\Config $config
+     * @param \Jcode\Application\Helper $helper
+     * @param Application\Config|Application\ConfigSingleton $config
      * @param \Jcode\DependencyContainer $dc
      * @param null $data
+     * @internal param Translate\Phrase $phrase
      */
-    public function __construct(\Jcode\Translate\Phrase $phrase, \Jcode\Application\Config $config, \Jcode\DependencyContainer $dc, $data = null)
+    public function __construct(\Jcode\Application\Helper $helper, \Jcode\Application\ConfigSingleton $config, \Jcode\DependencyContainer $dc, $data = null)
     {
-        parent::__construct($phrase, $data);
+        parent::__construct($helper, $data);
 
         $this->_config = $config;
         $this->_dc = $dc;
@@ -75,7 +76,7 @@ class Event extends \Jcode\Object
                     throw new \Exception($this->translate('Call to undefined method: %s::%s()', $observer->getClass(), $observer->getMethod()));
                 }
             } else {
-                throw new \Exception($this->translate('Class not found: %s', $observer->getClass()));
+                throw new \Exception($this->_helper->translate('Class not found: %s', $observer->getClass()));
             }
         }
 

@@ -36,7 +36,7 @@ class Cache
      * @param Cache\Engine\Memcached $engine
      * @param Application\Config $config
      */
-    public function __construct(\Jcode\Cache\Engine\Memcached $engine, \Jcode\Application\Config $config)
+    public function __construct(\Jcode\Cache\Engine\Memcached $engine, \Jcode\Application\ConfigSingleton $config)
     {
         $this->_engine = $engine;
         $this->_engine->setCacheConfig($config->getCache());

@@ -20,40 +20,35 @@
  * @category    J!Code Framework
  * @package     J!Code Framework
  * @author      Jeroen Bleijenberg <jeroen@maxserv.nl>
- * 
+ *
  * @license     http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
-namespace Jcode\Db;
+namespace Jcode\Application;
 
-class Adapter
+class Helper
 {
-    /**
-     * @var object
-     */
-    private $_instance;
 
     /**
-     * @param \Jcode\Application\ConfigSingleton $config
-     * @param \Jcode\DependencyContainer $dc
-     * @throws \Exception
+     * @var \Jcode\Translate\Phrase
      */
-    public function __construct(\Jcode\Application\ConfigSingleton $config, \Jcode\DependencyContainer $dc)
-    {
-        switch ($config->getDatabase()->getAdapter()) {
-            case 'mysql':
-                $this->_instance = $dc->get('Jcode\Db\Adapter\Mysql');
-                break;
-            default:
-                $this->_instance = $dc->get('Jcode\Db\Adapter\Mysql');
-                break;
-        }
+    protected $_phrase;
+
+    /**
+     * @param \Jcode\Translate\Phrase $phrase
+     */
+    public function __construct(
+        \Jcode\Translate\Phrase $phrase
+    ) {
+        $this->_phrase = $phrase;
     }
 
     /**
-     * @return object
+     * Translator method
+     *
+     * @return string
      */
-    public function getInstance()
+    public function translate()
     {
-        return $this->_instance;
+        return $this->_phrase->translate(func_get_args());
     }
 }

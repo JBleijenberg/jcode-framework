@@ -64,29 +64,35 @@ class Controller
     protected $_log;
 
     /**
+     * @var \Jcode\Application\Helper
+     */
+    protected $_helper;
+
+    /**
      * @param \Jcode\Application\Layout $layout
-     * @param \Jcode\Translate\Phrase $phrase
+     * @param \Jcode\Application\Helper $helper
      * @param \Jcode\DependencyContainer $dc
      * @param \Jcode\Event $eventHandler
      * @param \Jcode\Log $log
+     * @internal param \Jcode\Translate\Phrase $phrase
      */
     public function __construct(
         \Jcode\Application\Layout $layout,
-        \Jcode\Translate\Phrase $phrase,
+        \Jcode\Application\Helper $helper,
         \Jcode\DependencyContainer $dc,
         \Jcode\Event $eventHandler,
         \Jcode\Log $log
     ) {
         $this->_layout = $layout;
-        $this->_phrase = $phrase;
+        $this->_helper = $helper;
         $this->_dc = $dc;
         $this->_eventHandler = $eventHandler;
         $this->_log = $log;
     }
 
-    public function translate()
+    public function getHelper()
     {
-        return $this->_phrase->translate(func_get_args());
+        return $this->_helper;
     }
 
     /**
@@ -120,9 +126,9 @@ class Controller
     }
 
     /**
-     * @param \Jcode\Application\Config $config
+     * @param \Jcode\Application\ConfigSingleton $config
      */
-    public function setConfig(\Jcode\Application\Config $config)
+    public function setConfig(\Jcode\Application\ConfigSingleton $config)
     {
         $this->_config = $config;
     }
@@ -175,7 +181,7 @@ class Controller
                 return $this->_dc->get($class);
             },
             'translate' => function ($string) {
-                return $this->_phrase->translate($string);
+                return $this->getHelper()->translate($string);
             }
         ];
 

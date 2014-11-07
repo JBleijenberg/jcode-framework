@@ -33,7 +33,7 @@ class Mysql extends \PDO
 
     private $_query;
 
-    public function __construct(\Jcode\Application\Config $config)
+    public function __construct(\Jcode\Application\ConfigSingleton $config)
     {
         if (($dbconfig = $config->getDatabase())) {
             $dsn = sprintf('mysql:dbname=%s;host=%s', $dbconfig->getName(), $dbconfig->getHost());

@@ -27,6 +27,12 @@ namespace Jcode;
 
 class DependencyContainer
 {
+    protected $_sharedInstances = [];
+
+    public function __construct()
+    {
+        $this->_sharedInstances['Jcode\DependencyContainer'] = $this;
+    }
 
     /**
      * Try to load the given class name and inject the dependencies that are asked for in it's constructor
@@ -40,6 +46,10 @@ class DependencyContainer
     {
         if (!class_exists($className)) {
             throw new \Exception(sprintf('Dependency Container: Missing class %s', $className));
+        }
+
+        if (array_key_exists($className, $this->_sharedInstances)) {
+            return $this->_sharedInstances[$className];
         }
 
         if (!is_array($args) && $args !== null) {
@@ -70,10 +80,16 @@ class DependencyContainer
             $injections = null;
         }
 
-        if ($reflection->getConstructor()) {
-            return $reflection->newInstanceArgs($injections);
+        if ($injections !== null) {
+            $instance = $reflection->newInstanceArgs($injections);
         } else {
-            return $reflection->newInstance();
+            $instance = $reflection->newInstance();
         }
+
+        if (substr($className, -9) == 'Singleton') {
+            $this->_sharedInstances[$className] = $instance;
+        }
+
+        return $instance;
     }
 }

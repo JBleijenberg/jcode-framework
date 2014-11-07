@@ -57,10 +57,10 @@ class Http
     /**
      * Dispatch controller
      *
-     * @param \Jcode\Application\Config $config
+     * @param \Jcode\Application\ConfigSingleton $config
      * @return $this
      */
-    public function dispatch(\Jcode\Application\Config $config)
+    public function dispatch(\Jcode\Application\ConfigSingleton $config)
     {
         $request = $this->_request;
         $response = $this->_response;
