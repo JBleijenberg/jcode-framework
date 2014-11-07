@@ -33,9 +33,9 @@ class Object implements \Iterator, \Countable
     protected $_origData = [];
 
     /**
-     * @var Translate\Model\Phrase
+     * @var \Jcode\Helper
      */
-    protected $_phrase;
+    protected $_helper;
 
     /**
      * @var bool
@@ -43,12 +43,12 @@ class Object implements \Iterator, \Countable
     protected $_hasChangedData = false;
 
     /**
-     * @param Translate\Phrase $phrase
+     * @param \Jcode\Application\Helper $helper
      * @param null $data
      */
-    public function __construct(Translate\Phrase $phrase, $data = null)
+    public function __construct(\Jcode\Application\Helper $helper, $data = null)
     {
-        $this->_phrase = $phrase;
+        $this->_helper = $helper;
 
         if ($data !== null) {
             if (!is_array($data)) {
@@ -202,16 +202,6 @@ class Object implements \Iterator, \Countable
     public function hasData()
     {
         return !(empty($this->_data));
-    }
-
-    /**
-     * Translator method
-     *
-     * @return string
-     */
-    public function translate()
-    {
-        return $this->_phrase->translate(func_get_args());
     }
 
     public function rewind()

@@ -51,13 +51,13 @@ class Layout extends \Jcode\Object
     protected $_log;
 
     /**
-     * @param \Jcode\Translate\Phrase $phrase
+     * @param \Jcode\Application\Helper $phrase
      * @param \Jcode\Log $log
      * @param null $data
      */
-    public function __construct(\Jcode\Translate\Phrase $phrase, \Jcode\Log $log, $data = null)
+    public function __construct(\Jcode\Application\Helper $helper, \Jcode\Log $log, $data = null)
     {
-        parent::__construct($phrase, $data);
+        parent::__construct($helper, $data);
 
         $this->_log = $log;
     }

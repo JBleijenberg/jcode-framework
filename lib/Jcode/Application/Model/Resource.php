@@ -110,16 +110,18 @@ class Resource extends \Jcode\Application\Model\Collection
     ];
 
     /**
-     * @param \Jcode\Db\Adapter $adapter
+     * @param \Jcode\Application\Helper $helper
      * @param \Jcode\DependencyContainer $dc
+     * @param \Jcode\Db\Adapter $adapter
+     * @param null $data
      */
     public function __construct(
-        \Jcode\Translate\Phrase $phrase,
+        \Jcode\Application\Helper $helper,
         \Jcode\DependencyContainer $dc,
         \Jcode\Db\Adapter $adapter,
         $data = null
     ) {
-        parent::__construct($phrase, $dc, $data);
+        parent::__construct($helper, $dc, $data);
 
         $this->_adapter = $adapter->getInstance();
         $this->_dc = $dc;

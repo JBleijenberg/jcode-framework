@@ -49,14 +49,14 @@ class Model extends \Jcode\Object
     protected $_dc;
 
     /**
-     * @param \Jcode\Translate\Phrase $phrase
+     * @param \Jcode\Application\Helper $helper
      * @param \Jcode\DependencyContainer $dc
      * @param null $data
      * @internal param \Jcode\Db\Adapter $adapter
      */
-    public function __construct(\Jcode\Translate\Phrase $phrase, \Jcode\DependencyContainer $dc, $data = null)
+    public function __construct(\Jcode\Application\Helper $helper, \Jcode\DependencyContainer $dc, $data = null)
     {
-        parent::__construct($phrase, $data);
+        parent::__construct($helper, $data);
 
         $this->_dc = $dc;
 
