@@ -35,7 +35,7 @@ class Encryption extends \Jcode\Application\Helper
 
     /**
      * @param \Jcode\Translate\Phrase $phrase
-     * @param \Jcode\Application\Config $config
+     * @param \Jcode\Application\ConfigSingleton $config
      */
     public function __construct(\Jcode\Translate\Phrase $phrase, \Jcode\Application\ConfigSingleton $config) {
         parent::__construct($phrase);
