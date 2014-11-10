@@ -25,7 +25,7 @@
  */
 namespace Jcode;
 
-class Event extends \Jcode\Object
+class Event
 {
     /**
      * @var \Jcode\Application\Config
@@ -38,16 +38,11 @@ class Event extends \Jcode\Object
     protected $_dc;
 
     /**
-     * @param \Jcode\Application\Helper $helper
      * @param Application\Config|Application\ConfigSingleton $config
      * @param \Jcode\DependencyContainer $dc
-     * @param null $data
-     * @internal param Translate\Phrase $phrase
      */
-    public function __construct(\Jcode\Application\Helper $helper, \Jcode\Application\ConfigSingleton $config, \Jcode\DependencyContainer $dc, $data = null)
+    public function __construct(\Jcode\Application\ConfigSingleton $config, \Jcode\DependencyContainer $dc)
     {
-        parent::__construct($helper, $data);
-
         $this->_config = $config;
         $this->_dc = $dc;
     }

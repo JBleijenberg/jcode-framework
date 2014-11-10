@@ -1,0 +1,21 @@
+{
+    "application": {
+        "layout": "default",
+        "encryption_key": "",
+        "base_url": "\/\/framework.local",
+        "title": "Derp App",
+        "database": {
+            "adapter": "mysql",
+            "host": "127.0.0.1",
+            "name": "framework.local",
+            "user": "framework",
+            "password": "framework"
+        },
+        "cache": {
+            "enabled" : false,
+            "engine": "memcached",
+            "host": "127.0.0.1",
+            "post": "11211"
+        }
+    }
+}

@@ -76,21 +76,14 @@ class Setup
 
     public function run()
     {
-
-
         foreach ($this->_config->getModules() as $module) {
             $this->processModule($module);
-
-
         }
-
     }
 
     public function processModule($module)
     {
-        $versionJson = (array)json_decode(file_get_contents($this->_resourceFile), true);
-
-        $data = $module->getModule();
+        $versionJson = json_decode(file_get_contents($this->_resourceFile), true);
 
         if (!$module->getSetup() || !$module->getSetup()->getClass()) {
             $setupClass = $this->_dc->get(get_class($this));
@@ -98,22 +91,22 @@ class Setup
             $setupClass = $this->dc->get($module->getSetup()->getClass());
         }
 
-        $firstRun = array_map(function ($version) use ($data) {
-            return !array_key_exists($data->getName(), $version);
+        $firstRun = array_map(function ($version) use ($module) {
+            return !array_key_exists($module->getName(), $version);
         }, $versionJson['application']['modules']);
 
         if (empty($firstRun)) {
             /**
              * Module doesn't exist yet. This means run the first install/setup script
              */
-            $setupFile = current(glob(sprintf('%s/Setup/install-*.php', $data->getModulePath())));
+            $setupFile = current(glob(sprintf('%s/Setup/install-*.php', $module->getModulePath())));
 
             if (!$setupFile) {
                 return false;
             }
 
             if (($versionAfterUpgrade = $setupClass->processSetupFile($setupFile))) {
-                $moduleVersion = [$data->getName() => $versionAfterUpgrade];
+                $moduleVersion = [$module->getName() => $versionAfterUpgrade];
 
                 array_push($versionJson['application']['modules'], $moduleVersion);
 
@@ -128,11 +121,11 @@ class Setup
             /**
              * Module exists. Run update scripts until the module version matches the current version
              */
-            $currentVersion = current(array_map(function ($version) use ($data) {
-                return (key($version) == $data->getName()) ? $version : false;
+            $currentVersion = current(array_map(function ($version) use ($module) {
+                return (key($version) == $module->getName()) ? $version : false;
             }, $versionJson['application']['modules']));
 
-            $setupFile = current(glob(sprintf('%s/Setup/upgrade-%s-*.php', $data->getModulePath(), current($currentVersion))));
+            $setupFile = current(glob(sprintf('%s/Setup/upgrade-%s-*.php', $module->getModulePath(), current($currentVersion))));
 
             if ($setupFile) {
                 preg_match('/(?<=-)([\d\.]*)(?=\.php)/', $setupFile, $matches);
@@ -141,10 +134,10 @@ class Setup
                  * Update script updates to a version lower than or equal to the current version.
                  * We keep running the scripts until everything is fully up-to-date
                  */
-                if (current($matches) <= $data->getVersion()) {
+                if (current($matches) <= $module->getVersion()) {
                     if (($versionAfterUpgrade = $setupClass->processSetupFile($setupFile))) {
-                        array_walk($versionJson['application']['modules'], function(&$arg)use($data, $versionAfterUpgrade){
-                            if (key($arg) == $data->getName()) {
+                        array_walk($versionJson['application']['modules'], function(&$arg)use($module, $versionAfterUpgrade){
+                            if (key($arg) == $module->getName()) {
                                 $arg[key($arg)] = $versionAfterUpgrade;
                             }
                         });
