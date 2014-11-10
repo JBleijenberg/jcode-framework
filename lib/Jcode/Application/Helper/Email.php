@@ -237,8 +237,18 @@ class Email extends \Jcode\Application\Helper
 
             $body .= $html.PHP_EOL.PHP_EOL;
 
-            $body .= sprintf("--PHP-alt-%s--%s", $this->_separator, PHP_EOL);
+            if (!empty($this->_attachments)) {
+                foreach ($this->_attachments as $attachment) {
+                    $att = chuck_split(base64_encode($attachment['file']));
 
+                    $body .= sprintf("Content-Type: application/pdf; name=\"%s\"%s", $attachment['filename'], PHP_EOL);
+                    $body .= sprintf("Content-Transer-Encoding: base64%s", PHP_EOL);
+                    $body .= sprintf("Content-Disposition: attachement%s%s", PHP_EOL, PHP_EOL);
+                    $body .= $att.PHP_EOL;
+                }
+            }
+
+            $body .= sprintf("--PHP-alt-%s--%s", $this->_separator, PHP_EOL);
             $body .= sprintf("--PHP-mixed-%s--%s", $this->_separator, PHP_EOL);
 
             return mail(sprintf('%s <%s>', $this->_receiver['name'], $this->_receiver['email']), $this->_subject, $body, $headers);
