@@ -2,14 +2,14 @@
     "application": {
         "layout": "default",
         "encryption_key": "",
-        "base_url": "\/\/framework.local",
-        "title": "Derp App",
+        "base_url": "\/\/example.com",
+        "title": "J!Code Framework",
         "database": {
             "adapter": "mysql",
             "host": "127.0.0.1",
-            "name": "framework.local",
-            "user": "framework",
-            "password": "framework"
+            "name": "",
+            "user": "",
+            "password": ""
         },
         "cache": {
             "enabled" : false,
