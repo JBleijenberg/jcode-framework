@@ -52,8 +52,10 @@ class ConfigSingleton extends \Jcode\Object
      * @param \Jcode\Log $log
      * @internal param \Jcode\Config $config
      */
-    public function __construct(DependencyContainer $dc, \Jcode\Log $log)
+    public function __construct(\Jcode\Application\Helper $helper, \Jcode\DependencyContainer $dc, \Jcode\Log $log, $data = null)
     {
+        parent::_construct($helper, $dc, $data);
+
         $this->_dc = $dc;
         $this->_log = $log;
 
@@ -72,19 +74,9 @@ class ConfigSingleton extends \Jcode\Object
     public function getConfig()
     {
         if (!$this->hasData()) {
-            $xml = simplexml_load_file(BP . DS . 'application' . DS . 'application.xml');
+            $config = json_decode(file_get_contents(BP . DS . 'application' . DS . 'application.json'), true);
 
-            $this->_dc->get('Jcode\Object');
-
-            foreach ($xml as $section => $content) {
-                foreach ((array)$content as $c) {
-                    $obj = $this->_dc->get('Jcode\Object');
-
-                    $obj->setData($c);
-
-                    $this->setData($section, $obj);
-                }
-            }
+            $this->setData($config['application']);
         }
 
         return $this;
@@ -104,7 +96,7 @@ class ConfigSingleton extends \Jcode\Object
             return $this;
         }
 
-        $configFiles = glob(BP . DS . 'application' . DS . '*' . DS . '*' .  DS . 'config.xml');
+        $configFiles = glob(BP . DS . 'application' . DS . '*' . DS . '*' .  DS . 'module.json');
 
         $cache = $this->_dc->get('Jcode\Cache');
 
@@ -117,37 +109,20 @@ class ConfigSingleton extends \Jcode\Object
             $modules = $this->_dc->get('Jcode\Object');
 
             foreach ($configFiles as $config) {
-                try {
-                    $xml = simplexml_load_file($config);
+                $content = json_decode(file_get_contents($config), true);
+                $module = $this->_dc->get('Jcode\Application\Module', $content['module']);
+                $module->cleanup();
 
-                    if ($xml->module['active'] == 'true') {
-                        $obj = $this->_dc->get('Jcode\Application\Module');
+                $module->setModulePath(dirname($config));
 
-                        foreach ($xml as $element => $val) {
-                            $func = sprintf('set%s', ucfirst($element));
+                $modules->setData($module->getCode(), $module);
+                $modules->cleanup();
 
-                            foreach ((array)$val as $k => $v) {
-                                if ($k == '@attributes') {
-                                    $obj->$func($this->_dc->get('Jcode\Object', $v));
-                                } else {
-                                    $obj->$func($this->_attributesToArray($v));
-                                }
-                            }
-                        }
+                if (($frontname = $module->getController()->getFrontname()) && ($className = $module->getController()->getClass())) {
+                    $frontNames = $this->getData('front_names', []);
+                    $frontNames[$frontname] = $module;
 
-                        $obj->getModule()->setModulePath(dirname($config));
-
-                        $modules->setData($obj->getModule()->getCode(), $obj);
-
-                        if (($frontName = $obj->getController()->getFrontname()) && ($className = $obj->getController()->getClass())) {
-                            $frontNames = $this->getData('front_names', []);
-                            $frontNames[$frontName] = $obj;
-
-                            $this->setFrontNames($frontNames);
-                        }
-                    }
-                } catch (\Exception $e) {
-                    $this->_log->writeException($e);
+                    $this->setFrontNames($frontNames);
                 }
             }
 
@@ -195,7 +170,7 @@ class ConfigSingleton extends \Jcode\Object
     {
         $this->_initModules();
 
-        $frontNames = $this->getFrontNames();
+        $frontNames = $this->getFrontNames()->getData();
 
         if (array_key_exists($frontName, $frontNames)) {
             return $frontNames[$frontName];
