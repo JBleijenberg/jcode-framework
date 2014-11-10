@@ -108,7 +108,7 @@ class ConfigSingleton extends \Jcode\Object
 
         $cache = $this->_dc->get('Jcode\Cache');
 
-        if(($modules = $cache->get(self::CACHE_KEY_MODULE_CONFIG))) {
+        if($cache->isActive() && ($modules = $cache->get(self::CACHE_KEY_MODULE_CONFIG))) {
             $this->setModules($modules);
             $this->setFrontNames($cache->get(self::CACHE_KEY_MODULE_CONFIG.'.frontnames'));
 
@@ -135,6 +135,8 @@ class ConfigSingleton extends \Jcode\Object
                             }
                         }
 
+                        $obj->getModule()->setModulePath(dirname($config));
+
                         $modules->setData($obj->getModule()->getCode(), $obj);
 
                         if (($frontName = $obj->getController()->getFrontname()) && ($className = $obj->getController()->getClass())) {
@@ -151,13 +153,18 @@ class ConfigSingleton extends \Jcode\Object
 
             $this->setModules($modules);
 
-            $cache->set(self::CACHE_KEY_MODULE_CONFIG, $modules);
-            $cache->set(self::CACHE_KEY_MODULE_CONFIG.'.frontnames', $this->getData('front_names'));
+            if ($cache->isActive()) {
+                $cache->set(self::CACHE_KEY_MODULE_CONFIG, $modules);
+                $cache->set(self::CACHE_KEY_MODULE_CONFIG . '.frontnames', $this->getData('front_names'));
 
-            if ($cache->getResultCode() != \Memcached::RES_SUCCESS) {
-                $cache->delete(self::CACHE_KEY_MODULE_CONFIG);
-                $cache->delete(self::CACHE_KEY_MODULE_CONFIG.'.frontnames');
+                if ($cache->getResultCode() != \Memcached::RES_SUCCESS) {
+                    $cache->delete(self::CACHE_KEY_MODULE_CONFIG);
+                    $cache->delete(self::CACHE_KEY_MODULE_CONFIG . '.frontnames');
+                }
             }
+
+            $setup = $this->_dc->get('Jcode\Application\Model\Setup');
+            $setup->run();
         }
 
         return $this;
