@@ -33,16 +33,30 @@ class Cache
     protected $_engine;
 
     /**
+     * @var Application\ConfigSingleton
+     */
+    protected $_config;
+
+    /**
      * @param Cache\Engine\Memcached $engine
-     * @param Application\Config $config
+     * @param Application\ConfigSingleton $config
      */
     public function __construct(\Jcode\Cache\Engine\Memcached $engine, \Jcode\Application\ConfigSingleton $config)
     {
+        $this->_config = $config;
         $this->_engine = $engine;
         $this->_engine->setCacheConfig($config->getCache());
-        $this->_engine->init();
+
+        if ($this->isActive()) {
+            $this->_engine->init();
+        }
 
         return $this->_engine;
+    }
+
+    public function isActive()
+    {
+        return ($this->_config->getCache()->getEnabled() == 'true') ? true : false;
     }
 
     /**
