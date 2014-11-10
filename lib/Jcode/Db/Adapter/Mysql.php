@@ -95,7 +95,7 @@ class Mysql extends \PDO
         }
 
         if (!empty($resource->getExpression())) {
-            $where .= ($where == '') ? ' WHERE ': ' AND ';
+            $where .= (empty($where)) ? ' WHERE ': ' AND ';
 
             foreach ($resource->getExpression() as $column => $expression) {
                 foreach ($expression as $expr) {
