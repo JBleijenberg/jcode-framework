@@ -308,6 +308,8 @@ class Email extends \Jcode\Application\Helper
 
         if (!$this->_template) {
             $this->_log->write('Invalid emailobject: No template set', \Jcode\Log::ERR);
+
+            return false;
         } else {
             $design = $this->_config->getDesign()->getLayout();
             $template = sprintf('%s/public/design/%s/template/%s', BP, $design, $this->_template);
