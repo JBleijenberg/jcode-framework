@@ -121,6 +121,8 @@ class Layout extends \Jcode\Object
             $template->display($this->getData());
         } catch(\Exception $e) {
             $this->_log->writeException($e);
+
+            throw new \Exception($e->getMessage());
         }
     }
 }

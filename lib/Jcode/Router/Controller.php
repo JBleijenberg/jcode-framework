@@ -250,6 +250,6 @@ class Controller
      */
     public function noRoute($code = 404)
     {
-        die($code);
+        throw new \Exception('Error while dispatching');
     }
 }

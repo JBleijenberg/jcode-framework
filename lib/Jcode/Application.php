@@ -90,6 +90,8 @@ class Application
             umask($umask);
         } catch (\Exception $e) {
             $this->_log->writeException($e);
+
+            throw new \Exception($e->getMessage());
         }
     }
 }
