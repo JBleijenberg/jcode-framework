@@ -48,7 +48,7 @@ class Collection extends \Jcode\Object
      */
     public function __construct(\Jcode\Application\Helper $helper, \Jcode\DependencyContainer $dc, $data = null)
     {
-        parent::__construct($helper, $data);
+        parent::__construct($helper, $dc, $data);
 
         $this->_dc = $dc;
     }

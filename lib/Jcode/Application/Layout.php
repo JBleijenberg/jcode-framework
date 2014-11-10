@@ -55,9 +55,9 @@ class Layout extends \Jcode\Object
      * @param \Jcode\Log $log
      * @param null $data
      */
-    public function __construct(\Jcode\Application\Helper $helper, \Jcode\Log $log, $data = null)
+    public function __construct(\Jcode\Application\Helper $helper, \Jcode\DependencyContainer $dc, \Jcode\Log $log, $data = null)
     {
-        parent::__construct($helper, $data);
+        parent::__construct($helper, $dc, $data);
 
         $this->_log = $log;
     }

@@ -38,6 +38,11 @@ class Object implements \Iterator, \Countable
     protected $_helper;
 
     /**
+     * @var DependencyContainer
+     */
+    protected $_dc;
+
+    /**
      * @var bool
      */
     protected $_hasChangedData = false;
@@ -46,9 +51,10 @@ class Object implements \Iterator, \Countable
      * @param \Jcode\Application\Helper $helper
      * @param null $data
      */
-    public function __construct(\Jcode\Application\Helper $helper, $data = null)
+    public function __construct(\Jcode\Application\Helper $helper, \Jcode\DependencyContainer $dc, $data = null)
     {
         $this->_helper = $helper;
+        $this->_dc = $dc;
 
         if ($data !== null) {
             if (!is_array($data)) {
@@ -113,6 +119,12 @@ class Object implements \Iterator, \Countable
             foreach ($key as $k => $v) {
                 $this->setData($k, $v);
             }
+        } else if(is_array($value) || $value instanceof \stdClass) {
+            $obj = $this->_dc->get('Jcode\Object', (array)$value);
+
+            $obj->cleanup();
+
+            $this->setData($key, $obj);
         } else {
             if (!empty($key) && $value !== null) {
                 $this->_data[$key] = $value;
@@ -233,5 +245,17 @@ class Object implements \Iterator, \Countable
 
     public function count(){
         return count($this->_data);
+    }
+
+    /**
+     * When this object is only used for datacontainer, unset all properties.
+     * This cleans up the data.
+     */
+    public function cleanup()
+    {
+        $this->_dc = null;
+        $this->_helper = null;
+
+        return $this;
     }
 }
