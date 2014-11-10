@@ -76,6 +76,8 @@ class Request
         $this->_module = $this->_config->getModuleByFrontName($this->_frontName);
 
         if (!$this->_module) {
+            $this->_log->write(sprintf('Module not found by requested frontname: %s', $this->_frontName));
+
             return $this->_noRoute();
         }
 
@@ -88,10 +90,13 @@ class Request
             if ($controller instanceof \Jcode\Router\Controller) {
                 $this->_controllerInstance = $controller;
             } else {
+                $this->_log->write(sprintf('Controller not instance of \Jcode\Router\Controller: %s', $controllerClass));
                 $this->_noRoute();
             }
         } catch (\Exception $e) {
             $this->_log->writeException($e);
+
+            throw new \Exception($e->getMessage());
         }
 
         return $this;
@@ -153,6 +158,6 @@ class Request
      */
     protected function _noRoute($code = 404)
     {
-        echo $code; exit;
+        throw new \Exception('Error while dispatching');
     }
 }

@@ -76,11 +76,7 @@ class DependencyContainer
             array_push($injections, $args);
         }
 
-        if (empty($injections)) {
-            $injections = null;
-        }
-
-        if ($injections !== null) {
+        if (!empty($injections)) {
             $instance = $reflection->newInstanceArgs($injections);
         } else {
             $instance = $reflection->newInstance();

@@ -29,24 +29,6 @@ class Module extends \Jcode\Object
 {
 
     /**
-     * @var \Jcode\DependencyContainer
-     */
-    protected $_dc;
-
-    /**
-     * @param \Jcode\Application\Helper $helper
-     * @param \Jcode\DependencyContainer $dc
-     * @param null $data
-     * @internal param \Jcode\Translate\Phrase $phrase
-     */
-    public function __construct(\Jcode\Application\Helper $helper, \Jcode\DependencyContainer $dc, $data = null)
-    {
-        parent::__construct($helper, $data);
-
-        $this->_dc = $dc;
-    }
-
-    /**
      * Assign layouts to easier to use getData format, instead of having to loop through it for getting
      * the corrent layout
      *
