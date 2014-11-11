@@ -20,10 +20,12 @@
  * @category    J!Code Framework
  * @package     J!Code Framework
  * @author      Jeroen Bleijenberg <jeroen@maxserv.nl>
- * 
+ *
  * @license     http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 namespace Jcode\Db\Adapter;
+
+use \Jcode\Db\Adapter\Mysql\Table\Column as Column;
 
 class Mysql extends \PDO
 {
@@ -31,10 +33,23 @@ class Mysql extends \PDO
 
     protected $_bindIncrement = 1;
 
+    /**
+     * @var \Jcode\DependencyContainer
+     */
+    protected $_dc;
+
+    /**
+     * @var \Jcode\Log
+     */
+    protected $_log;
+
     private $_query;
 
-    public function __construct(\Jcode\Application\ConfigSingleton $config)
+    public function __construct(\Jcode\Application\ConfigSingleton $config, \Jcode\DependencyContainer $dc, \Jcode\Log $log)
     {
+        $this->_dc = $dc;
+        $this->_log = $log;
+
         if (($dbconfig = $config->getDatabase())) {
             $dsn = sprintf('mysql:dbname=%s;host=%s', $dbconfig->getName(), $dbconfig->getHost());
 
@@ -45,6 +60,255 @@ class Mysql extends \PDO
 
             parent::__construct($dsn, $dbconfig->getUser(), $dbconfig->getPassword(), $options);
         }
+    }
+
+    public function getTable($tablename, $engine = 'InnoDB')
+    {
+        $table = $this->_dc->get('Jcode\Db\Adapter\Mysql\Table');
+
+        $table->setTableName($tablename);
+        $table->setEngine($engine);
+
+        return $table;
+    }
+
+    public function alterTable(Mysql\Table $table)
+    {
+        $this->_query = sprintf('SHOW FULL COLUMNS FROM %s', $table->getTableName());
+
+        $tableInfo = $this->execute();
+
+        if (empty($tableInfo)) {
+            throw new \Exception('Selected table is empty. Nothing to alter');
+        }
+
+        $orderedTableInfo = [];
+
+        array_map(function($arr) use(&$orderedTableInfo){
+            $orderedTableInfo[$arr['Field']] = $arr;
+        },$tableInfo);
+
+        $query = sprintf('ALTER TABLE %s', $table->getTableName());
+        $tables = '';
+
+        foreach ($table->getDroppedColumns() as $column) {
+            if (!array_key_exists($column, $orderedTableInfo)) {
+                throw new \Exception('Trying to drop a non existing column.');
+            }
+
+            $tables .= sprintf('DROP COLUMN %s, ', $column);
+        }
+
+        foreach ($table->getAlteredColumns() as $column) {
+            if (!array_key_exists($column->getName(), $orderedTableInfo)) {
+                throw new \Exception('Trying to alter a non existing column.');
+            }
+
+            if ($column->getOption('name')) {
+                $tables .= sprintf('CHANGE COLUMN %s %s', $column->getName(), $column->getOption('name'));
+            } else {
+                $tables .= sprintf('CHANGE COLUMN %s', $column->getName());
+            }
+
+            $columnInfo = $orderedTableInfo[$column->getName()];
+
+            if ($column->getOption('type')) {
+                $tables .= sprintf(' %s', strtoupper($column->getOption('type')));
+
+                switch ($column->getOption('type')) {
+                    case Column::TYPE_BINARY:
+                    case Column::TYPE_LONGBLOB:
+                    case Column::TYPE_LONGTEXT:
+                    case Column::TYPE_MEDIUMBLOB:
+                    case Column::TYPE_MEDIUMTEXT:
+                    case Column::TYPE_TINYBLOB:
+                    case Column::TYPE_TINYTEXT:
+                    case Column::TYPE_TEXT:
+                    case Column::TYPE_BLOB:
+                    case Column::TYPE_TIME:
+                    case Column::TYPE_TIMESTAMP:
+                    case Column::TYPE_DATE:
+                    case Column::TYPE_DATETIME:
+                        $length = null;
+
+                        break;
+                    default:
+                        if (!$column->getOption('length')) {
+                            throw new \Exception('Length value required for this column type.');
+                        }
+
+                        $length = $column->getOption('length');
+                }
+
+                $tables .= sprintf('(%s)', $length);
+            }
+
+            if ($column->getOption('unsigned') == true) {
+                $tables .= ' unsigned';
+            }
+
+            if ($column->getOption('not_null') == true) {
+                $tables .= ' NOT NULL';
+            } else {
+                if ($column->getOption('not_null') === false && $columnInfo['Null'] == 'YES') {
+                    $tables .= ' NULL';
+                }
+            }
+
+            if ($column->getOption('auto_increment') == true) {
+                $tables .= ' AUTO_INCREMENT';
+            }
+
+            if ($column->getOption('zerofill') == true) {
+                $tables .= ' ZEROFILL';
+            } else {
+                if ($column->getOption('zerofill') === false) {
+                    $tables .= ' DROP ZEROFILL';
+                }
+            }
+
+            if ($column->getOption('default')) {
+                $tables .= sprintf(' DEFAULT "%s"', $column->getOption('default'));
+            } else {
+                if ($column->getOption('default') === false) {
+                    $tables .= ' DROP DEFAULT';
+                }
+            }
+
+            if ($column->getOption('comment')) {
+                $tables .= sprintf(' COMMENT "%s"', $column->getOption('comment'));
+            } else {
+                if ($column->getOption('comment') === false) {
+                    $tables .= ' COMMENT ""';
+                }
+            }
+
+            $tables .= ', ';
+        }
+
+        if ($table->getColumns()) {
+            foreach ($table->getColumns() as $column) {
+                $tables .= 'ADD ';
+
+                $this->getAddColumnQuery($table, $column, $tables);
+            }
+        }
+
+        $tables = trim($tables, ', ');
+
+        $this->_query = sprintf('%s %s;', $query, $tables);
+
+        return $this->execute();
+    }
+
+    protected function _createTable(Mysql\Table $table, $query)
+    {
+        if (empty($table->getTableName())
+            || empty($table->getEngine())
+            || empty($table->getColumns())
+        ) {
+
+            throw new \Exception('Not enough data to create table');
+        }
+
+        $tables = '';
+
+        foreach ($table->getColumns() as $column) {
+            $this->getAddColumnQuery($table, $column, $tables);
+        }
+
+        if ($table->getPrimaryKey()) {
+            $tables .= sprintf(' PRIMARY KEY(%s)', $table->getPrimaryKey());
+        }
+
+        $query .= sprintf(' (%s) ENGINE=%s DEFAULT CHARSET=%s;', $tables, $table->getEngine(), $table->getCharset());
+
+        $this->_query = $query;
+
+        $this->execute();
+    }
+
+    public function getAddColumnQuery($table, $column, &$tables)
+    {
+        if (empty($column->getName()) || empty($column->getType())) {
+            throw new \Exception('Cannot add column to table. Name or type missing');
+        }
+
+        if ($column->getOption('primary') == true) {
+            $table->setPrimaryKey($column->getName());
+        }
+
+        $tables .= sprintf('%s %s', $column->getName(), $column->getType());
+
+        switch ($column->getType()) {
+            case Column::TYPE_BINARY:
+            case Column::TYPE_LONGBLOB:
+            case Column::TYPE_LONGTEXT:
+            case Column::TYPE_MEDIUMBLOB:
+            case Column::TYPE_MEDIUMTEXT:
+            case Column::TYPE_TINYBLOB:
+            case Column::TYPE_TINYTEXT:
+            case Column::TYPE_TEXT:
+            case Column::TYPE_BLOB:
+            case Column::TYPE_TIME:
+            case Column::TYPE_TIMESTAMP:
+            case Column::TYPE_DATE:
+            case Column::TYPE_DATETIME:
+                $length = null;
+
+                break;
+            default:
+                $length = $column->getLength();
+
+        }
+
+        if ($length) {
+            $tables .= sprintf('(%s)', $length);
+        }
+
+        if ($column->getOption('unsigned') == true) {
+            $tables .= ' unsigned';
+        }
+
+        if ($column->getOption('not_null') == true) {
+            $tables .= ' NOT NULL';
+        }
+
+
+        if ((!$table->getPrimaryKey() && $column->getOption('auto_increment') == true)
+            || ($table->getPrimaryKey() == $column->getName())
+        ) {
+            $tables .= ' AUTO_INCREMENT';
+        }
+
+        if ($column->getOption('zerofill') == true) {
+            $tables .= ' ZEROFILL';
+        }
+
+        if ($column->getOption('default') != false) {
+            $tables .= sprintf(' DEFAULT "%s"', $column->getOption('default'));
+        }
+
+        if ($column->getOption('comment') != false) {
+            $tables .= sprintf(' COMMENT "%s"', $column->getOption('comment'));
+        }
+
+        $tables .= ', ';
+    }
+
+    public function createTable(Mysql\Table $table)
+    {
+        return $this->_createTable($table, sprintf('CREATE TABLE %s', $table->getTableName()));
+    }
+
+    public function createTableIfNotExists(Mysql\Table $table)
+    {
+        return $this->_createTable($table, sprintf('CREATE TABLE IF NOT EXISTS %s', $table->getTableName()));
+    }
+
+    public function createTableDropIfExists(Mysql\Table $table)
+    {
+        return $this->_createTable($table, sprintf('DROP TABLE IF EXISTS %s; CREATE TABLE %s', $table->getTableName(), $table->getTableName()));
     }
 
     public function build(\Jcode\Application\Model\Resource $resource)
@@ -70,7 +334,8 @@ class Mysql extends \PDO
             foreach ($resource->getJoin() as $join) {
                 reset($join['tables']);
 
-                $query .= sprintf(' %s JOIN %s AS %s ON %s', strtoupper($join['type']), key($join['tables']), current($join['tables']), $join['clause']);
+                $query .= sprintf(' %s JOIN %s AS %s ON %s', strtoupper($join['type']), key($join['tables']),
+                    current($join['tables']), $join['clause']);
             }
         }
 
@@ -83,7 +348,7 @@ class Mysql extends \PDO
                 reset($filters);
 
                 foreach ($filter as $condition) {
-                    $where .= ($column === key($filters)) ? ' WHERE ': 'AND ';
+                    $where .= ($column === key($filters)) ? ' WHERE ' : 'AND ';
 
                     $this->formatStatement(key($condition), $column, current($condition), $where);
                 }
@@ -95,7 +360,7 @@ class Mysql extends \PDO
         }
 
         if (!empty($resource->getExpression())) {
-            $where .= (empty($where)) ? ' WHERE ': ' AND ';
+            $where .= (empty($where)) ? ' WHERE ' : ' AND ';
 
             foreach ($resource->getExpression() as $column => $expression) {
                 foreach ($expression as $expr) {
@@ -120,7 +385,8 @@ class Mysql extends \PDO
 
         if (!empty($resource->getOrder())) {
             foreach ($resource->getOrder() as $i => $order) {
-                $query .= ($i == 0) ? sprintf(' ORDER BY %s %s', key($order), current($order)) : sprintf(', %s %s', key($order), current($order)) ;
+                $query .= ($i == 0) ? sprintf(' ORDER BY %s %s', key($order), current($order)) : sprintf(', %s %s',
+                    key($order), current($order));
             }
         }
 
@@ -144,18 +410,27 @@ class Mysql extends \PDO
             throw new \Exception('No query specified. Run build() first');
         }
 
-        $stmt = parent::prepare($this->_query);
+        try {
+            $this->beginTransaction();
 
-        foreach ($this->_bindVars as $id => $value) {
-            $stmt->bindValue($id, $value);
-        }
+            $stmt = parent::prepare($this->_query);
 
-        $result = $stmt->execute();
+            foreach ($this->_bindVars as $id => $value) {
+                $stmt->bindValue($id, $value);
+            }
 
-        if ($result === false) {
-            $error = $stmt->errorInfo();
+            $stmt->execute();
+            $this->commit();
+        } catch(\PDOException $e) {
+            $this->_log->writeException($e);
+            $this->rollBack();
 
-            throw new \Exception($error[2]);
+            throw new \Exception($e->getMessage());
+        } catch(\Exception $e) {
+            $this->_log->writeException($e);
+            $this->rollBack();
+
+            throw new \Exception($e->getMessage());
         }
 
         return $stmt->fetchAll(parent::FETCH_ASSOC);
@@ -172,7 +447,7 @@ class Mysql extends \PDO
         if ($this->_query) {
             $tmpVars = $this->_bindVars;
 
-            $query = preg_replace_callback('/([\?])/', function() use (&$tmpVars) {
+            $query = preg_replace_callback('/([\?])/', function () use (&$tmpVars) {
                 return sprintf("'%s'", array_shift($tmpVars));
             }, $this->_query);
 
@@ -223,7 +498,7 @@ class Mysql extends \PDO
                 $this->_formatInStatement('NOT IN', $column, $value, $where);
                 break;
             case 'null':
-                $this->_formatNullStatement('IS NULL', $column,$where);
+                $this->_formatNullStatement('IS NULL', $column, $where);
                 break;
             case 'not-null':
                 $this->_formatNullStatement('NOT NULL', $column, $where);
