@@ -152,8 +152,11 @@ class Setup
                 }
             }
         }
+    }
 
-        //file_put_contents($this->_resourceFile, json_encode($versionJson, JSON_PRETTY_PRINT));
+    public function getAdapter()
+    {
+        return $this->_dc->get('Jcode\Db\Adapter')->getInstance();
     }
 
     public function processSetupFile($file)
