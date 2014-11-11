@@ -62,8 +62,8 @@ class Setup
 
             $content = [
                 'application' => [
-                    'title' => $config->getWeb()->getTitle(),
-                    'url' => $config->getWeb()->getBaseUrl(),
+                    'title' => $config->getTitle(),
+                    'url' => $config->getBaseUrl(),
                     'modules' => [
 
                     ],
