@@ -110,18 +110,13 @@ class Resource extends \Jcode\Application\Model\Collection
     ];
 
     /**
-     * @param \Jcode\Application\Helper $helper
      * @param \Jcode\DependencyContainer $dc
      * @param \Jcode\Db\Adapter $adapter
-     * @param null $data
      */
     public function __construct(
-        \Jcode\Application\Helper $helper,
         \Jcode\DependencyContainer $dc,
-        \Jcode\Db\Adapter $adapter,
-        $data = null
+        \Jcode\Db\Adapter $adapter
     ) {
-        parent::__construct($helper, $dc, $data);
 
         $this->_adapter = $adapter->getInstance();
         $this->_dc = $dc;
@@ -456,5 +451,14 @@ class Resource extends \Jcode\Application\Model\Collection
         return $this->getAdapter()
             ->build($this)
             ->getQuery();
+    }
+
+    public function rewind()
+    {
+        if (empty($this->_items)) {
+            $this->getItems();
+        }
+
+        parent::rewind();
     }
 }

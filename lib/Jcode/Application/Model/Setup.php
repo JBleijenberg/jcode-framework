@@ -88,7 +88,7 @@ class Setup
         if (!$module->getSetup() || !$module->getSetup()->getClass()) {
             $setupClass = $this->_dc->get(get_class($this));
         } else {
-            $setupClass = $this->dc->get($module->getSetup()->getClass());
+            $setupClass = $this->_dc->get($module->getSetup()->getClass());
         }
 
         $firstRun = array_map(function ($version) use ($module) {
