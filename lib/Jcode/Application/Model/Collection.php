@@ -25,7 +25,7 @@
  */
 namespace Jcode\Application\Model;
 
-class Collection extends \Jcode\Object
+class Collection implements \Iterator, \Countable
 {
 
     /**
@@ -41,15 +41,10 @@ class Collection extends \Jcode\Object
     protected $_modelClass = 'Jcode\Object';
 
     /**
-     * @param \Jcode\Application\Helper $helper
      * @param \Jcode\DependencyContainer $dc
-     * @param null $data
-     * @internal param \Jcode\Translate\Phrase $phrase
      */
-    public function __construct(\Jcode\Application\Helper $helper, \Jcode\DependencyContainer $dc, $data = null)
+    public function __construct(\Jcode\DependencyContainer $dc)
     {
-        parent::__construct($helper, $dc, $data);
-
         $this->_dc = $dc;
     }
 
@@ -130,5 +125,17 @@ class Collection extends \Jcode\Object
     public function next()
     {
         return next($this->_items);
+    }
+
+    public function valid()
+    {
+        $key = $this->key();
+
+        return ($key !== null && $key !== false);
+    }
+
+    public function count()
+    {
+        return count($this->_items);
     }
 }
