@@ -62,8 +62,8 @@ class Setup
 
             $content = [
                 'application' => [
-                    'title' => $config->getWeb()->getTitle(),
-                    'url' => $config->getWeb()->getBaseUrl(),
+                    'title' => $config->getTitle(),
+                    'url' => $config->getBaseUrl(),
                     'modules' => [
 
                     ],
@@ -88,7 +88,7 @@ class Setup
         if (!$module->getSetup() || !$module->getSetup()->getClass()) {
             $setupClass = $this->_dc->get(get_class($this));
         } else {
-            $setupClass = $this->dc->get($module->getSetup()->getClass());
+            $setupClass = $this->_dc->get($module->getSetup()->getClass());
         }
 
         $firstRun = array_map(function ($version) use ($module) {
@@ -152,8 +152,11 @@ class Setup
                 }
             }
         }
+    }
 
-        //file_put_contents($this->_resourceFile, json_encode($versionJson, JSON_PRETTY_PRINT));
+    public function getAdapter()
+    {
+        return $this->_dc->get('Jcode\Db\Adapter')->getInstance();
     }
 
     public function processSetupFile($file)
