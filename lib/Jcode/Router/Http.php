@@ -74,7 +74,7 @@ class Http
         if (method_exists($controller, $action)) {
             $arr = ['request' => $request, 'response' => $response];
 
-            //$this->_eventHandler->dispatchEvent('controller_init_before', $arr);
+            $this->_eventHandler->dispatchEvent('controller_init_before', $controller);
 
             $controller->setRequest($request);
             $controller->setResponse($response);
@@ -83,7 +83,7 @@ class Http
             $controller->$action();
             $controller->postDispatch();
 
-            //$this->_eventHandler->dispatchEvent('controller_init_after', $arr);
+            $this->_eventHandler->dispatchEvent('controller_init_after', $controller);
         } else {
             $controller->noRoute();
         }
