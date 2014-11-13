@@ -68,6 +68,10 @@ class Request
     {
         $path = trim($this->getServer('REQUEST_URI'), '/');
 
+        if (!$path) {
+            $path = trim($this->_config->getDefaultRoute(),'/');
+        }
+
         list($frontName, $controller, $action) = array_pad(explode('/', $path), 3, null);
 
         $this->_frontName = ($frontName != null) ? strtolower($frontName) : 'core';

@@ -176,10 +176,12 @@ class ConfigSingleton extends \Jcode\Object
     {
         $this->_initModules();
 
-        $frontNames = $this->getFrontNames()->getData();
+        if ($this->getFrontNames()) {
+            $frontNames = $this->getFrontNames()->getData();
 
-        if (array_key_exists($frontName, $frontNames)) {
-            return $frontNames[$frontName];
+            if (array_key_exists($frontName, $frontNames)) {
+                return $frontNames[$frontName];
+            }
         }
 
         return false;
