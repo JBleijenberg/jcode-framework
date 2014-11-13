@@ -59,6 +59,12 @@ class ConfigSingleton extends \Jcode\Object
         $this->_dc = $dc;
         $this->_log = $log;
 
+        if (!file_exists(BP.'/application/application.json')) {
+            header('Location: /install/index.php');
+
+            exit;
+        }
+
         $this->getConfig();
     }
 
