@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<!--
+/**
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the General Public License (GPL 3.0)
+ * that is bundled with this package in the file LICENSE
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/GPL-3.0
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this module to newer
+ * versions in the future.
+ *
+ * @category    J!Code: Framework
+ * @package     J!Code: Framework
+ * @author      Jeroen Bleijenberg <jeroen@maxserv.com>
+ *
+ * @copyright   Copyright (c) 2015 MaxServ (http://www.maxserv.com)
+ * @license     http://opensource.org/licenses/GPL-3.0 General Public License (GPL 3.0)
+ */
+-->
+<layout>
+
+	<request path="Jmod_Cms::Default">
+		<reference name="root">
+			<block class="Jcode\Layout\Resource\Template" name="page.root">
+				<method name="setTemplate"><template>Jmod_Cms::Page/Layout/1-column.phtml</template></method>
+			</block>
+		</reference>
+
+		<reference name="head">
+			<block class="Jmod\Cms\Block\Page\Html" name="head" template="Jmod_Cms::Page/Layout/Html/Head.phtml">
+				<method name="addCss"><css>foundation.css</css></method>
+				<method name="addCss"><css>style.css</css></method>
+			</block>
+		</reference>
+
+		<reference name="footer">
+			<block class="Jmod\Cms\Block\Page\Html" name="footer" template="Jmod_Cms::Page/Layout/Html/Footer.phtml">
+				<method name="addJs"><js>foundation.min.js</js></method>
+			</block>
+		</reference>
+	</request>
+
+</layout>

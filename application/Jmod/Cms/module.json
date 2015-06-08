@@ -1,0 +1,12 @@
+{
+    "module": {
+        "name": "Jmod_Cms",
+        "version": "0.0.1",
+        "active": true,
+        "identifier": "cms",
+        "router": {
+            "class": "Jmod\\Cms\\Controller",
+            "frontname": "cms"
+        }
+    }
+}
