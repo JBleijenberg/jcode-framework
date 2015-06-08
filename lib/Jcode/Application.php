@@ -151,6 +151,10 @@ final class Application
 				$url = $baseUrl . '/design/' . $layoutName . '/css';
 
 				break;
+			case Environment::URL_TYPE_JS:
+				$url = $baseUrl . '/js';
+
+				break;
 			default:
 				$url = $baseUrl;
 		}
