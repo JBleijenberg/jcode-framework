@@ -19,12 +19,11 @@
  * 
  * @license     http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
-use \Jcode\ObjectManager;
 
 error_reporting(E_ALL);
 ini_set('display_errors', true);
 
-define('BP', str_replace('/public', '/', $_SERVER['DOCUMENT_ROOT']));
+define('BP', dirname(realpath('../application.json')));
 define('DS', DIRECTORY_SEPARATOR);
 
 require_once BP . DS . 'lib' . DS . 'Jcode' . DS . 'Functions.php';
