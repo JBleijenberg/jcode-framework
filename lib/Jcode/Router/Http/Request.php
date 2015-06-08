@@ -3,165 +3,260 @@
  *
  * NOTICE OF LICENSE
  *
- * This source file is subject to the Academic Free License (AFL 3.0)
- * that is bundled with this package in the file LICENSE_AFL.txt.
+ * This source file is subject to the General Public License (GPL 3.0)
+ * that is bundled with this package in the file LICENSE
  * It is also available through the world-wide-web at this URL:
- * http://opensource.org/licenses/afl-3.0.php
- * If you did not receive a copy of the license and are unable to
- * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
+ * http://opensource.org/licenses/GPL-3.0
  *
  * DISCLAIMER
  *
- * Do not edit or add to this file if you wish to upgrade Magento to newer
- * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
+ * Do not edit or add to this file if you wish to upgrade this module to newer
+ * versions in the future.
  *
- * @category    J!Code Framework
- * @package     J!Code Framework
- * @author      Jeroen Bleijenberg <jeroen@maxserv.nl>
- * 
- * @license     http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
+ * @category    J!Code: Framework
+ * @package     J!Code: Framework
+ * @author      Jeroen Bleijenberg <jeroen@maxserv.com>
+ *
+ * @copyright   Copyright (c) 2015 MaxServ (http://www.maxserv.com)
+ * @license     http://opensource.org/licenses/GPL-3.0 General Public License (GPL 3.0)
  */
 namespace Jcode\Router\Http;
+
+use \Jcode\Application;
+use \Exception;
+use Jcode\Router\Front\Controller;
 
 class Request
 {
 
-    /**
-     * @var \Jcode\DependencyContainer
-     */
-    protected $_dc;
+	protected $isSharedInstance = true;
 
-    /**
-     * @var \Jcode\Log
-     */
-    protected $_log;
+	protected $eventId = 'router.request';
 
-    protected $_frontName;
+	protected $frontName = 'core';
 
-    protected $_module;
+	protected $controller = 'index';
 
-    protected $_controllerName;
+	protected $action = 'index';
 
-    protected $_controllerInstance;
+	/**
+	 * @var \Jcode\Application\Config
+	 * @inject \Jcode\Application\Config
+	 */
+	protected $config;
 
-    protected $_actionName;
+	/**
+	 * @inject \Jcode\Router\Rewrite
+	 * @var \Jcode\Router\Rewrite
+	 */
+	protected $rewrite;
 
-    /**
-     * @var \Jcode\Application\Config
-     */
-    protected $_config;
+	/**
+	 * @inject \Jcode\ObjectManager
+	 * @var \Jcode\ObjectManager
+	 */
+	protected $objectManager;
 
-    public function __construct(\Jcode\DependencyContainer $dc, \Jcode\Log $log)
-    {
-        $this->_dc = $dc;
-        $this->_log = $log;
-    }
+	protected $route;
 
-    public function setConfig(\Jcode\Application\ConfigSingleton $config)
-    {
-        $this->_config = $config;
-    }
+	/**
+	 * @var \Jcode\Object
+	 */
+	protected $module;
 
-    public function buildRequest()
-    {
-        $path = trim($this->getServer('REQUEST_URI'), '/');
+	/**
+	 * Initialize request object
+	 *
+	 * @param \Jcode\Router\Http\Response $response
+	 */
+	public function buildHttpRequest(Response $response)
+	{
+		$route = trim($this->getServer('REQUEST_URI'), '/');
 
-        if (!$path) {
-            $path = trim($this->_config->getDefaultRoute(),'/');
-        }
+		if (empty($route)) {
+			$route = $this->config->getDefaultRoute();
+		}
 
-        list($frontName, $controller, $action) = array_pad(explode('/', $path), 3, null);
+		if ($rewrite = $this->rewrite->getRewrite($route)) {
+			$route = $rewrite;
+		}
 
-        $this->_frontName = ($frontName != null) ? strtolower($frontName) : 'core';
-        $this->_controllerName = ($controller != null) ? strtolower($controller) : 'index';
-        $this->_actionName = ($action != null) ? strtolower($action) : 'index';
-        $this->_module = $this->_config->getModuleByFrontName($this->_frontName);
+		$params = null;
 
-        if (!$this->_module) {
-            $this->_log->write(sprintf('Module not found by requested frontname: %s', $this->_frontName));
+		if (strpos($route, '?')) {
+			$route = current(explode('?', $route));
+		}
 
-            return $this->_noRoute();
-        }
+		list($this->frontName, $this->controller, $this->action) = array_pad(explode('/', $route), 3, 'index');
 
-        $baseClass = trim($this->_module->getController()->getClass(), '\\');
-        $controllerClass = sprintf('%s\%s', $baseClass, sprintf('%sController', ucfirst($this->_controllerName)));
+		$this->dispatch($response);
 
-        $controller = $this->_dc->get($controllerClass);
+		return;
+	}
 
-        try {
-            if ($controller instanceof \Jcode\Router\Controller) {
-                $this->_controllerInstance = $controller;
-            } else {
-                $this->_log->write(sprintf('Controller not instance of \Jcode\Router\Controller: %s', $controllerClass));
-                $this->_noRoute();
-            }
-        } catch (\Exception $e) {
-            $this->_log->writeException($e);
+	public function dispatch(Response $response)
+	{
+		if ($module = $this->getConfig()->getModuleByFrontname($this->frontName)) {
+			$this->module = $module;
 
-            throw new \Exception($e->getMessage());
-        }
+			if ($router = $module->getRouter()) {
+				if ($class = $router->getClass()) {
+					$class = rtrim($class, '\\') . '\\' . ucfirst($this->controller);
 
-        return $this;
-    }
+					try {
+						$controller = $this->objectManager->get($class, [$this, $response]);
 
-    /**
-     * @return \Jcode\Router\Controller
-     */
-    public function getControllerInstance()
-    {
-        return $this->_controllerInstance;
-    }
+						if ($controller instanceof Controller) {
+							$action = $this->action . "Action";
 
-    /**
-     * Get $_SERVER variable
-     *
-     * @param null|string $var
-     * @return bool|string
-     */
-    public function getServer($var = null)
-    {
-        if ($var === null) {
-            return $_SERVER;
-        } else {
-            if (array_key_exists(strtoupper($var), $_SERVER)) {
-                return $_SERVER[strtoupper($var)];
-            }
-        }
+							if (method_exists($controller, $action)) {
+								$this->route = sprintf('%s/%s/%s', $this->frontName, $this->controller, $this->action);
 
-        return false;
-    }
+								/* @var \Jcode\Object $get */
+								$get = $this->objectManager->get('Jcode\Object');
+								$get->importArray($_GET);
 
-    /**
-     * @return string
-     */
-    public function getModuleCode()
-    {
-        return $this->_module->getModule()->getCode();
-    }
+								/* @var \Jcode\Object $post */
+								$post = $this->objectManager->get('Jcode\Object');
+								$post->importArray($_POST);
 
-    /**
-     * @return string
-     */
-    public function getControllerName()
-    {
-        return $this->_controllerName;
-    }
+								/* @var \Jcode\Object $files */
+								$files = $this->objectManager->get('Jcode\Object');
+								$files->importArray($_FILES);
 
-    /**
-     * @return string
-     */
-    public function getActionName()
-    {
-        return $this->_actionName;
-    }
+								$controller->preDispatch($get, $post, $files);
+								$controller->$action();
+								$controller->postDispatch();
+							} else {
+								Application::log("Class is loaded, but action is not found");
 
-    /**
-     * No route has been found. Write 404 page
-     */
-    protected function _noRoute($code = 404)
-    {
-        throw new \Exception('Error while dispatching');
-    }
+								$this->noRoute();
+							}
+						} else {
+							Application::log("{$class} not an instance of \\Jcode\\Router\\Front\\Controler");
+
+							$this->noRoute();
+						}
+					} catch (Exception $e) {
+						Application::logException($e);
+
+						$this->noRoute();
+					}
+				} else {
+					Application::log('Module router is defined, but no controller class is set');
+
+					$this->noRoute();
+				}
+			} else {
+				Application::log('Module is set, but no router is defined');
+
+				$this->noRoute();
+			}
+		} else {
+			$this->noRoute();
+		}
+	}
+
+	public function getRoute()
+	{
+		return $this->route;
+	}
+
+	/**
+	 * Get a server variable
+	 *
+	 * @param null $key
+	 *
+	 * @return mixed
+	 */
+	public function getServer($key = null)
+	{
+		return ($key !== null) ? $_SERVER[$key] : $_SERVER;
+	}
+
+	/**
+	 * @return \Jcode\Application\Config
+	 */
+	public function getConfig()
+	{
+		return $this->config;
+	}
+
+	/**
+	 * Return 404 response.
+	 */
+	public function noRoute()
+	{
+		$response = Application::env()->getResponse();
+
+		$response->setHttpCode(404);
+		$response->dispatch();
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getController()
+	{
+		return $this->controller;
+	}
+
+	/**
+	 * @param $controller
+	 *
+	 * @return $this
+	 */
+	public function setController($controller)
+	{
+		$this->controller = $controller;
+
+		return $this;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getAction()
+	{
+		return $this->action;
+	}
+
+	/**
+	 * @param $action
+	 *
+	 * @return $this
+	 */
+	public function setAction($action)
+	{
+		$this->action = $action;
+
+		return $this;
+	}
+
+	public function getFrontName()
+	{
+		return $this->frontName;
+	}
+
+	/**
+	 * @param $frontName
+	 *
+	 * @return $this
+	 */
+	public function setFrontName($frontName)
+	{
+		$this->frontName = $frontName;
+
+		return $this;
+	}
+
+	/**
+	 * Return currently used module
+	 *
+	 * @return \Jcode\Object
+	 */
+	public function getModule()
+	{
+		return $this->module;
+	}
 }

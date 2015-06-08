@@ -3,195 +3,210 @@
  *
  * NOTICE OF LICENSE
  *
- * This source file is subject to the Academic Free License (AFL 3.0)
- * that is bundled with this package in the file LICENSE_AFL.txt.
+ * This source file is subject to the General Public License (GPL 3.0)
+ * that is bundled with this package in the file LICENSE
  * It is also available through the world-wide-web at this URL:
- * http://opensource.org/licenses/afl-3.0.php
- * If you did not receive a copy of the license and are unable to
- * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
+ * http://opensource.org/licenses/GPL-3.0
  *
  * DISCLAIMER
  *
- * Do not edit or add to this file if you wish to upgrade Magento to newer
- * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
+ * Do not edit or add to this file if you wish to upgrade this module to newer
+ * versions in the future.
  *
- * @category    J!Code Framework
- * @package     J!Code Framework
- * @author      Jeroen Bleijenberg <jeroen@maxserv.nl>
- * 
- * @license     http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
+ * @category    J!Code: Framework
+ * @package     J!Code: Framework
+ * @author      Jeroen Bleijenberg <jeroen@maxserv.com>
+ *
+ * @copyright   Copyright (c) 2015 MaxServ (http://www.maxserv.com)
+ * @license     http://opensource.org/licenses/GPL-3.0 General Public License (GPL 3.0)
  */
 namespace Jcode\Db\Adapter\Mysql;
 
-class Table
+use Jcode\Db\TableInterface;
+
+class Table implements TableInterface
 {
 
-    /**
-     * @var \Jcode\DependencyContainer
-     */
-    protected $_dc;
+	/**
+	 * @inject \Jcode\ObjectManager
+	 * @var \Jcode\ObjectManager
+	 */
+	protected $objectmanager;
 
-    protected $_tableName;
+	protected $tableName;
 
-    protected $_columns = [];
+	protected $columns = [];
 
-    protected $_dropColumns = [];
+	protected $dropColumns = [];
 
-    protected $_alterColumns = [];
+	protected $alterColumns = [];
 
-    protected $_engine;
+	protected $engine;
 
-    protected $_primaryKey;
+	protected $primaryKey;
 
-    protected $_charset = 'utf8';
+	protected $charset = 'utf8';
 
-    const ENGINE_INNODB = 'InnoDB';
+	const ENGINE_INNODB = 'InnoDB';
 
-    const ENGINE_MEMORY = 'memory';
+	const ENGINE_MEMORY = 'memory';
 
-    const ENGINE_MYISAM = 'MyISAM';
+	const ENGINE_MYISAM = 'MyISAM';
 
-    public function __construct(\Jcode\DependencyContainer $dc)
-    {
-        $this->_dc = $dc;
-    }
+	/**
+	 * Set table name
+	 *
+	 * @param $name
+	 *
+	 * @return $this
+	 */
+	public function setTableName($name)
+	{
+		$this->tableName = $name;
 
-    /**
-     * Set tablename
-     *
-     * @param $tableName
-     * @return $this
-     * @throws \Exception
-     */
-    public function setTableName($tableName)
-    {
-        $this->_tableName = $tableName;
+		return $this;
+	}
 
-        return $this;
-    }
+	/**
+	 * Return tablename
+	 *
+	 * @return mixed
+	 */
+	public function getTableName()
+	{
+		return $this->tableName;
+	}
 
-    /**
-     * @return string|null
-     */
-    public function getTableName()
-    {
-        return $this->_tableName;
-    }
+	/**
+	 * Set table engine
+	 *
+	 * @param $engine
+	 *
+	 * @return $this
+	 */
+	public function setEngine($engine)
+	{
+		$this->engine = $engine;
 
-    /**
-     * Set table engine
-     *
-     * @param $engine
-     * @return $this
-     * @throws \Exception
-     */
-    public function setEngine($engine)
-    {
-        $this->_engine = $engine;
+		return $this;
+	}
 
-        return $this;
-    }
+	/**
+	 * Return table engine
+	 *
+	 * @return mixed
+	 */
+	public function getEngine()
+	{
+		return $this->engine;
+	}
 
-    /**
-     * @return string|null
-     */
-    public function getEngine()
-    {
-        return $this->_engine;
-    }
+	/**
+	 * Set charset
+	 *
+	 * @param $charset
+	 *
+	 * @return $this
+	 */
+	public function setCharset($charset)
+	{
+		$this->charset = $charset;
 
-    public function getCharset()
-    {
-        return $this->_charset;
-    }
+		return $this;
+	}
 
-    public function setCharset($charset)
-    {
-        $this->_charset($charset);
-    }
+	/**
+	 * Return charset
+	 *
+	 * @return string
+	 */
+	public function getCharset()
+	{
+		return $this->charset;
+	}
 
-    /**
-     * Add column to this table
-     *
-     * @param $name
-     * @param $type
-     * @param null $length
-     * @param array $options
-     * @return $this
-     * @throws \Exception
-     */
-    public function addColumn($name, $type, $length = null, array $options = [])
-    {
-        $column = $this->_dc->get('Jcode\Db\Adapter\Mysql\Table\Column');
+	/**
+	 * Add column to this table
+	 *
+	 * @param $name
+	 * @param $type
+	 * @param null $length
+	 * @param array $options
+	 * @return $this
+	 * @throws \Exception
+	 */
+	public function addColumn($name, $type, $length = null, array $options = [])
+	{
+		/* @var \Jcode\Db\Adapter\Mysql\Table\Column $column */
+		$column = $this->objectmanager->get('Jcode\Db\Adapter\Mysql\Table\Column');
 
-        $column->setName($name);
-        $column->setType($type);
-        $column->setLength($length);
-        $column->setOptions($options);
+		$column->setName($name);
+		$column->setType($type);
+		$column->setLength($length);
+		$column->setOptions($options);
 
-        array_push($this->_columns, $column);
+		array_push($this->columns, $column);
 
-        return $this;
-    }
+		return $this;
+	}
 
-    /**
-     * Alter column from this table
-     *
-     * @param $name
-     * @param array $options
-     * @return $this
-     */
-    public function alterColumn($name, array $options)
-    {
-        $column = $this->_dc->get('Jcode\Db\Adapter\Mysql\Table\Column');
+	/**
+	 * Alter column from this table
+	 *
+	 * @param $name
+	 * @param array $options
+	 * @return $this
+	 */
+	public function alterColumn($name, array $options)
+	{
+		/* @var \Jcode\Db\Adapter\Mysql\Table\Column $column */
+		$column = $this->objectmanager->get('Jcode\Db\Model\Adapter\Mysql\Table\Column');
 
-        $column->setName($name);
-        $column->setOptions($options);
+		$column->setName($name);
+		$column->setOptions($options);
 
-        array_push($this->_alterColumns, $column);
+		array_push($this->alterColumns, $column);
 
-        return $this;
-    }
+		return $this;
+	}
 
-    public function getAlteredColumns()
-    {
-        return $this->_alterColumns;
-    }
+	public function getAlteredColumns()
+	{
+		return $this->alterColumns;
+	}
 
-    /**
-     * Drop column from table
-     *
-     * @param $name
-     * @return $this
-     */
-    public function dropColumn($name)
-    {
-        array_push($this->_dropColumns, $name);
+	/**
+	 * Drop column from table
+	 *
+	 * @param $name
+	 * @return $this
+	 */
+	public function dropColumn($name)
+	{
+		array_push($this->dropColumns, $name);
 
-        return $this;
-    }
+		return $this;
+	}
 
-    public function getDroppedColumns()
-    {
-        return $this->_dropColumns;
-    }
+	public function getDroppedColumns()
+	{
+		return $this->dropColumns;
+	}
 
-    public function getColumns()
-    {
-        return $this->_columns;
-    }
+	public function getColumns()
+	{
+		return $this->columns;
+	}
 
-    public function setPrimaryKey($key)
-    {
-        $this->_primaryKey = $key;
+	public function setPrimaryKey($key)
+	{
+		$this->primaryKey = $key;
 
-        return $this;
-    }
+		return $this;
+	}
 
-    public function getPrimaryKey()
-    {
-        return $this->_primaryKey;
-    }
+	public function getPrimaryKey()
+	{
+		return $this->primaryKey;
+	}
 }

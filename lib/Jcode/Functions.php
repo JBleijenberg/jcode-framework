@@ -19,18 +19,20 @@
  * 
  * @license     http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
-use \Jcode\ObjectManager;
 
-error_reporting(E_ALL);
-ini_set('display_errors', true);
+/**
+ * @param $data
+ * @param bool $exit
+ */
+function debug($data, $exit = false)
+{
+	echo '<pre>';
 
-define('BP', str_replace('/public', '/', $_SERVER['DOCUMENT_ROOT']));
-define('DS', DIRECTORY_SEPARATOR);
+	print_r($data);
 
-require_once BP . DS . 'lib' . DS . 'Jcode' . DS . 'Functions.php';
-require_once BP . DS . 'lib' . DS . 'Jcode' . DS . 'Autoloader.php';
+	echo '</pre>';
 
-require_once BP . DS . 'lib' . DS . 'Jcode' . DS . 'Application.php';
-
-\Jcode\Application::isDeveloperMode(true);
-\Jcode\Application::run();
+	if ($exit) {
+		exit;
+	}
+}

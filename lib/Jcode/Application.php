@@ -3,95 +3,158 @@
  *
  * NOTICE OF LICENSE
  *
- * This source file is subject to the Academic Free License (AFL 3.0)
- * that is bundled with this package in the file LICENSE_AFL.txt.
+ * This source file is subject to the General Public License (GPL 3.0)
+ * that is bundled with this package in the file LICENSE
  * It is also available through the world-wide-web at this URL:
- * http://opensource.org/licenses/afl-3.0.php
- * If you did not receive a copy of the license and are unable to
- * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
+ * http://opensource.org/licenses/GPL-3.0
  *
  * DISCLAIMER
  *
- * Do not edit or add to this file if you wish to upgrade Magento to newer
- * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
+ * Do not edit or add to this file if you wish to upgrade this module to newer
+ * versions in the future.
  *
- * @category    J!Code Framework
- * @package     J!Code Framework
- * @author      Jeroen Bleijenberg <jeroen@maxserv.nl>
- * 
- * @license     http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
+ * @category    J!Code: Framework
+ * @package     J!Code: Framework
+ * @author      Jeroen Bleijenberg <jeroen@maxserv.com>
+ *
+ * @copyright   Copyright (c) 2015 MaxServ (http://www.maxserv.com)
+ * @license     http://opensource.org/licenses/GPL-3.0 General Public License (GPL 3.0)
  */
 namespace Jcode;
 
-class Application
+use \Exception;
+use Jcode\Application\Environment;
+
+final class Application
 {
 
-    /**
-     * @var Router\Http
-     */
-    protected $_http;
+	protected $isSharedInstance = true;
 
-    /**
-     * @var DependencyContainer
-     */
-    protected $_dc;
+	protected $eventId = 'application';
 
-    /**
-     * @var Helper
-     */
-    protected $_helper;
+	/**
+	 * @var \Jcode\Application\Environment
+	 */
+	protected static $environment;
 
-    /**
-     * @var Log
-     */
-    protected $_log;
+	/**
+	 * @var \Jcode\ObjectManager
+	 */
+	protected static $objectManager;
 
-    /**
-     * @var array
-     */
-    private $_modules = [];
+	protected static $isDeveloperMode = false;
 
-    /**
-     * @param DependencyContainer $dc
-     * @param Router\Http $http
-     * @param \Jcode\Application\Helper $helper
-     * @param Application\ConfigSingleton $config
-     * @param Log $log
-     * @internal param $ Router\\Http $http
-     */
-    public function __construct(DependencyContainer $dc, Router\Http $http, \Jcode\Application\Helper $helper,
-        Application\ConfigSingleton $config, Log $log)
-    {
-        $this->_http = $http;
-        $this->_dc = $dc;
-        $this->_helper = $helper;
-        $this->_config = $config;
-        $this->_log = $log;
-    }
+	public static function isDeveloperMode($bool = true)
+	{
+		self::$isDeveloperMode = $bool;
+	}
 
-    public function translate()
-    {
-        return $this->_helper->translate(func_get_args());
-    }
+	/**
+	 * Initialize application and dispatch it
+	 */
+	public static function run()
+	{
+		if (!self::$environment) {
+			self::$objectManager = new ObjectManager;
+			self::$environment = self::$objectManager->get('Jcode\Application\Environment');
 
-    public function run()
-    {
-        if (!$this->_http instanceof Router\Http) {
-            throw new \Exception($this->_helper->translate('Invalid request object. Expecting instance of \Jcode\Router\Request\Http. %s Given instead', get_class($this->_http)));
-        }
+			try {
+				self::$environment->configure();
+				self::$environment->setup();
+				self::$environment->dispatch();
+			} catch (Exception $e) {
+				self::logException($e);
+			}
+		}
+	}
 
-        try {
-            $umask = umask(0);
+	/**
+	 * Retrieve initialized application environment.
+	 *
+	 * @return \Jcode\Application\Environment
+	 */
+	public static function env()
+	{
+		if (!self::$environment) {
+			self::$objectManager = new ObjectManager;
+			self::$environment = self::$objectManager->get('Jcode\Application\Environment');
+		}
 
-            $this->_http->dispatch($this->_config);
+		return self::$environment;
+	}
 
-            umask($umask);
-        } catch (\Exception $e) {
-            $this->_log->writeException($e);
+	/**
+	 * Log exception to file
+	 *
+	 * @param \Exception $e
+	 */
+	public static function logException(Exception $e)
+	{
+		$logger = new Log;
+		$logger->writeException($e);
 
-            throw new \Exception($e->getMessage());
-        }
-    }
+		if (self::$isDeveloperMode) {
+			debug($e->getMessage(), true);
+		}
+	}
+
+	public static function log($message, $level = 3, $file = 'jcode.log')
+	{
+		if (self::$isDeveloperMode) {
+			debug($message);
+		}
+
+		$logger = new Log;
+
+		$logger->setLogfile($file);
+		$logger->setLevel($level);
+		$logger->setMessage($message);
+
+		$logger->write();
+	}
+
+	/**
+	 * Return layout element
+	 *
+	 * @param $element
+	 *
+	 * @return mixed
+	 */
+	public static function getLayout($element)
+	{
+		return self::env()->getLayout($element);
+	}
+
+	/**
+	 * Return baseurl's
+	 *
+	 * @param string $type
+	 * @param bool $secure
+	 *
+	 * @return \Jcode\Application\Config|string
+	 */
+	public static function getBaseUrl($type = Environment::URL_TYPE_DEFAULT, $secure = true)
+	{
+		$layoutName = self::env()->getConfig('layout/name');
+
+		if ($secure === true) {
+			$baseUrl = self::env()->getConfig('secure_base_url');
+		} else {
+			$baseUrl = self::env()->getConfig('base_url');
+		}
+		switch ($type) {
+			case Environment::URL_TYPE_DEFAULT:
+				$url = $baseUrl;
+
+				break;
+			case Environment::URL_TYPE_CSS:
+				$url = $baseUrl . '/design/' . $layoutName . '/css';
+
+				break;
+			default:
+				$url = $baseUrl;
+		}
+
+		return $url;
+	}
 }

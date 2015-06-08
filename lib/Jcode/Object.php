@@ -7,255 +7,287 @@
  * that is bundled with this package in the file LICENSE_AFL.txt.
  * It is also available through the world-wide-web at this URL:
  * http://opensource.org/licenses/afl-3.0.php
- * If you did not receive a copy of the license and are unable to
- * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
  *
  * DISCLAIMER
  *
- * Do not edit or add to this file if you wish to upgrade Magento to newer
- * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
+ * Do not edit or add to this file if you wish to upgrade this module to newer
+ * versions in the future.
  *
  * @category    J!Code Framework
  * @package     J!Code Framework
- * @author      Jeroen Bleijenberg <jeroen@maxserv.nl>
- * 
+ * @author      Jeroen Bleijenberg <jeroen@maxserv.com>
+ *
  * @license     http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 namespace Jcode;
 
-class Object implements \Iterator, \Countable
+use \Iterator;
+use \Countable;
+
+class Object implements Iterator, Countable
 {
 
-    protected $_data = [];
+	/**
+	 * Register changes to the current object
+	 * @var bool
+	 */
+	protected $hasChangedData = false;
 
-    protected $_origData = [];
+	protected $eventId = 'jcode.object';
 
-    /**
-     * @var \Jcode\Helper
-     */
-    protected $_helper;
+	/**
+	 * Hold object data
+	 * @var array
+	 */
+	protected $data = [];
 
-    /**
-     * @var DependencyContainer
-     */
-    protected $_dc;
+	protected $origData = [];
 
-    /**
-     * @var bool
-     */
-    protected $_hasChangedData = false;
+	/**
+	 * @param array $array
+	 * @param bool $overwrite
+	 * @return $this
+	 * @throws \Exception
+	 */
+	public function importArray(array $array, $overwrite = false)
+	{
+		foreach ($array as $key => $value) {
+			if ($overwrite === false && array_key_exists($key, $this->data)) {
+				continue;
+			} else {
+				if (is_array($value)) {
+					$child = new self();
 
-    /**
-     * @param \Jcode\Application\Helper $helper
-     * @param null $data
-     */
-    public function __construct(\Jcode\Application\Helper $helper, \Jcode\DependencyContainer $dc, $data = null)
-    {
-        $this->_helper = $helper;
-        $this->_dc = $dc;
+					$this->setData($key, $child->importArray($value));
+				} else {
+					$this->setData($key, $value);
+				}
+			}
+		}
 
-        if ($data !== null) {
-            if (!is_array($data)) {
-                $data = [$data];
-            }
+		return $this;
+	}
 
-            $this->setData($data);
-        }
+	public function importObject(Object $object)
+	{
+		foreach ($object as $key => $value) {
+			$this->setData($key, $value);
+		}
 
-        return $this;
-    }
+		return $this;
+	}
 
-    public function __call($method, $args)
-    {
-        $key = $this->underscore(substr($method, 3));
+	/**
+	 * Set data to this object. Using this data will always overwrite the current value.
+	 * Use addData() to only add and not overwrite
+	 *
+	 * @param $key
+	 * @param $value
+	 * @return $this
+	 */
+	public function setData($key, $value)
+	{
+		if ((array_key_exists($key, $this->data)
+			&& $this->data[$key] != $value)
+			|| (!array_key_exists($key, $this->data))) {
+			$this->hasChangedData = true;
+		}
 
-        switch (substr($method, 0, 3)) {
-            case 'get':
-                return $this->getData($key);
+		$this->data[$key] = $value;
 
-                break;
-            case 'set':
-                return $this->setData($key, $args[0]);
+		return $this;
+	}
 
-                break;
-            default:
-                return $this->getData($method);
-        }
+	/**
+	 * Get data
+	 *
+	 * @param $key
+	 * @return null
+	 */
+	public function getData($key = null)
+	{
+		if ($key !== null) {
+			if (array_key_exists($key, $this->data)) {
+				return $this->data[$key];
+			} else {
+				return false;
+			}
+		}
 
-        return false;
-    }
+		return $this->data;
+	}
 
-    /**
-     * Remove data from object.
-     *
-     * @param null|string $key
-     * @return $this
-     */
-    public function unsetData($key = null)
-    {
-        if ($key === null) {
-            $this->_data = [];
-        } else {
-            if (array_key_exists($key, $this->_data)) {
-                unset($this->_data[$key]);
-            }
-        }
+	/**
+	 * Get origData
+	 *
+	 * @param null $key
+	 * @return array
+	 */
+	public function getOrigData($key = null)
+	{
+		if ($key !== null && array_key_exists($key, $this->origData)) {
+			return $this->origData[$key];
+		}
 
-        return $this;
-    }
+		return $this->origData;
+	}
 
-    /**
-     * Set data into object. Using setData will overwrite any data that already exists
-     *
-     * @param string|array $key
-     * @param mixed $value
-     * @return $this
-     */
-    public function setData($key, $value = null)
-    {
-        if (is_array($key) && $value == null) {
-            foreach ($key as $k => $v) {
-                $this->setData($k, $v);
-            }
-        } else if(is_array($value) || $value instanceof \stdClass) {
-            $obj = $this->_dc->get('Jcode\Object', (array)$value);
+	/**
+	 * Add data to this object. If the key already exists, nothing happens.
+	 * Use setData() to overwrite.
+	 *
+	 * @param $key
+	 * @param $value
+	 * @return $this
+	 */
+	public function addData($key, $value)
+	{
+		if (!array_key_exists($key, $this->data)) {
+			$this->hasChangedData = true;
 
-            $obj->cleanup();
+			$this->setData($key, $value);
+		}
 
-            $this->setData($key, $obj);
-        } else {
-            if (!empty($key) && $value !== null) {
-                $this->_data[$key] = $value;
+		return $this;
+	}
 
-                if (!array_key_exists($key, $this->_origData)) {
-                    $this->_origData[$key] = $value;
-                    $this->_hasChangedData = true;
-                } else {
-                    if ($this->_origData[$key] !== $value) {
-                        $this->_hasChangedData = true;
-                    }
-                }
-            }
-        }
+	/**
+	 * Remove element from data array
+	 *
+	 * @param $key
+	 * @return $this
+	 */
+	public function unsetData($key = null)
+	{
+		if ($key !== null && array_key_exists($key, $this->data)) {
+			$this->hasChangedData = true;
 
-        return $this;
-    }
+			unset($this->data[$key]);
+		} else {
+			$this->data = [];
+		}
 
-    /**
-     * Practically the same as setData, only this function skips when there already is an entry with the given key.
-     *
-     * @param $key
-     * @param null $value
-     * @return $this
-     */
-    public function addData($key, $value = null)
-    {
-        if (is_array($key) && $value == null) {
-            foreach ($key as $k => $v) {
-                $this->addData($k, $v);
-            }
-        } else {
-            if (!empty($key) && $value !== null && !array_key_exists($key, $this->_data)) {
-                $this->setData($key, $value);
-            }
-        }
+		return $this;
+	}
 
-        return $this;
-    }
+	public function unsetOrigData()
+	{
+		$this->origData = [];
 
-    /**
-     * Get data from object. Return null if there is no data with the given key
-     *
-     * @param null|string $key
-     * @param null $default
-     * @return mixed
-     */
-    public function getData($key = null, $default = null)
-    {
-        if ($key === null) {
-            return $this->_data;
-        } else {
-            if (array_key_exists($key, $this->_data)) {
-                return $this->_data[$key];
-            }
-        }
+		return $this;
+	}
 
-        return $default;
-    }
+	/**
+	 * Check if this object contains data
+	 *
+	 * @return bool
+	 */
+	public function hasData()
+	{
+		return !empty($this->data);
+	}
 
-    /**
-     * Split given var on capitalized characters and prepend underscore
-     *
-     * @param string $key
-     * @return string
-     */
-    public function underscore($key)
-    {
-        return strtolower(preg_replace('/(.)([A-Z])/','$1_$2', $key));
-    }
+	/**
+	 * Called when set.. or get.. is called
+	 *
+	 * @param $key
+	 * @param $value
+	 * @return Object|null
+	 */
+	public function __call($key, $value)
+	{
+		$type = substr($key, 0, 3);
+		$key = substr($key, 3);
+		$value = current($value);
 
-    /**
-     * Returns wether the object has changed data.
-     *
-     * @return bool
-     */
-    public function hasChangedData()
-    {
-        return $this->_hasChangedData;
-    }
+		$this->convertStringToDataKey($key);
 
-    /**
-     * Check if the current instance of this object contains any data
-     *
-     * @return bool
-     */
-    public function hasData()
-    {
-        return !(empty($this->_data));
-    }
+		if ($type == 'set') {
+			return $this->setData($key, $value);
+		} else {
+			if ($type == 'get' && array_key_exists($key, $this->data)) {
+				return $this->getData($key);
+			}
+		}
 
-    public function rewind()
-    {
-        reset($this->_data);
-    }
+		return null;
+	}
 
-    public function current()
-    {
-        return current($this->_data);
-    }
+	/**
+	 * @param null $bool
+	 *
+	 * @return bool
+	 */
+	public function hasChangedData($bool = null)
+	{
+		if ($bool === null) {
+			return $this->hasChangedData;
+		} else {
+			$this->hasChangedData = $bool;
+		}
+	}
 
-    public function key()
-    {
-        return key($this->_data);
-    }
+	/**
+	 * Create data key for use with setData(), addData() or __call
+	 * @param $key
+	 */
+	public function convertStringToDataKey(&$key)
+	{
+		$key = preg_replace('/(.)([A-Z])/', '$1_$2', $key);
+		$key = strtolower($key);
+	}
 
-    public function next()
-    {
-        return next($this->_data);
-    }
+	public function copyToOrigData()
+	{
+		$this->origData = $this->data;
 
-    public function valid()
-    {
-        $key = $this->key();
+		return $this;
+	}
 
-        return ($key !== null && $key !== false);
-    }
+	public function toArray()
+	{
+		$arr = [];
 
-    public function count(){
-        return count($this->_data);
-    }
+		foreach ($this->data as $key => $val) {
+			if ($val instanceof $this) {
+				$arr[$key] = $val->toArray();
+			} else {
+				$arr[$key] = $val;
+			}
+		}
 
-    /**
-     * When this object is only used for datacontainer, unset all properties.
-     * This cleans up the data.
-     */
-    public function cleanup()
-    {
-        $this->_dc = null;
-        $this->_helper = null;
+		return $arr;
+	}
 
-        return $this;
-    }
+	public function rewind()
+	{
+		reset($this->data);
+	}
+
+	public function current()
+	{
+		return current($this->data);
+	}
+
+	public function key()
+	{
+		return key($this->data);
+	}
+
+	public function next()
+	{
+		return next($this->data);
+	}
+
+	public function valid()
+	{
+		$key = $this->key();
+
+		return ($key !== null && $key !== false);
+	}
+
+	public function count()
+	{
+		return count($this->data);
+	}
 }

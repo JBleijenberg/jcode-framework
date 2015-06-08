@@ -20,10 +20,12 @@
  * @copyright   Copyright (c) 2015 MaxServ (http://www.maxserv.com)
  * @license     http://opensource.org/licenses/GPL-3.0 General Public License (GPL 3.0)
  */
-namespace Jcode\Db;
+namespace Jcode\Event;
 
-class Adapter
+class Manager
 {
+
+	protected $eventId = 'event.manager';
 
 	protected $isSharedInstance = true;
 
@@ -33,35 +35,8 @@ class Adapter
 	 */
 	protected $config;
 
-	/**
-	 * @inject \Jcode\Registry
-	 * @var \Jcode\Registry
-	 */
-	protected $registry;
-
-	/**
-	 * @inject \Jcode\ObjectManager
-	 * @var \Jcode\ObjectManager
-	 */
-	protected $objectmanager;
-
-	/**
-	 * @var \Jcode\Db\AdapterInterface
-	 */
-	protected $instance;
-
-	public function init()
+	public function dispatchEvent($eventId, $eventObject)
 	{
-		$config = $this->config;
 
-		if ($config->getDatabase() && $config->getDatabase()->hasData()) {
-			$this->instance = $this->objectmanager->get($config->getDatabase()->getAdapter());
-			$this->instance->connect($config->getDatabase());
-		}
-	}
-
-	public function getInstance()
-	{
-		return $this->instance;
 	}
 }

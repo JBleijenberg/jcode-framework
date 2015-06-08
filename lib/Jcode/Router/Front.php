@@ -20,48 +20,54 @@
  * @copyright   Copyright (c) 2015 MaxServ (http://www.maxserv.com)
  * @license     http://opensource.org/licenses/GPL-3.0 General Public License (GPL 3.0)
  */
-namespace Jcode\Db;
+namespace Jcode\Router;
 
-class Adapter
+class Front
 {
 
 	protected $isSharedInstance = true;
 
-	/**
-	 * @inject \Jcode\Application\Config
-	 * @var \Jcode\Application\Config
-	 */
-	protected $config;
+	protected $eventId = 'router.front';
 
 	/**
-	 * @inject \Jcode\Registry
-	 * @var \Jcode\Registry
+	 * @var \Jcode\Router\Http\Request
 	 */
-	protected $registry;
+	protected $request;
+
+	/**
+	 * @var \Jcode\Router\Http\Response
+	 */
+	protected $response;
 
 	/**
 	 * @inject \Jcode\ObjectManager
 	 * @var \Jcode\ObjectManager
 	 */
-	protected $objectmanager;
+	protected $objectManager;
 
-	/**
-	 * @var \Jcode\Db\AdapterInterface
-	 */
-	protected $instance;
-
-	public function init()
+	public function dispatch()
 	{
-		$config = $this->config;
+		$this->response = $this->objectManager->get('Jcode\Router\Http\Response');
+		$this->request = $this->objectManager->get('Jcode\Router\Http\Request');
 
-		if ($config->getDatabase() && $config->getDatabase()->hasData()) {
-			$this->instance = $this->objectmanager->get($config->getDatabase()->getAdapter());
-			$this->instance->connect($config->getDatabase());
-		}
+		$this->request->buildHttpRequest($this->response);
+
+		return $this;
 	}
 
-	public function getInstance()
+	/**
+	 * @return \Jcode\Router\Http\Response
+	 */
+	public function getResponse()
 	{
-		return $this->instance;
+		return $this->response;
+	}
+
+	/**
+	 * @return \Jcode\Router\Http\Request
+	 */
+	public function getRequest()
+	{
+		return $this->request;
 	}
 }
