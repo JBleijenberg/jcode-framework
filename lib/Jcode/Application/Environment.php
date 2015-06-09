@@ -140,6 +140,10 @@ class Environment
 
 		if (isset($element['extends'])) {
 			$child = $this->getLayout($element['extends']);
+
+			foreach ($child as $childName => $childElement) {
+				$object->setData($childName, $childElement);
+			}
 		}
 
 		foreach ($element->reference as $reference) {
