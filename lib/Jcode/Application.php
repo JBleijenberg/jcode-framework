@@ -161,4 +161,27 @@ final class Application
 
 		return $url;
 	}
+
+	/**
+	 * Build a valid url
+	 *
+	 * @param $location
+	 * @param array $options
+	 * @return string
+	 */
+	public static function getUrl($location, array $options = [])
+	{
+		if (strpos($location, '://') === false) {
+			$location = trim($location, '/');
+			$isSecure = (array_key_exists('secure', $options) && $options['secure'] === true) ? true : false;
+
+			$location = trim(self::getBaseUrl(Environment::URL_TYPE_DEFAULT, $isSecure), '/') . '/' . $location;
+		}
+
+		if (array_key_exists('params', $options)) {
+			$location = $location . '?' . http_build_query($options['params']);
+		}
+
+		return $location;
+	}
 }
