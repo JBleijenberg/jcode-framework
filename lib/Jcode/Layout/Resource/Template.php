@@ -37,6 +37,12 @@ class Template extends Object
 	protected $template;
 
 	/**
+	 * @inject \Jcode\Resource\Helper
+	 * @var \Jcode\Resource\Helper
+	 */
+	protected $helper;
+
+	/**
 	 * @inject \Jcode\ObjectManager
 	 * @var \Jcode\ObjectManager
 	 */
@@ -84,12 +90,20 @@ class Template extends Object
 
 			next($templateArgs);
 
-			if (file_exists($module->getModulePath() . DS . 'View' . DS . 'Template' . DS . current($templateArgs))) {
-				include $module->getModulePath() . DS . 'View' . DS . 'Template' . DS . current($templateArgs);
+			if (file_exists($module->getModulePath() . DS . 'View' . DS . 'Template' . DS . Application::env()->getConfig('layout/name') . DS . current($templateArgs))) {
+				$file = $module->getModulePath() . DS . 'View' . DS . 'Template' . DS . Application::env()->getConfig('layout/name') . DS . current($templateArgs);
+			} else {
+				$file = $module->getModulePath() . DS . 'View' . DS . 'Template' . DS . current($templateArgs);
 			}
+
+			include $file;
 		}
 	}
 
+	/**
+	 * @param $reference
+	 * @return mixed
+	 */
 	public function getReferenceHtml($reference)
 	{
 		$layout = $this->registry->get('current_layout');
@@ -101,6 +115,10 @@ class Template extends Object
 		}
 	}
 
+	/**
+	 * @param $name
+	 * @return mixed|null
+	 */
 	public function getChildHtml($name)
 	{
 		$layout = $this->registry->get('current_layout')->getData($this->getReference());
@@ -114,6 +132,12 @@ class Template extends Object
 		return null;
 	}
 
+	/**
+	 * @param $block
+	 * @param array $args
+	 * @return mixed
+	 * @throws \Exception
+	 */
 	protected function renderBlock($block, array $args = [])
 	{
 		$instance = $this->objectManager->get($block->getClass());
@@ -134,5 +158,21 @@ class Template extends Object
 		}
 
 		return $instance->render();
+	}
+
+	/**
+	 * Sanitize given string
+	 *
+	 * @param $string
+	 * @return string
+	 */
+	public function sanitize($string)
+	{
+		return $this->helper->sanitize($string);
+	}
+
+	public function translate()
+	{
+		return $this->helper->translate(func_get_args());
 	}
 }
