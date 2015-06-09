@@ -177,7 +177,7 @@ class Controller
 		return $this;
 	}
 
-	public function getLayout($block = null, $template = null)
+	public function loadLayout($block = null, $template = null)
 	{
 		if (!$this->layout) {
 			$request = $this->getRequest();
