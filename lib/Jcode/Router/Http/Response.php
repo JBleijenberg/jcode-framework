@@ -89,7 +89,7 @@ class Response
 	 * @param array $params
 	 * @param int $httpCode
 	 */
-	public function redirect($location, array $params = [], $httpCode = 302)
+	public function redirect($location, $httpCode = 302)
 	{
 		if (!empty($params)) {
 			$location .= $this->parameterPrefix . http_build_query($params);
