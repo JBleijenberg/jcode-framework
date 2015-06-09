@@ -22,6 +22,7 @@
  */
 namespace Jcode\Application;
 
+use Jcode\Application;
 use \SimpleXMLElement;
 
 class Environment
@@ -234,21 +235,11 @@ class Environment
 
 	protected function collectLayoutXml()
 	{
-		$files = glob(BP . DS . 'application' . DS . '*' . DS . '*' . DS . 'View' . DS . 'Layout' . DS . '*.xml');
+		$files = glob(BP . DS . 'application' . DS . '*' . DS . '*' . DS . 'View' . DS . 'Layout' . DS . Application::env()->getConfig('layout/name') . DS . '*.xml');
 
 		$layoutArray = $this->objectManager->get('Jcode\Object');
 
 		foreach ($files as $file) {
-			$fileInDesign = str_replace(
-				'View' . DS . 'Layout',
-				'View' . DS . $this->getConfig('layout/name') . DS . 'Layout',
-				$file
-			);
-
-			if (file_exists($fileInDesign)) {
-				$file = $fileInDesign;
-			}
-
 			$xml = simplexml_load_file($file);
 
 			foreach ($xml->request as $request) {
