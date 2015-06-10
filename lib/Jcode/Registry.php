@@ -36,7 +36,7 @@ class Registry
 	 * Try to retrieve a value from the registry based on the given key
 	 *
 	 * @param $key
-	 * @param bool $default
+	 * @param mixed $default
 	 * @return bool
 	 */
 	public function get($key, $default = false)
