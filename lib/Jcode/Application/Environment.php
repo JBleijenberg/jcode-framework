@@ -166,9 +166,18 @@ class Environment
 		}
 
 		foreach ($reference->block as $block) {
+			/* @var \Jcode\Object\Collection $childHtml */
 			$childHtml = $referenceObject->getItemById('child_html');
 
-			$childHtml->addItem($this->getLayoutBlock($block), (string)$block['name']);
+			if ($childHtml->getItemById((string)$block['name'])) {
+				$childBlock = $childHtml->getItemById((string)$block['name']);
+
+				foreach ($this->getLayoutBlock($block)->getData() as $key => $val) {
+					$childBlock->setData($key, $val);
+				}
+			} else {
+				$childHtml->addItem($this->getLayoutBlock($block), (string)$block['name']);
+			}
 		}
 
 		return $referenceObject;
