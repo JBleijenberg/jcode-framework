@@ -38,6 +38,18 @@ class Session extends \Jcode\Object
 	protected $namespace = 'application';
 
 	/**
+	 * @inject \Jcode\Registry
+	 * @var \Jcode\Registry
+	 */
+	protected $registry;
+
+	/**
+	 * @inject \Jcode\ObjectManager
+	 * @var \Jcode\ObjectManager
+	 */
+	protected $objectManager;
+
+	/**
 	 * Initialize sessions
 	 */
 	public function __construct()
@@ -51,6 +63,11 @@ class Session extends \Jcode\Object
 		}
 
 		return $this;
+	}
+
+	public function init()
+	{
+		$this->registerSessionNamespace();
 	}
 
 	public function __call($method, $args)
@@ -106,7 +123,11 @@ class Session extends \Jcode\Object
 			$session['messages'] = [];
 		}
 
-		array_push($session['messages'], [$type, $msg]);
+		$msgObj = $this->objectManager->get('Jcode\Object');
+
+		$msgObj->setType($type);
+		$msgObj->setMessage($msg);
+		array_push($session['messages'], $msgObj);
 
 		$this->setSession($session);
 
@@ -168,7 +189,7 @@ class Session extends \Jcode\Object
 	{
 		$session = $this->getSession();
 
-		if (!array_key_exists('messages', $session) || !is_array('messages', $session)) {
+		if (!array_key_exists('messages', $session) || !is_array($session['messages'])) {
 			$messages = [];
 		} else {
 			$messages = $session['messages'];
@@ -207,6 +228,25 @@ class Session extends \Jcode\Object
 	public function setSession($params)
 	{
 		$_SESSION[$this->namespace] = $params;
+
+		return $this;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getRegisteredNamespaces()
+	{
+		return $this->registry->get('registered_session_namespaces', []);
+	}
+
+	protected function registerSessionNamespace()
+	{
+		$registeredNamespaces = $this->getRegisteredNamespaces();
+
+		$registeredNamespaces[$this->namespace] = get_called_class();
+
+		$this->registry->set('registered_session_namespaces', $registeredNamespaces);
 
 		return $this;
 	}
