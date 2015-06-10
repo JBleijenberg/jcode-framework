@@ -202,18 +202,9 @@ class Controller
 
 			if ($root = $layout->getRoot()) {
 				foreach ($root->getItemById('child_html') as $childHtml) {
-					$block = $this->objectManager->get($childHtml->getClass());
+					$childHtml->setCurrentLayout($layout);
 
-					$block->setTemplate($childHtml->getTemplate());
-					$block->setCurrentLayout($layout);
-
-					foreach ($childHtml->getMethods() as $method) {
-						$action = $method->getMethod();
-
-						$block->$action(current($method->getArgs()));
-					}
-
-					echo $block->render();
+					echo $childHtml->render();
 				}
 			}
 		}

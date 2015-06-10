@@ -28,6 +28,8 @@ use Jcode\Object;
 class Template extends Object
 {
 
+	protected $isSharedInstance = true;
+
 	/**
 	 * @inject \Jcode\Application\Config
 	 * @var \Jcode\Application\Config
@@ -110,7 +112,7 @@ class Template extends Object
 
 		if ($element = $layout->getData($reference)) {
 			foreach ($element->getItemById('child_html') as $childHtml) {
-				return $this->renderBlock($childHtml, ['reference' => $reference]);
+				$this->renderBlock($childHtml, ['reference' => $reference]);
 			}
 		}
 	}
@@ -140,24 +142,11 @@ class Template extends Object
 	 */
 	protected function renderBlock($block, array $args = [])
 	{
-		$instance = $this->objectManager->get($block->getClass());
-
-		$instance->setTemplate($block->getTemplate());
-		$instance->setName($block->getName());
-
 		foreach ($args as $key => $val) {
-			$instance->setData($key, $val);
+			$block->setData($key, $val);
 		}
 
-		if ($block->getMethods()) {
-			foreach ($block->getMethods() as $method) {
-				$action = $method->getMethod();
-
-				$instance->$action(current($method->getArgs()));
-			}
-		}
-
-		return $instance->render();
+		$block->render();
 	}
 
 	/**

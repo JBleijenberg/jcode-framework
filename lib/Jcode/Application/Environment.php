@@ -155,22 +155,10 @@ class Environment
 
 	public function parseReference(SimpleXMLElement $reference)
 	{
-		$referenceObject = $this->objectManager->get('Jcode\Object\Collection');
-
-		if ($reference->requires) {
-			foreach ($reference->requires as $require) {
-				if ($extend = $this->layout->getData((string)$require['path'])) {
-					foreach ($extend->reference as $reqReference) {
-						if ((string)$reqReference['name'] == (string)$require['reference']) {
-							foreach ($this->getLayoutBlock($reqReference) as $name => $block) {
-								if ($block instanceof \Jcode\Object) {
-									$referenceObject->addItem($block, $name);
-								}
-							}
-						}
-					}
-				}
-			}
+		if (isset($reference['extends'])) {
+			$referenceObject = $this->getLayout((string)$reference['extends'])->getData((string)$reference['name']);
+		} else {
+			$referenceObject = $this->objectManager->get('Jcode\Object\Collection');
 		}
 
 		if (!$referenceObject->getItemById('child_html') instanceof \Jcode\Object\Collection) {
@@ -194,10 +182,9 @@ class Environment
 	 */
 	protected function getLayoutBlock(SimpleXMLElement $element)
 	{
-		$blockObject = $this->objectManager->get('Jcode\Object');
+		$blockObject = $this->objectManager->get((string)$element['class']);
 
 		$blockObject->setName((string)$element['name']);
-		$blockObject->setClass((string)$element['class']);
 
 		if (isset($element['template'])) {
 			$blockObject->setTemplate((string)$element['template']);
@@ -207,21 +194,16 @@ class Environment
 			$methodCollection = $this->objectManager->get('Jcode\Object\Collection');
 
 			foreach ($element->method as $method) {
-				$methodObject = $this->objectManager->get('Jcode\Object');
-				$methodObject->setMethod((string)$method['name']);
-
 				$args = [];
 
 				foreach ($method as $arg => $value) {
 					$args[$arg] = (string)$value;
 				}
 
-				$methodObject->setArgs($args);
+				$func = (string)$method['name'];
 
-				$methodCollection->addItem($methodObject);
+				$blockObject->$func(current($args));
 			}
-
-			$blockObject->setMethods($methodCollection);
 		}
 
 		if ($element->block) {
