@@ -27,43 +27,43 @@ use Jcode\Application;
 class Front
 {
 
-	protected $isSharedInstance = true;
+    protected $isSharedInstance = true;
 
-	protected $eventId = 'router.front';
+    protected $eventId = 'router.front';
 
-	/**
-	 * @var \Jcode\Router\Http\Request
-	 */
-	protected $request;
+    /**
+     * @var \Jcode\Router\Http\Request
+     */
+    protected $request;
 
-	/**
-	 * @var \Jcode\Router\Http\Response
-	 */
-	protected $response;
+    /**
+     * @var \Jcode\Router\Http\Response
+     */
+    protected $response;
 
-	public function dispatch()
-	{
-		$this->response = Application::objectManager()->get('Jcode\Router\Http\Response');
-		$this->request = Application::objectManager()->get('Jcode\Router\Http\Request');
+    public function dispatch()
+    {
+        $this->response = Application::objectManager()->get('Jcode\Router\Http\Response');
+        $this->request = Application::objectManager()->get('Jcode\Router\Http\Request');
 
-		$this->request->buildHttpRequest($this->response);
+        $this->request->buildHttpRequest($this->response);
 
-		return $this;
-	}
+        return $this;
+    }
 
-	/**
-	 * @return \Jcode\Router\Http\Response
-	 */
-	public function getResponse()
-	{
-		return $this->response;
-	}
+    /**
+     * @return \Jcode\Router\Http\Response
+     */
+    public function getResponse()
+    {
+        return $this->response;
+    }
 
-	/**
-	 * @return \Jcode\Router\Http\Request
-	 */
-	public function getRequest()
-	{
-		return $this->request;
-	}
+    /**
+     * @return \Jcode\Router\Http\Request
+     */
+    public function getRequest()
+    {
+        return $this->request;
+    }
 }

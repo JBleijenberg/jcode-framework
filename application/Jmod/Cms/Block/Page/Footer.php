@@ -29,32 +29,32 @@ use Jcode\Layout\Resource\Template;
 class Footer extends Template
 {
 
-	protected $jsFiles = [];
+    protected $jsFiles = [];
 
-	/**
-	 * Return all added JS files
-	 * @return array
-	 */
-	public function getJsFiles()
-	{
-		$html = '';
+    /**
+     * Return all added JS files
+     * @return array
+     */
+    public function getJsFiles()
+    {
+        $html = '';
 
-		foreach ($this->jsFiles as $file) {
-			$html .= '<link rel="stylesheet" type="text/css" href="'. Application::getBaseUrl(Environment::URL_TYPE_JS) . '/' . $file .'">';
-		}
+        foreach ($this->jsFiles as $file) {
+            $html .= '<link rel="stylesheet" type="text/css" href="' . Application::getBaseUrl(Environment::URL_TYPE_JS) . '/' . $file . '">';
+        }
 
-		return $html;
-	}
+        return $html;
+    }
 
-	/**
-	 * @param $file
-	 *
-	 * @return $this
-	 */
-	public function addJs($file)
-	{
-		$this->jsFiles[] = $file;
+    /**
+     * @param $file
+     *
+     * @return $this
+     */
+    public function addJs($file)
+    {
+        $this->jsFiles[] = $file;
 
-		return $this;
-	}
+        return $this;
+    }
 }

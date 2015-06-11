@@ -30,202 +30,202 @@ use Jcode\Router\Http\Response;
 class Controller
 {
 
-	/**
-	 * Store $_POST
-	 *
-	 * @var Object
-	 */
-	protected $post;
+    /**
+     * Store $_POST
+     *
+     * @var Object
+     */
+    protected $post;
 
-	/**
-	 * Store $_GET
-	 *
-	 * @var Object
-	 */
-	protected $params;
+    /**
+     * Store $_GET
+     *
+     * @var Object
+     */
+    protected $params;
 
-	/**
-	 * Store $_FILES
-	 *
-	 * @var Object
-	 */
-	protected $files;
+    /**
+     * Store $_FILES
+     *
+     * @var Object
+     */
+    protected $files;
 
-	/**
-	 * @var Request
-	 */
-	protected $request;
+    /**
+     * @var Request
+     */
+    protected $request;
 
-	/**
-	 * @var Response
-	 */
-	protected $response;
+    /**
+     * @var Response
+     */
+    protected $response;
 
-	/**
-	 * @inject \Jcode\Application\Config
-	 * @var \Jcode\Application\Config
-	 */
-	protected $config;
+    /**
+     * @inject \Jcode\Application\Config
+     * @var \Jcode\Application\Config
+     */
+    protected $config;
 
-	/**
-	 * @inject \Jcode\Registry
-	 * @var \Jcode\Registry
-	 */
-	protected $registry;
+    /**
+     * @inject \Jcode\Registry
+     * @var \Jcode\Registry
+     */
+    protected $registry;
 
-	protected $layout;
+    protected $layout;
 
-	public function __construct(Request $request, Response $response)
-	{
-		$this->request = $request;
-		$this->response = $response;
-	}
+    public function __construct(Request $request, Response $response)
+    {
+        $this->request = $request;
+        $this->response = $response;
+    }
 
-	/**
-	 * @param \Jcode\Object $params
-	 * @param \Jcode\Object $post
-	 * @param \Jcode\Object $files
-	 */
-	public function preDispatch(Object $params, Object $post, Object $files)
-	{
-		$this->params = $params;
-		$this->post = $post;
-		$this->files = $files;
-	}
+    /**
+     * @param \Jcode\Object $params
+     * @param \Jcode\Object $post
+     * @param \Jcode\Object $files
+     */
+    public function preDispatch(Object $params, Object $post, Object $files)
+    {
+        $this->params = $params;
+        $this->post = $post;
+        $this->files = $files;
+    }
 
-	/**
-	 * @param null $key
-	 *
-	 * @return null|Object
-	 */
-	public function getPost($key = null)
-	{
-		if ($key !== null) {
-			if ($this->post->getData($key)) {
-				return $this->post->getData($key);
-			} else {
-				return null;
-			}
-		} else {
-			return $this->post;
-		}
-	}
+    /**
+     * @param null $key
+     *
+     * @return null|Object
+     */
+    public function getPost($key = null)
+    {
+        if ($key !== null) {
+            if ($this->post->getData($key)) {
+                return $this->post->getData($key);
+            } else {
+                return null;
+            }
+        } else {
+            return $this->post;
+        }
+    }
 
-	/**
-	 * return $_GET object
-	 *
-	 * @return Object
-	 */
-	public function getParams()
-	{
-		return $this->params;
-	}
+    /**
+     * return $_GET object
+     *
+     * @return Object
+     */
+    public function getParams()
+    {
+        return $this->params;
+    }
 
-	/**
-	 * Return single value from $_GET
-	 *
-	 * @param $key
-	 *
-	 * @return mixed
-	 */
-	public function getParam($key)
-	{
-		return $this->params->getData($key);
-	}
+    /**
+     * Return single value from $_GET
+     *
+     * @param $key
+     *
+     * @return mixed
+     */
+    public function getParam($key)
+    {
+        return $this->params->getData($key);
+    }
 
-	/**
-	 * Redirect user to given location
-	 *
-	 * @param $location
-	 */
-	public function redirect($location, array $params = [])
-	{
-		$this->getResponse()->redirect($location, $params);
-	}
+    /**
+     * Redirect user to given location
+     *
+     * @param $location
+     */
+    public function redirect($location, array $params = [])
+    {
+        $this->getResponse()->redirect($location, $params);
+    }
 
-	/**
-	 * Forward a user to the given location
-	 *
-	 * @param $action
-	 * @param null $controller
-	 * @param null $frontName
-	 *
-	 * @return $this
-	 */
-	public function forward($action, $controller = null, $frontName = null)
-	{
-		$request = $this->getRequest();
+    /**
+     * Forward a user to the given location
+     *
+     * @param $action
+     * @param null $controller
+     * @param null $frontName
+     *
+     * @return $this
+     */
+    public function forward($action, $controller = null, $frontName = null)
+    {
+        $request = $this->getRequest();
 
-		$request->setAction($action);
+        $request->setAction($action);
 
-		if ($controller !== null) {
-			$request->setController($controller);
-		}
+        if ($controller !== null) {
+            $request->setController($controller);
+        }
 
-		if ($frontName !== null) {
-			$request->setFrontName($frontName);
-		}
+        if ($frontName !== null) {
+            $request->setFrontName($frontName);
+        }
 
-		$request->dispatch($this->getResponse());
+        $request->dispatch($this->getResponse());
 
-		return $this;
-	}
+        return $this;
+    }
 
-	public function loadLayout($block = null, $template = null)
-	{
-		if (!$this->layout) {
-			$request = $this->getRequest();
-			$module = $request->getModule();
+    public function loadLayout($block = null, $template = null)
+    {
+        if (!$this->layout) {
+            $request = $this->getRequest();
+            $module = $request->getModule();
 
-			$element = $module->getName()
-				. '::'
-				. ucfirst($request->getController())
-				. '\\'
-				. ucfirst($request->getAction());
+            $element = $module->getName()
+                . '::'
+                . ucfirst($request->getController())
+                . '\\'
+                . ucfirst($request->getAction());
 
-			$this->layout = Application::getLayout($element);
-		}
+            $this->layout = Application::getLayout($element);
+        }
 
-		return $this->layout;
-	}
+        return $this->layout;
+    }
 
-	public function renderLayout()
-	{
-		if ($layout = $this->layout) {
-			$this->registry->set('current_layout', $layout);
+    public function renderLayout()
+    {
+        if ($layout = $this->layout) {
+            $this->registry->set('current_layout', $layout);
 
-			if ($root = $layout->getRoot()) {
-				foreach ($root->getItemById('child_html') as $childHtml) {
-					$childHtml->setCurrentLayout($layout);
+            if ($root = $layout->getRoot()) {
+                foreach ($root->getItemById('child_html') as $childHtml) {
+                    $childHtml->setCurrentLayout($layout);
 
-					echo $childHtml->render();
-				}
-			}
-		}
-	}
+                    echo $childHtml->render();
+                }
+            }
+        }
+    }
 
-	/**
-	 * Return response object
-	 *
-	 * @return \Jcode\Router\Http\Response
-	 */
-	public function getResponse()
-	{
-		return $this->response;
-	}
+    /**
+     * Return response object
+     *
+     * @return \Jcode\Router\Http\Response
+     */
+    public function getResponse()
+    {
+        return $this->response;
+    }
 
-	/**
-	 * Return request object
-	 *
-	 * @return \Jcode\Router\Http\Request
-	 */
-	public function getRequest()
-	{
-		return $this->request;
-	}
+    /**
+     * Return request object
+     *
+     * @return \Jcode\Router\Http\Request
+     */
+    public function getRequest()
+    {
+        return $this->request;
+    }
 
-	public function postDispatch()
-	{
-		$this->getResponse()->dispatch();
-	}
+    public function postDispatch()
+    {
+        $this->getResponse()->dispatch();
+    }
 }

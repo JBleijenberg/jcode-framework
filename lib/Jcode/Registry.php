@@ -26,55 +26,55 @@ use \Exception;
 class Registry
 {
 
-	protected $eventId = 'jcode.registry';
+    protected $eventId = 'jcode.registry';
 
-	protected $isSharedInstance = true;
+    protected $isSharedInstance = true;
 
-	protected $values = [];
+    protected $values = [];
 
-	/**
-	 * Try to retrieve a value from the registry based on the given key
-	 *
-	 * @param $key
-	 * @param mixed $default
-	 * @return bool
-	 */
-	public function get($key, $default = false)
-	{
-		if (array_key_exists($key, $this->values)) {
-			return $this->values[$key];
-		}
+    /**
+     * Try to retrieve a value from the registry based on the given key
+     *
+     * @param $key
+     * @param mixed $default
+     * @return bool
+     */
+    public function get($key, $default = false)
+    {
+        if (array_key_exists($key, $this->values)) {
+            return $this->values[$key];
+        }
 
-		return $default;
-	}
+        return $default;
+    }
 
-	/**
-	 * Check if a value can (may) be added to the registry. If so, add it
-	 *
-	 * @param $key
-	 * @param $value
-	 * @param bool $grace
-	 * @throws Exception
-	 */
-	public function set($key, $value, $grace = true)
-	{
-		if (array_key_exists($key, $this->values) && $grace === false) {
-			if ($grace === false) {
-				throw new Exception("Value with the key '{$key}' already exists'");
-			}
-		}
+    /**
+     * Check if a value can (may) be added to the registry. If so, add it
+     *
+     * @param $key
+     * @param $value
+     * @param bool $grace
+     * @throws Exception
+     */
+    public function set($key, $value, $grace = true)
+    {
+        if (array_key_exists($key, $this->values) && $grace === false) {
+            if ($grace === false) {
+                throw new Exception("Value with the key '{$key}' already exists'");
+            }
+        }
 
-		$this->addValue($key, $value);
-	}
+        $this->addValue($key, $value);
+    }
 
-	/**
-	 * Add value to the registry
-	 *
-	 * @param $key
-	 * @param $value
-	 */
-	protected function addValue($key, $value)
-	{
-		$this->values[$key] = $value;
-	}
+    /**
+     * Add value to the registry
+     *
+     * @param $key
+     * @param $value
+     */
+    protected function addValue($key, $value)
+    {
+        $this->values[$key] = $value;
+    }
 }

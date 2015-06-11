@@ -11,12 +11,12 @@
  * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade this module to newer
- * versions in the future. 
+ * versions in the future.
  *
  * @category    J!Code Framework
  * @package     J!Code Framework
  * @author      Jeroen Bleijenberg <jeroen@maxserv.com>
- * 
+ *
  * @license     http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 
@@ -26,18 +26,18 @@
  */
 function debug($data, $exit = false)
 {
-	echo '<pre>';
+    echo '<pre>';
 
-	if ($data instanceof \Jcode\Object) {
-		$data->cleanObject();
-	}
+    if ($data instanceof \Jcode\Object) {
+        $data->cleanObject();
+    }
 
-	print_r($data);
+    print_r($data);
 
 
-	echo '</pre>';
+    echo '</pre>';
 
-	if ($exit) {
-		exit;
-	}
+    if ($exit) {
+        exit;
+    }
 }

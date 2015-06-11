@@ -24,27 +24,27 @@ namespace Jcode\Resource;
 
 class Helper
 {
-	protected $isSharedInstance = true;
+    protected $isSharedInstance = true;
 
-	/**
-	 * Escape HTML characters from given string
-	 *
-	 * @param $string
-	 * @return string
-	 */
-	public function sanitize($string)
-	{
-		return filter_var($string, FILTER_SANITIZE_STRING);
-	}
+    /**
+     * Escape HTML characters from given string
+     *
+     * @param $string
+     * @return string
+     */
+    public function sanitize($string)
+    {
+        return filter_var($string, FILTER_SANITIZE_STRING);
+    }
 
-	/**
-	 * @todo implement translate method
-	 */
-	public function translate()
-	{
-		$args = func_get_arg(0);
-		$string = array_shift($args);
+    /**
+     * @todo implement translate method
+     */
+    public function translate()
+    {
+        $args = func_get_arg(0);
+        $string = array_shift($args);
 
-		return vsprintf($string, $args);
-	}
+        return vsprintf($string, $args);
+    }
 }

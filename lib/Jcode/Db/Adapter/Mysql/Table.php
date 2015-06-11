@@ -28,180 +28,180 @@ use Jcode\Db\TableInterface;
 class Table implements TableInterface
 {
 
-	protected $tableName;
+    protected $tableName;
 
-	protected $columns = [];
+    protected $columns = [];
 
-	protected $dropColumns = [];
+    protected $dropColumns = [];
 
-	protected $alterColumns = [];
+    protected $alterColumns = [];
 
-	protected $engine;
+    protected $engine;
 
-	protected $primaryKey;
+    protected $primaryKey;
 
-	protected $charset = 'utf8';
+    protected $charset = 'utf8';
 
-	const ENGINE_INNODB = 'InnoDB';
+    const ENGINE_INNODB = 'InnoDB';
 
-	const ENGINE_MEMORY = 'memory';
+    const ENGINE_MEMORY = 'memory';
 
-	const ENGINE_MYISAM = 'MyISAM';
+    const ENGINE_MYISAM = 'MyISAM';
 
-	/**
-	 * Set table name
-	 *
-	 * @param $name
-	 *
-	 * @return $this
-	 */
-	public function setTableName($name)
-	{
-		$this->tableName = $name;
+    /**
+     * Set table name
+     *
+     * @param $name
+     *
+     * @return $this
+     */
+    public function setTableName($name)
+    {
+        $this->tableName = $name;
 
-		return $this;
-	}
+        return $this;
+    }
 
-	/**
-	 * Return tablename
-	 *
-	 * @return mixed
-	 */
-	public function getTableName()
-	{
-		return $this->tableName;
-	}
+    /**
+     * Return tablename
+     *
+     * @return mixed
+     */
+    public function getTableName()
+    {
+        return $this->tableName;
+    }
 
-	/**
-	 * Set table engine
-	 *
-	 * @param $engine
-	 *
-	 * @return $this
-	 */
-	public function setEngine($engine)
-	{
-		$this->engine = $engine;
+    /**
+     * Set table engine
+     *
+     * @param $engine
+     *
+     * @return $this
+     */
+    public function setEngine($engine)
+    {
+        $this->engine = $engine;
 
-		return $this;
-	}
+        return $this;
+    }
 
-	/**
-	 * Return table engine
-	 *
-	 * @return mixed
-	 */
-	public function getEngine()
-	{
-		return $this->engine;
-	}
+    /**
+     * Return table engine
+     *
+     * @return mixed
+     */
+    public function getEngine()
+    {
+        return $this->engine;
+    }
 
-	/**
-	 * Set charset
-	 *
-	 * @param $charset
-	 *
-	 * @return $this
-	 */
-	public function setCharset($charset)
-	{
-		$this->charset = $charset;
+    /**
+     * Set charset
+     *
+     * @param $charset
+     *
+     * @return $this
+     */
+    public function setCharset($charset)
+    {
+        $this->charset = $charset;
 
-		return $this;
-	}
+        return $this;
+    }
 
-	/**
-	 * Return charset
-	 *
-	 * @return string
-	 */
-	public function getCharset()
-	{
-		return $this->charset;
-	}
+    /**
+     * Return charset
+     *
+     * @return string
+     */
+    public function getCharset()
+    {
+        return $this->charset;
+    }
 
-	/**
-	 * Add column to this table
-	 *
-	 * @param $name
-	 * @param $type
-	 * @param null $length
-	 * @param array $options
-	 * @return $this
-	 * @throws \Exception
-	 */
-	public function addColumn($name, $type, $length = null, array $options = [])
-	{
-		/* @var \Jcode\Db\Adapter\Mysql\Table\Column $column */
-		$column = Application::objectManager()->get('Jcode\Db\Adapter\Mysql\Table\Column');
+    /**
+     * Add column to this table
+     *
+     * @param $name
+     * @param $type
+     * @param null $length
+     * @param array $options
+     * @return $this
+     * @throws \Exception
+     */
+    public function addColumn($name, $type, $length = null, array $options = [])
+    {
+        /* @var \Jcode\Db\Adapter\Mysql\Table\Column $column */
+        $column = Application::objectManager()->get('Jcode\Db\Adapter\Mysql\Table\Column');
 
-		$column->setName($name);
-		$column->setType($type);
-		$column->setLength($length);
-		$column->setOptions($options);
+        $column->setName($name);
+        $column->setType($type);
+        $column->setLength($length);
+        $column->setOptions($options);
 
-		array_push($this->columns, $column);
+        array_push($this->columns, $column);
 
-		return $this;
-	}
+        return $this;
+    }
 
-	/**
-	 * Alter column from this table
-	 *
-	 * @param $name
-	 * @param array $options
-	 * @return $this
-	 */
-	public function alterColumn($name, array $options)
-	{
-		/* @var \Jcode\Db\Adapter\Mysql\Table\Column $column */
-		$column = Application::objectManager()->get('Jcode\Db\Model\Adapter\Mysql\Table\Column');
+    /**
+     * Alter column from this table
+     *
+     * @param $name
+     * @param array $options
+     * @return $this
+     */
+    public function alterColumn($name, array $options)
+    {
+        /* @var \Jcode\Db\Adapter\Mysql\Table\Column $column */
+        $column = Application::objectManager()->get('Jcode\Db\Model\Adapter\Mysql\Table\Column');
 
-		$column->setName($name);
-		$column->setOptions($options);
+        $column->setName($name);
+        $column->setOptions($options);
 
-		array_push($this->alterColumns, $column);
+        array_push($this->alterColumns, $column);
 
-		return $this;
-	}
+        return $this;
+    }
 
-	public function getAlteredColumns()
-	{
-		return $this->alterColumns;
-	}
+    public function getAlteredColumns()
+    {
+        return $this->alterColumns;
+    }
 
-	/**
-	 * Drop column from table
-	 *
-	 * @param $name
-	 * @return $this
-	 */
-	public function dropColumn($name)
-	{
-		array_push($this->dropColumns, $name);
+    /**
+     * Drop column from table
+     *
+     * @param $name
+     * @return $this
+     */
+    public function dropColumn($name)
+    {
+        array_push($this->dropColumns, $name);
 
-		return $this;
-	}
+        return $this;
+    }
 
-	public function getDroppedColumns()
-	{
-		return $this->dropColumns;
-	}
+    public function getDroppedColumns()
+    {
+        return $this->dropColumns;
+    }
 
-	public function getColumns()
-	{
-		return $this->columns;
-	}
+    public function getColumns()
+    {
+        return $this->columns;
+    }
 
-	public function setPrimaryKey($key)
-	{
-		$this->primaryKey = $key;
+    public function setPrimaryKey($key)
+    {
+        $this->primaryKey = $key;
 
-		return $this;
-	}
+        return $this;
+    }
 
-	public function getPrimaryKey()
-	{
-		return $this->primaryKey;
-	}
+    public function getPrimaryKey()
+    {
+        return $this->primaryKey;
+    }
 }

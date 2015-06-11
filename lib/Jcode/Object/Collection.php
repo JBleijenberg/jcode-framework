@@ -27,99 +27,99 @@ use \Exception;
 class Collection extends Object
 {
 
-	protected $items = [];
+    protected $items = [];
 
-	protected $eventId = 'jcode.object.collection';
+    protected $eventId = 'jcode.object.collection';
 
-	/**
-	 * @param \Jcode\Object $item
-	 * @param null $key
-	 * @return $this
-	 * @throws Exception
-	 */
-	public function addItem(Object $item, $key = null)
-	{
-		if ($key === null) {
-			$this->items[] = $item;
-		} else {
-			if (!array_key_exists($key, $this->items)) {
-				$this->items[$key] = $item;
-			} else {
-				throw new Exception('An item with the same key already exists');
-			}
-		}
+    /**
+     * @param \Jcode\Object $item
+     * @param null $key
+     * @return $this
+     * @throws Exception
+     */
+    public function addItem(Object $item, $key = null)
+    {
+        if ($key === null) {
+            $this->items[] = $item;
+        } else {
+            if (!array_key_exists($key, $this->items)) {
+                $this->items[$key] = $item;
+            } else {
+                throw new Exception('An item with the same key already exists');
+            }
+        }
 
-		return $this;
-	}
+        return $this;
+    }
 
-	public function getAllItems()
-	{
-		return $this->items;
-	}
+    public function getAllItems()
+    {
+        return $this->items;
+    }
 
-	public function rewind()
-	{
-		reset($this->items);
-	}
+    public function rewind()
+    {
+        reset($this->items);
+    }
 
-	public function current()
-	{
-		return current($this->items);
-	}
+    public function current()
+    {
+        return current($this->items);
+    }
 
-	public function key()
-	{
-		return key($this->items);
-	}
+    public function key()
+    {
+        return key($this->items);
+    }
 
-	public function next()
-	{
-		return next($this->items);
-	}
+    public function next()
+    {
+        return next($this->items);
+    }
 
-	public function valid()
-	{
-		$key = $this->key();
+    public function valid()
+    {
+        $key = $this->key();
 
-		return ($key !== null && $key !== false);
-	}
+        return ($key !== null && $key !== false);
+    }
 
-	public function count()
-	{
-		return count($this->items);
-	}
+    public function count()
+    {
+        return count($this->items);
+    }
 
-	/**
-	 * Get and return item by key
-	 * @param $key
-	 *
-	 * @return null
-	 */
-	public function getItemById($key)
-	{
-		if (array_key_exists($key, $this->items)) {
-			return $this->items[$key];
-		}
+    /**
+     * Get and return item by key
+     * @param $key
+     *
+     * @return null
+     */
+    public function getItemById($key)
+    {
+        if (array_key_exists($key, $this->items)) {
+            return $this->items[$key];
+        }
 
-		return null;
-	}
+        return null;
+    }
 
-	/**
-	 * Return item filtered by the given column value
-	 *
-	 * @param $column
-	 * @param $value
-	 *
-	 * @return null
-	 */
-	public function getItemByColumnValue($column, $value)
-	{
-		foreach ($this->items as $item) {
-			if ($item->getData($column) == $value) {
-				return $item;
-			}
-		}
+    /**
+     * Return item filtered by the given column value
+     *
+     * @param $column
+     * @param $value
+     *
+     * @return null
+     */
+    public function getItemByColumnValue($column, $value)
+    {
+        foreach ($this->items as $item) {
+            if ($item->getData($column) == $value) {
+                return $item;
+            }
+        }
 
-		return null;
-	}
+        return null;
+    }
 }

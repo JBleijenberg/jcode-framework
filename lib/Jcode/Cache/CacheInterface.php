@@ -28,11 +28,11 @@ use Jcode\Object;
 interface CacheInterface
 {
 
-	public function connect(Object $config);
+    public function connect(Object $config);
 
-	public function set($key, $value);
+    public function set($key, $value);
 
-	public function get($key);
+    public function get($key);
 
-	public function exists($key);
+    public function exists($key);
 }

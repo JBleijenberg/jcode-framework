@@ -28,175 +28,175 @@ use Jcode\Application\Environment;
 final class Application
 {
 
-	protected $isSharedInstance = true;
+    protected $isSharedInstance = true;
 
-	protected $eventId = 'application';
+    protected $eventId = 'application';
 
-	/**
-	 * @var \Jcode\Application\Environment
-	 */
-	protected static $environment;
+    /**
+     * @var \Jcode\Application\Environment
+     */
+    protected static $environment;
 
-	/**
-	 * @var \Jcode\ObjectManager
-	 */
-	protected static $objectManager;
+    /**
+     * @var \Jcode\ObjectManager
+     */
+    protected static $objectManager;
 
-	protected static $isDeveloperMode = false;
+    protected static $isDeveloperMode = false;
 
-	public static function isDeveloperMode($bool = true)
-	{
-		self::$isDeveloperMode = $bool;
-	}
+    public static function isDeveloperMode($bool = true)
+    {
+        self::$isDeveloperMode = $bool;
+    }
 
-	/**
-	 * Initialize application and dispatch it
-	 */
-	public static function run()
-	{
-		if (!self::$environment) {
-			self::$objectManager = new ObjectManager;
-			self::$environment = self::$objectManager->get('Jcode\Application\Environment');
+    /**
+     * Initialize application and dispatch it
+     */
+    public static function run()
+    {
+        if (!self::$environment) {
+            self::$objectManager = new ObjectManager;
+            self::$environment = self::$objectManager->get('Jcode\Application\Environment');
 
-			try {
-				self::$environment->configure();
-				self::$environment->setup();
-				self::$environment->dispatch();
-			} catch (Exception $e) {
-				self::logException($e);
-			}
-		}
-	}
+            try {
+                self::$environment->configure();
+                self::$environment->setup();
+                self::$environment->dispatch();
+            } catch (Exception $e) {
+                self::logException($e);
+            }
+        }
+    }
 
-	/**
-	 * @return ObjectManager
-	 */
-	public static function objectManager()
-	{
-		return self::$objectManager;
-	}
+    /**
+     * @return ObjectManager
+     */
+    public static function objectManager()
+    {
+        return self::$objectManager;
+    }
 
-	/**
-	 * Retrieve initialized application environment.
-	 *
-	 * @return \Jcode\Application\Environment
-	 */
-	public static function env()
-	{
-		if (!self::$environment) {
-			self::$objectManager = new ObjectManager;
-			self::$environment = self::$objectManager->get('Jcode\Application\Environment');
-		}
+    /**
+     * Retrieve initialized application environment.
+     *
+     * @return \Jcode\Application\Environment
+     */
+    public static function env()
+    {
+        if (!self::$environment) {
+            self::$objectManager = new ObjectManager;
+            self::$environment = self::$objectManager->get('Jcode\Application\Environment');
+        }
 
-		return self::$environment;
-	}
+        return self::$environment;
+    }
 
-	/**
-	 * Log exception to file
-	 *
-	 * @param \Exception $e
-	 */
-	public static function logException(Exception $e)
-	{
-		$logger = new Log;
-		$logger->writeException($e);
+    /**
+     * Log exception to file
+     *
+     * @param \Exception $e
+     */
+    public static function logException(Exception $e)
+    {
+        $logger = new Log;
+        $logger->writeException($e);
 
-		if (self::$isDeveloperMode) {
-			echo "<pre>\r\n";
+        if (self::$isDeveloperMode) {
+            echo "<pre>\r\n";
 
-			echo $e->getMessage() ."\r\n\n";
+            echo $e->getMessage() . "\r\n\n";
 
-			foreach ($e->getTrace() as $trace) {
-				echo $trace['file'] . "(" . $trace['line'] . "): " . $trace['function'] . "()\r\n";
-			}
-			echo "</pre>";
-		}
-	}
+            foreach ($e->getTrace() as $trace) {
+                echo $trace['file'] . "(" . $trace['line'] . "): " . $trace['function'] . "()\r\n";
+            }
+            echo "</pre>";
+        }
+    }
 
-	public static function log($message, $level = 3, $file = 'jcode.log')
-	{
-		if (self::$isDeveloperMode) {
-			debug($message);
-		}
+    public static function log($message, $level = 3, $file = 'jcode.log')
+    {
+        if (self::$isDeveloperMode) {
+            debug($message);
+        }
 
-		$logger = new Log;
+        $logger = new Log;
 
-		$logger->setLogfile($file);
-		$logger->setLevel($level);
-		$logger->setMessage($message);
+        $logger->setLogfile($file);
+        $logger->setLevel($level);
+        $logger->setMessage($message);
 
-		$logger->write();
-	}
+        $logger->write();
+    }
 
-	/**
-	 * Return layout element
-	 *
-	 * @param $element
-	 *
-	 * @return mixed
-	 */
-	public static function getLayout($element)
-	{
-		return self::env()->getLayout($element);
-	}
+    /**
+     * Return layout element
+     *
+     * @param $element
+     *
+     * @return mixed
+     */
+    public static function getLayout($element)
+    {
+        return self::env()->getLayout($element);
+    }
 
-	/**
-	 * Return baseurl's
-	 *
-	 * @param string $type
-	 * @param bool $secure
-	 *
-	 * @return \Jcode\Application\Config|string
-	 */
-	public static function getBaseUrl($type = Environment::URL_TYPE_DEFAULT, $secure = true)
-	{
-		$layoutName = self::env()->getConfig('layout/name');
+    /**
+     * Return baseurl's
+     *
+     * @param string $type
+     * @param bool $secure
+     *
+     * @return \Jcode\Application\Config|string
+     */
+    public static function getBaseUrl($type = Environment::URL_TYPE_DEFAULT, $secure = true)
+    {
+        $layoutName = self::env()->getConfig('layout/name');
 
-		if ($secure === true) {
-			$baseUrl = self::env()->getConfig('secure_base_url');
-		} else {
-			$baseUrl = self::env()->getConfig('base_url');
-		}
-		switch ($type) {
-			case Environment::URL_TYPE_DEFAULT:
-				$url = $baseUrl;
+        if ($secure === true) {
+            $baseUrl = self::env()->getConfig('secure_base_url');
+        } else {
+            $baseUrl = self::env()->getConfig('base_url');
+        }
+        switch ($type) {
+            case Environment::URL_TYPE_DEFAULT:
+                $url = $baseUrl;
 
-				break;
-			case Environment::URL_TYPE_CSS:
-				$url = $baseUrl . '/design/' . $layoutName . '/css';
+                break;
+            case Environment::URL_TYPE_CSS:
+                $url = $baseUrl . '/design/' . $layoutName . '/css';
 
-				break;
-			case Environment::URL_TYPE_JS:
-				$url = $baseUrl . '/js';
+                break;
+            case Environment::URL_TYPE_JS:
+                $url = $baseUrl . '/js';
 
-				break;
-			default:
-				$url = $baseUrl;
-		}
+                break;
+            default:
+                $url = $baseUrl;
+        }
 
-		return $url;
-	}
+        return $url;
+    }
 
-	/**
-	 * Build a valid url
-	 *
-	 * @param $location
-	 * @param array $options
-	 * @return string
-	 */
-	public static function getUrl($location, array $options = [])
-	{
-		if (strpos($location, '://') === false) {
-			$location = trim($location, '/');
-			$isSecure = (array_key_exists('secure', $options) && $options['secure'] === true) ? true : false;
+    /**
+     * Build a valid url
+     *
+     * @param $location
+     * @param array $options
+     * @return string
+     */
+    public static function getUrl($location, array $options = [])
+    {
+        if (strpos($location, '://') === false) {
+            $location = trim($location, '/');
+            $isSecure = (array_key_exists('secure', $options) && $options['secure'] === true) ? true : false;
 
-			$location = trim(self::getBaseUrl(Environment::URL_TYPE_DEFAULT, $isSecure), '/') . '/' . $location;
-		}
+            $location = trim(self::getBaseUrl(Environment::URL_TYPE_DEFAULT, $isSecure), '/') . '/' . $location;
+        }
 
-		if (array_key_exists('params', $options)) {
-			$location = $location . '?' . http_build_query($options['params']);
-		}
+        if (array_key_exists('params', $options)) {
+            $location = $location . '?' . http_build_query($options['params']);
+        }
 
-		return $location;
-	}
+        return $location;
+    }
 }

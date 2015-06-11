@@ -28,134 +28,134 @@ use Jcode\Object;
 class Template extends Object
 {
 
-	protected $isSharedInstance = true;
+    protected $isSharedInstance = true;
 
-	/**
-	 * @inject \Jcode\Application\Config
-	 * @var \Jcode\Application\Config
-	 */
-	protected $config;
+    /**
+     * @inject \Jcode\Application\Config
+     * @var \Jcode\Application\Config
+     */
+    protected $config;
 
-	protected $template;
+    protected $template;
 
-	/**
-	 * @inject \Jcode\Resource\Helper
-	 * @var \Jcode\Resource\Helper
-	 */
-	protected $helper;
+    /**
+     * @inject \Jcode\Resource\Helper
+     * @var \Jcode\Resource\Helper
+     */
+    protected $helper;
 
-	/**
-	 * @inject \Jcode\Registry
-	 * @var \Jcode\Registry
-	 */
-	protected $registry;
+    /**
+     * @inject \Jcode\Registry
+     * @var \Jcode\Registry
+     */
+    protected $registry;
 
-	public function setTemplate($template)
-	{
-		$this->template = $template;
-	}
+    public function setTemplate($template)
+    {
+        $this->template = $template;
+    }
 
-	public function getTemplate()
-	{
-		return $this->template;
-	}
+    public function getTemplate()
+    {
+        return $this->template;
+    }
 
-	public function getCacheKey()
-	{
-		return md5(
-			get_class($this) . get_called_class() . $this->template
-		);
-	}
+    public function getCacheKey()
+    {
+        return md5(
+            get_class($this) . get_called_class() . $this->template
+        );
+    }
 
-	public function useCache()
-	{
-		return true;
-	}
+    public function useCache()
+    {
+        return true;
+    }
 
-	/**
-	 * @internal param $blockname
-	 * @internal param array $vars
-	 * @internal param null $template
-	 */
-	public function render()
-	{
-		if ($this->getTemplate()) {
-			$templateArgs = explode('::', $this->getTemplate());
+    /**
+     * @internal param $blockname
+     * @internal param array $vars
+     * @internal param null $template
+     */
+    public function render()
+    {
+        if ($this->getTemplate()) {
+            $templateArgs = explode('::', $this->getTemplate());
 
-			$module = $this->config->getModule(current($templateArgs));
+            $module = $this->config->getModule(current($templateArgs));
 
-			next($templateArgs);
+            next($templateArgs);
 
-			if (file_exists($module->getModulePath() . DS . 'View' . DS . 'Template' . DS . Application::env()->getConfig('layout/name') . DS . current($templateArgs))) {
-				$file = $module->getModulePath() . DS . 'View' . DS . 'Template' . DS . Application::env()->getConfig('layout/name') . DS . current($templateArgs);
-			} else {
-				$file = $module->getModulePath() . DS . 'View' . DS . 'Template' . DS . current($templateArgs);
-			}
+            if (file_exists($module->getModulePath() . DS . 'View' . DS . 'Template' . DS . Application::env()->getConfig('layout/name') . DS . current($templateArgs))) {
+                $file = $module->getModulePath() . DS . 'View' . DS . 'Template' . DS . Application::env()->getConfig('layout/name') . DS . current($templateArgs);
+            } else {
+                $file = $module->getModulePath() . DS . 'View' . DS . 'Template' . DS . current($templateArgs);
+            }
 
-			include $file;
-		}
-	}
+            include $file;
+        }
+    }
 
-	/**
-	 * @param $reference
-	 * @return mixed
-	 */
-	public function getReferenceHtml($reference)
-	{
-		$layout = $this->registry->get('current_layout');
+    /**
+     * @param $reference
+     * @return mixed
+     */
+    public function getReferenceHtml($reference)
+    {
+        $layout = $this->registry->get('current_layout');
 
-		if ($element = $layout->getData($reference)) {
-			foreach ($element->getItemById('child_html') as $childHtml) {
-				$this->renderBlock($childHtml, ['reference' => $reference]);
-			}
-		}
-	}
+        if ($element = $layout->getData($reference)) {
+            foreach ($element->getItemById('child_html') as $childHtml) {
+                $this->renderBlock($childHtml, ['reference' => $reference]);
+            }
+        }
+    }
 
-	/**
-	 * @param $name
-	 * @return mixed|null
-	 */
-	public function getChildHtml($name)
-	{
-		$layout = $this->registry->get('current_layout')->getData($this->getReference());
+    /**
+     * @param $name
+     * @return mixed|null
+     */
+    public function getChildHtml($name)
+    {
+        $layout = $this->registry->get('current_layout')->getData($this->getReference());
 
-		foreach ($layout->getItemById('child_html') as $block) {
-			if ($block->getName() == $this->getName()) {
-				return $this->renderBlock($block->getData('child_html')->getItemById($name));
-			}
-		}
+        foreach ($layout->getItemById('child_html') as $block) {
+            if ($block->getName() == $this->getName()) {
+                return $this->renderBlock($block->getData('child_html')->getItemById($name));
+            }
+        }
 
-		return null;
-	}
+        return null;
+    }
 
-	/**
-	 * @param $block
-	 * @param array $args
-	 * @return mixed
-	 * @throws \Exception
-	 */
-	protected function renderBlock($block, array $args = [])
-	{
-		foreach ($args as $key => $val) {
-			$block->setData($key, $val);
-		}
+    /**
+     * @param $block
+     * @param array $args
+     * @return mixed
+     * @throws \Exception
+     */
+    protected function renderBlock($block, array $args = [])
+    {
+        foreach ($args as $key => $val) {
+            $block->setData($key, $val);
+        }
 
-		$block->render();
-	}
+        $block->render();
+    }
 
-	/**
-	 * Sanitize given string
-	 *
-	 * @param $string
-	 * @return string
-	 */
-	public function sanitize($string)
-	{
-		return $this->helper->sanitize($string);
-	}
+    /**
+     * Sanitize given string
+     *
+     * @param $string
+     * @return string
+     */
+    public function sanitize($string)
+    {
+        return $this->helper->sanitize($string);
+    }
 
-	public function translate()
-	{
-		return $this->helper->translate(func_get_args());
-	}
+    public function translate()
+    {
+        return $this->helper->translate(func_get_args());
+    }
 }

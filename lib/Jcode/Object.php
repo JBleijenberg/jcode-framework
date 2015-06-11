@@ -27,267 +27,268 @@ use \Countable;
 class Object implements Iterator, Countable
 {
 
-	/**
-	 * Register changes to the current object
-	 * @var bool
-	 */
-	protected $hasChangedData = false;
+    /**
+     * Register changes to the current object
+     * @var bool
+     */
+    protected $hasChangedData = false;
 
-	protected $eventId = 'jcode.object';
+    protected $eventId = 'jcode.object';
 
-	/**
-	 * Hold object data
-	 * @var array
-	 */
-	protected $data = [];
+    /**
+     * Hold object data
+     * @var array
+     */
+    protected $data = [];
 
-	protected $origData = [];
+    protected $origData = [];
 
-	/**
-	 * @param array $array
-	 * @param bool $overwrite
-	 * @return $this
-	 * @throws \Exception
-	 */
-	public function importArray(array $array, $overwrite = false)
-	{
-		foreach ($array as $key => $value) {
-			if ($overwrite === false && array_key_exists($key, $this->data)) {
-				continue;
-			} else {
-				if (is_array($value)) {
-					$child = new self();
+    /**
+     * @param array $array
+     * @param bool $overwrite
+     * @return $this
+     * @throws \Exception
+     */
+    public function importArray(array $array, $overwrite = false)
+    {
+        foreach ($array as $key => $value) {
+            if ($overwrite === false && array_key_exists($key, $this->data)) {
+                continue;
+            } else {
+                if (is_array($value)) {
+                    $child = new self();
 
-					$this->setData($key, $child->importArray($value));
-				} else {
-					$this->setData($key, $value);
-				}
-			}
-		}
+                    $this->setData($key, $child->importArray($value));
+                } else {
+                    $this->setData($key, $value);
+                }
+            }
+        }
 
-		return $this;
-	}
+        return $this;
+    }
 
-	public function importObject(Object $object)
-	{
-		foreach ($object as $key => $value) {
-			$this->setData($key, $value);
-		}
+    public function importObject(Object $object)
+    {
+        foreach ($object as $key => $value) {
+            $this->setData($key, $value);
+        }
 
-		return $this;
-	}
+        return $this;
+    }
 
-	/**
-	 * Set data to this object. Using this data will always overwrite the current value.
-	 * Use addData() to only add and not overwrite
-	 *
-	 * @param $key
-	 * @param $value
-	 * @return $this
-	 */
-	public function setData($key, $value)
-	{
-		if ((array_key_exists($key, $this->data)
-			&& $this->data[$key] != $value)
-			|| (!array_key_exists($key, $this->data))) {
-			$this->hasChangedData = true;
-		}
+    /**
+     * Set data to this object. Using this data will always overwrite the current value.
+     * Use addData() to only add and not overwrite
+     *
+     * @param $key
+     * @param $value
+     * @return $this
+     */
+    public function setData($key, $value)
+    {
+        if ((array_key_exists($key, $this->data)
+                && $this->data[$key] != $value)
+            || (!array_key_exists($key, $this->data))
+        ) {
+            $this->hasChangedData = true;
+        }
 
-		$this->data[$key] = $value;
+        $this->data[$key] = $value;
 
-		return $this;
-	}
+        return $this;
+    }
 
-	/**
-	 * Get data
-	 *
-	 * @param $key
-	 * @return null
-	 */
-	public function getData($key = null)
-	{
-		if ($key !== null) {
-			if (array_key_exists($key, $this->data)) {
-				return $this->data[$key];
-			} else {
-				return false;
-			}
-		}
+    /**
+     * Get data
+     *
+     * @param $key
+     * @return null
+     */
+    public function getData($key = null)
+    {
+        if ($key !== null) {
+            if (array_key_exists($key, $this->data)) {
+                return $this->data[$key];
+            } else {
+                return false;
+            }
+        }
 
-		return $this->data;
-	}
+        return $this->data;
+    }
 
-	/**
-	 * Get origData
-	 *
-	 * @param null $key
-	 * @return array
-	 */
-	public function getOrigData($key = null)
-	{
-		if ($key !== null && array_key_exists($key, $this->origData)) {
-			return $this->origData[$key];
-		}
+    /**
+     * Get origData
+     *
+     * @param null $key
+     * @return array
+     */
+    public function getOrigData($key = null)
+    {
+        if ($key !== null && array_key_exists($key, $this->origData)) {
+            return $this->origData[$key];
+        }
 
-		return $this->origData;
-	}
+        return $this->origData;
+    }
 
-	/**
-	 * Add data to this object. If the key already exists, nothing happens.
-	 * Use setData() to overwrite.
-	 *
-	 * @param $key
-	 * @param $value
-	 * @return $this
-	 */
-	public function addData($key, $value)
-	{
-		if (!array_key_exists($key, $this->data)) {
-			$this->hasChangedData = true;
+    /**
+     * Add data to this object. If the key already exists, nothing happens.
+     * Use setData() to overwrite.
+     *
+     * @param $key
+     * @param $value
+     * @return $this
+     */
+    public function addData($key, $value)
+    {
+        if (!array_key_exists($key, $this->data)) {
+            $this->hasChangedData = true;
 
-			$this->setData($key, $value);
-		}
+            $this->setData($key, $value);
+        }
 
-		return $this;
-	}
+        return $this;
+    }
 
-	/**
-	 * Remove element from data array
-	 *
-	 * @param $key
-	 * @return $this
-	 */
-	public function unsetData($key = null)
-	{
-		if ($key !== null && array_key_exists($key, $this->data)) {
-			$this->hasChangedData = true;
+    /**
+     * Remove element from data array
+     *
+     * @param $key
+     * @return $this
+     */
+    public function unsetData($key = null)
+    {
+        if ($key !== null && array_key_exists($key, $this->data)) {
+            $this->hasChangedData = true;
 
-			unset($this->data[$key]);
-		} else {
-			$this->data = [];
-		}
+            unset($this->data[$key]);
+        } else {
+            $this->data = [];
+        }
 
-		return $this;
-	}
+        return $this;
+    }
 
-	public function unsetOrigData()
-	{
-		$this->origData = [];
+    public function unsetOrigData()
+    {
+        $this->origData = [];
 
-		return $this;
-	}
+        return $this;
+    }
 
-	/**
-	 * Check if this object contains data
-	 *
-	 * @return bool
-	 */
-	public function hasData()
-	{
-		return !empty($this->data);
-	}
+    /**
+     * Check if this object contains data
+     *
+     * @return bool
+     */
+    public function hasData()
+    {
+        return !empty($this->data);
+    }
 
-	/**
-	 * Called when set.. or get.. is called
-	 *
-	 * @param $key
-	 * @param $value
-	 * @return Object|null
-	 */
-	public function __call($key, $value)
-	{
-		$type = substr($key, 0, 3);
-		$key = substr($key, 3);
-		$value = current($value);
+    /**
+     * Called when set.. or get.. is called
+     *
+     * @param $key
+     * @param $value
+     * @return Object|null
+     */
+    public function __call($key, $value)
+    {
+        $type = substr($key, 0, 3);
+        $key = substr($key, 3);
+        $value = current($value);
 
-		$this->convertStringToDataKey($key);
+        $this->convertStringToDataKey($key);
 
-		if ($type == 'set') {
-			return $this->setData($key, $value);
-		} else {
-			if ($type == 'get' && array_key_exists($key, $this->data)) {
-				return $this->getData($key);
-			}
-		}
+        if ($type == 'set') {
+            return $this->setData($key, $value);
+        } else {
+            if ($type == 'get' && array_key_exists($key, $this->data)) {
+                return $this->getData($key);
+            }
+        }
 
-		return null;
-	}
+        return null;
+    }
 
-	/**
-	 * @param null $bool
-	 *
-	 * @return bool
-	 */
-	public function hasChangedData($bool = null)
-	{
-		if ($bool === null) {
-			return $this->hasChangedData;
-		} else {
-			$this->hasChangedData = $bool;
-		}
-	}
+    /**
+     * @param null $bool
+     *
+     * @return bool
+     */
+    public function hasChangedData($bool = null)
+    {
+        if ($bool === null) {
+            return $this->hasChangedData;
+        } else {
+            $this->hasChangedData = $bool;
+        }
+    }
 
-	/**
-	 * Create data key for use with setData(), addData() or __call
-	 * @param $key
-	 */
-	public function convertStringToDataKey(&$key)
-	{
-		$key = preg_replace('/(.)([A-Z])/', '$1_$2', $key);
-		$key = strtolower($key);
-	}
+    /**
+     * Create data key for use with setData(), addData() or __call
+     * @param $key
+     */
+    public function convertStringToDataKey(&$key)
+    {
+        $key = preg_replace('/(.)([A-Z])/', '$1_$2', $key);
+        $key = strtolower($key);
+    }
 
-	public function copyToOrigData()
-	{
-		$this->origData = $this->data;
+    public function copyToOrigData()
+    {
+        $this->origData = $this->data;
 
-		return $this;
-	}
+        return $this;
+    }
 
-	public function toArray()
-	{
-		$arr = [];
+    public function toArray()
+    {
+        $arr = [];
 
-		foreach ($this->data as $key => $val) {
-			if ($val instanceof $this) {
-				$arr[$key] = $val->toArray();
-			} else {
-				$arr[$key] = $val;
-			}
-		}
+        foreach ($this->data as $key => $val) {
+            if ($val instanceof $this) {
+                $arr[$key] = $val->toArray();
+            } else {
+                $arr[$key] = $val;
+            }
+        }
 
-		return $arr;
-	}
+        return $arr;
+    }
 
-	public function rewind()
-	{
-		reset($this->data);
-	}
+    public function rewind()
+    {
+        reset($this->data);
+    }
 
-	public function current()
-	{
-		return current($this->data);
-	}
+    public function current()
+    {
+        return current($this->data);
+    }
 
-	public function key()
-	{
-		return key($this->data);
-	}
+    public function key()
+    {
+        return key($this->data);
+    }
 
-	public function next()
-	{
-		return next($this->data);
-	}
+    public function next()
+    {
+        return next($this->data);
+    }
 
-	public function valid()
-	{
-		$key = $this->key();
+    public function valid()
+    {
+        $key = $this->key();
 
-		return ($key !== null && $key !== false);
-	}
+        return ($key !== null && $key !== false);
+    }
 
-	public function count()
-	{
-		return count($this->data);
-	}
+    public function count()
+    {
+        return count($this->data);
+    }
 }

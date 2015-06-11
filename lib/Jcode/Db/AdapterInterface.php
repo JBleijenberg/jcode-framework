@@ -27,15 +27,15 @@ use Jcode\Object;
 interface AdapterInterface
 {
 
-	public function connect(Object $config);
+    public function connect(Object $config);
 
-	public function getTable($tableName);
+    public function getTable($tableName);
 
-	public function alterTable(TableInterface $table);
+    public function alterTable(TableInterface $table);
 
-	public function createTable(TableInterface $table);
+    public function createTable(TableInterface $table);
 
-	public function build(Resource $resource);
+    public function build(Resource $resource);
 
-	public function execute();
+    public function execute();
 }

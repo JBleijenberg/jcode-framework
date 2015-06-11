@@ -25,94 +25,94 @@ namespace Jcode\Router\Http;
 class Response
 {
 
-	protected $isSharedInstance = true;
+    protected $isSharedInstance = true;
 
-	protected $eventId = 'router.response';
+    protected $eventId = 'router.response';
 
-	protected $parameterPrefix = '?';
+    protected $parameterPrefix = '?';
 
-	/**
-	 * Http response code
-	 *
-	 * @var int
-	 */
-	protected $httpCode = 200;
+    /**
+     * Http response code
+     *
+     * @var int
+     */
+    protected $httpCode = 200;
 
-	/**
-	 * Location for redirects
-	 *
-	 * @var
-	 */
-	protected $location;
+    /**
+     * Location for redirects
+     *
+     * @var
+     */
+    protected $location;
 
-	/**
-	 * Default content type
-	 *
-	 * @var string
-	 */
-	protected $contentType = 'Content-Type: text/html';
+    /**
+     * Default content type
+     *
+     * @var string
+     */
+    protected $contentType = 'Content-Type: text/html';
 
-	/**
-	 * Set new http response code;
-	 *
-	 * @param $code
-	 *
-	 * @return $this
-	 */
-	public function setHttpCode($code)
-	{
-		if (intval($code)) {
-			$this->httpCode = $code;
-		}
+    /**
+     * Set new http response code;
+     *
+     * @param $code
+     *
+     * @return $this
+     */
+    public function setHttpCode($code)
+    {
+        if (intval($code)) {
+            $this->httpCode = $code;
+        }
 
-		return $this;
-	}
+        return $this;
+    }
 
-	/**
-	 * Set new location
-	 *
-	 * @param $location
-	 *
-	 * @return $this
-	 */
-	public function setLocation($location)
-	{
-		$this->location = $location;
+    /**
+     * Set new location
+     *
+     * @param $location
+     *
+     * @return $this
+     */
+    public function setLocation($location)
+    {
+        $this->location = $location;
 
-		return $this;
-	}
+        return $this;
+    }
 
-	/**
-	 * Redirect to given location
-	 *
-	 * @param $location
-	 * @param array $params
-	 * @param int $httpCode
-	 */
-	public function redirect($location, $httpCode = 302)
-	{
-		if (!empty($params)) {
-			$location .= $this->parameterPrefix . http_build_query($params);
-		}
+    /**
+     * Redirect to given location
+     *
+     * @param $location
+     * @param array $params
+     * @param int $httpCode
+     */
+    public function redirect($location, $httpCode = 302)
+    {
+        if (!empty($params)) {
+            $location .= $this->parameterPrefix . http_build_query($params);
+        }
 
-		$this->setLocation($location);
-		$this->setHttpCode($httpCode);
-		$this->dispatch();
-	}
+        $this->setLocation($location);
+        $this->setHttpCode($httpCode);
+        $this->dispatch();
+    }
 
-	/**
-	 * Return response to the browser
-	 *
-	 * @return $this
-	 */
-	public function dispatch()
-	{
-		header($this->contentType, true, $this->httpCode);
+    /**
+     * Return response to the browser
+     *
+     * @return $this
+     */
+    public function dispatch()
+    {
+        header($this->contentType, true, $this->httpCode);
 
-		if (!empty($this->location)) {
-			header("Location: {$this->location}");
-		}
+        if (!empty($this->location)) {
+            header("Location: {$this->location}");
+        }
 
-		return $this;
-	}
+        return $this;
+    }
 }

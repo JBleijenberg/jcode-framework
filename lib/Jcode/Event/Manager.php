@@ -25,18 +25,18 @@ namespace Jcode\Event;
 class Manager
 {
 
-	protected $eventId = 'event.manager';
+    protected $eventId = 'event.manager';
 
-	protected $isSharedInstance = true;
+    protected $isSharedInstance = true;
 
-	/**
-	 * @inject \Jcode\Application\Config
-	 * @var \Jcode\Application\Config
-	 */
-	protected $config;
+    /**
+     * @inject \Jcode\Application\Config
+     * @var \Jcode\Application\Config
+     */
+    protected $config;
 
-	public function dispatchEvent($eventId, $eventObject)
-	{
+    public function dispatchEvent($eventId, $eventObject)
+    {
 
-	}
+    }
 }

@@ -27,37 +27,37 @@ use Jcode\Application;
 class Adapter
 {
 
-	protected $isSharedInstance = true;
+    protected $isSharedInstance = true;
 
-	/**
-	 * @inject \Jcode\Application\Config
-	 * @var \Jcode\Application\Config
-	 */
-	protected $config;
+    /**
+     * @inject \Jcode\Application\Config
+     * @var \Jcode\Application\Config
+     */
+    protected $config;
 
-	/**
-	 * @inject \Jcode\Registry
-	 * @var \Jcode\Registry
-	 */
-	protected $registry;
+    /**
+     * @inject \Jcode\Registry
+     * @var \Jcode\Registry
+     */
+    protected $registry;
 
-	/**
-	 * @var \Jcode\Db\AdapterInterface
-	 */
-	protected $instance;
+    /**
+     * @var \Jcode\Db\AdapterInterface
+     */
+    protected $instance;
 
-	public function init()
-	{
-		$config = $this->config;
+    public function init()
+    {
+        $config = $this->config;
 
-		if ($config->getDatabase() && $config->getDatabase()->hasData()) {
-			$this->instance = Application::objectManager()->get($config->getDatabase()->getAdapter());
-			$this->instance->connect($config->getDatabase());
-		}
-	}
+        if ($config->getDatabase() && $config->getDatabase()->hasData()) {
+            $this->instance = Application::objectManager()->get($config->getDatabase()->getAdapter());
+            $this->instance->connect($config->getDatabase());
+        }
+    }
 
-	public function getInstance()
-	{
-		return $this->instance;
-	}
+    public function getInstance()
+    {
+        return $this->instance;
+    }
 }

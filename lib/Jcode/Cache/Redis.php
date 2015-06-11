@@ -29,76 +29,76 @@ use Jcode\Object;
 class Redis implements \Jcode\Cache\CacheInterface
 {
 
-	/**
-	 * @inject \Jcode\Cache\Redis\Client
-	 * @var \Jcode\Cache\Redis\Client
-	 */
-	protected $redis;
+    /**
+     * @inject \Jcode\Cache\Redis\Client
+     * @var \Jcode\Cache\Redis\Client
+     */
+    protected $redis;
 
-	protected $prefix;
+    protected $prefix;
 
-	public function connect(Object $config)
-	{
-		try {
-			$this->redis->connect($config->getHost(), $config->getPort());
-			$this->redis->select($config->getDatabase());
+    public function connect(Object $config)
+    {
+        try {
+            $this->redis->connect($config->getHost(), $config->getPort());
+            $this->redis->select($config->getDatabase());
 
-			$this->prefix = md5('redis:' . json_encode($this->redis) . ':');
-		} catch (Redis\Exception $e) {
-			Application::logException($e);
-		}
+            $this->prefix = md5('redis:' . json_encode($this->redis) . ':');
+        } catch (Redis\Exception $e) {
+            Application::logException($e);
+        }
 
-		return $this;
+        return $this;
 
-	}
+    }
 
-	/**
-	 * Set value in Redis DB
-	 *
-	 * @param $key
-	 * @param $value
-	 *
-	 * @return array|bool|int|\Jcode\Cache\Redis\Client|mixed|string
-	 * @throws \Jcode\Cache\Redis\Exception
-	 */
-	public function set($key, $value)
-	{
-		$redis = $this->redis;
+    /**
+     * Set value in Redis DB
+     *
+     * @param $key
+     * @param $value
+     *
+     * @return array|bool|int|\Jcode\Cache\Redis\Client|mixed|string
+     * @throws \Jcode\Cache\Redis\Exception
+     */
+    public function set($key, $value)
+    {
+        $redis = $this->redis;
 
-		return $redis->__call('hset', [
-			md5($key),
-			$this->prefix . $key,
-			json_encode($value),
-		]);
-	}
+        return $redis->__call('hset', [
+            md5($key),
+            $this->prefix . $key,
+            json_encode($value),
+        ]);
+    }
 
-	/**
-	 * Get value from Redis
-	 *
-	 * @param $key
-	 *
-	 * @return mixed
-	 * @throws \Jcode\Cache\Redis\Exception
-	 */
-	public function get($key)
-	{
-		$redis = $this->redis;
+    /**
+     * Get value from Redis
+     *
+     * @param $key
+     *
+     * @return mixed
+     * @throws \Jcode\Cache\Redis\Exception
+     */
+    public function get($key)
+    {
+        $redis = $this->redis;
 
-		$value = $redis->__call('hget', [
-			md5($key),
-			$this->prefix . $key,
-		]);
+        $value = $redis->__call('hget', [
+            md5($key),
+            $this->prefix . $key,
+        ]);
 
-		return json_decode($value, true);
-	}
+        return json_decode($value, true);
+    }
 
-	public function exists($key)
-	{
-		$redis = $this->redis;
+    public function exists($key)
+    {
+        $redis = $this->redis;
 
-		return (bool) $redis->__call('hexists', [
-			md5($key),
-			$this->prefix . $key
-		]);
-	}
+        return (bool)$redis->__call('hexists', [
+            md5($key),
+            $this->prefix . $key
+        ]);
+    }
 }

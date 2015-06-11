@@ -29,62 +29,62 @@ use Jcode\Layout\Resource\Template;
 class Html extends Template
 {
 
-	protected $cssFiles = [];
+    protected $cssFiles = [];
 
-	protected $jsFiles = [];
+    protected $jsFiles = [];
 
-	/**
-	 * Get all added CSS files
-	 *
-	 * @return array
-	 */
-	public function getCssFiles()
-	{
-		$html = '';
+    /**
+     * Get all added CSS files
+     *
+     * @return array
+     */
+    public function getCssFiles()
+    {
+        $html = '';
 
-		foreach ($this->cssFiles as $file) {
-			$html .= '<link rel="stylesheet" type="text/css" href="'. Application::getBaseUrl(Environment::URL_TYPE_CSS) . '/' . $file .'">';
-		}
+        foreach ($this->cssFiles as $file) {
+            $html .= '<link rel="stylesheet" type="text/css" href="' . Application::getBaseUrl(Environment::URL_TYPE_CSS) . '/' . $file . '">';
+        }
 
-		return $html;
-	}
+        return $html;
+    }
 
-	/**
-	 * Return all added JS files
-	 * @return array
-	 */
-	public function getJsFiles()
-	{
-		$html = '';
+    /**
+     * Return all added JS files
+     * @return array
+     */
+    public function getJsFiles()
+    {
+        $html = '';
 
-		foreach ($this->jsFiles as $file) {
-			$html .= '<link rel="stylesheet" type="text/css" href="'. Application::getBaseUrl(Environment::URL_TYPE_JS) . '/' . $file .'">';
-		}
+        foreach ($this->jsFiles as $file) {
+            $html .= '<link rel="stylesheet" type="text/css" href="' . Application::getBaseUrl(Environment::URL_TYPE_JS) . '/' . $file . '">';
+        }
 
-		return $html;
-	}
+        return $html;
+    }
 
-	/**
-	 * @param $file
-	 *
-	 * @return $this
-	 */
-	public function addJs($file)
-	{
-		$this->jsFiles[] = $file;
+    /**
+     * @param $file
+     *
+     * @return $this
+     */
+    public function addJs($file)
+    {
+        $this->jsFiles[] = $file;
 
-		return $this;
-	}
+        return $this;
+    }
 
-	/**
-	 * @param $file
-	 *
-	 * @return $this
-	 */
-	public function addCss($file)
-	{
-		$this->cssFiles[] = $file;
+    /**
+     * @param $file
+     *
+     * @return $this
+     */
+    public function addCss($file)
+    {
+        $this->cssFiles[] = $file;
 
-		return $this;
-	}
+        return $this;
+    }
 }

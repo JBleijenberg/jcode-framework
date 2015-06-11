@@ -25,20 +25,20 @@
  */
 function appClassLoader($className)
 {
-	$className = ltrim($className, '\\');
-	$fileName = BP . DS . 'application' . DS;
+    $className = ltrim($className, '\\');
+    $fileName = BP . DS . 'application' . DS;
 
-	if (($lastNsPos = strripos($className, '\\'))) {
-		$namespace = substr($className, 0, $lastNsPos);
-		$className = substr($className, $lastNsPos + 1);
-		$fileName .= str_replace('\\', DS, $namespace) . DS;
-	}
+    if (($lastNsPos = strripos($className, '\\'))) {
+        $namespace = substr($className, 0, $lastNsPos);
+        $className = substr($className, $lastNsPos + 1);
+        $fileName .= str_replace('\\', DS, $namespace) . DS;
+    }
 
-	$fileName .= str_replace('_', DS, $className) . '.php';
+    $fileName .= str_replace('_', DS, $className) . '.php';
 
-	if (stream_resolve_include_path($fileName) !== false) {
-		require_once $fileName;
-	}
+    if (stream_resolve_include_path($fileName) !== false) {
+        require_once $fileName;
+    }
 }
 
 /**
@@ -46,20 +46,20 @@ function appClassLoader($className)
  */
 function libClassLoader($className)
 {
-	$className = ltrim($className, '\\');
-	$fileName = BP . DS . 'lib' . DS;
+    $className = ltrim($className, '\\');
+    $fileName = BP . DS . 'lib' . DS;
 
-	if (($lastNsPos = strripos($className, '\\'))) {
-		$namespace = substr($className, 0, $lastNsPos);
-		$className = substr($className, $lastNsPos + 1);
-		$fileName .= str_replace('\\', DS, $namespace) . DS;
-	}
+    if (($lastNsPos = strripos($className, '\\'))) {
+        $namespace = substr($className, 0, $lastNsPos);
+        $className = substr($className, $lastNsPos + 1);
+        $fileName .= str_replace('\\', DS, $namespace) . DS;
+    }
 
-	$fileName .= str_replace('_', DS, $className) . '.php';
+    $fileName .= str_replace('_', DS, $className) . '.php';
 
-	if (stream_resolve_include_path($fileName) !== false) {
-		require_once $fileName;
-	}
+    if (stream_resolve_include_path($fileName) !== false) {
+        require_once $fileName;
+    }
 }
 
 spl_autoload_register('appClassLoader');

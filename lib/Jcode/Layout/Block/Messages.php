@@ -28,29 +28,29 @@ use Jcode\Layout\Resource\Template;
 class Messages extends Template
 {
 
-	/**
-	 * @inject \Jcode\Resource\Session
-	 * @var \Jcode\Resource\Session
-	 */
-	protected $session;
+    /**
+     * @inject \Jcode\Resource\Session
+     * @var \Jcode\Resource\Session
+     */
+    protected $session;
 
-	/**
-	 * Retrieve messages from all registered sessions
-	 *
-	 * @throws \Exception
-	 */
-	public function getMessages()
-	{
-		$messages = [];
+    /**
+     * Retrieve messages from all registered sessions
+     *
+     * @throws \Exception
+     */
+    public function getMessages()
+    {
+        $messages = [];
 
-		foreach ($this->session->getRegisteredNamespaces() as $sessionClass) {
-			$session = Application::objectManager()->get($sessionClass);
+        foreach ($this->session->getRegisteredNamespaces() as $sessionClass) {
+            $session = Application::objectManager()->get($sessionClass);
 
-			foreach ($session->getMessages() as $message) {
-				$messages[] = $message;
-			};
-		}
+            foreach ($session->getMessages() as $message) {
+                $messages[] = $message;
+            };
+        }
 
-		return $messages;
-	}
+        return $messages;
+    }
 }
