@@ -60,6 +60,8 @@ class Request
 
     /**
      * Initialize request object
+     * Request URI is exploded into <module_key>/<controller_key>/<action_key>
+     * If a key is not filled, it defaults to index
      *
      * @param \Jcode\Router\Http\Response $response
      */
@@ -67,20 +69,33 @@ class Request
     {
         $route = trim($this->getServer('REQUEST_URI'), '/');
 
+        /**
+         * If there is no route (user is at / ), check if there is a default path configured
+         */
         if (empty($route)) {
             $route = $this->config->getDefaultRoute();
         }
 
+        /**
+         * Check if a rewrite is set for the current request. If there is, use that rewrite as route.
+         */
         if ($rewrite = $this->rewrite->getRewrite($route)) {
             $route = $rewrite;
         }
 
         $params = null;
 
+        /**
+         * Explode any GET params from route
+         */
         if (strpos($route, '?')) {
             $route = current(explode('?', $route));
         }
 
+        /**
+         * Chop up the route into frontname, controller and action. Replace blanks by 'index'
+         * E.G: /my/page/ would create a route of /my/page/index
+         */
         list($this->frontName, $this->controller, $this->action) = array_pad(explode('/', $route), 3, 'index');
 
         $this->dispatch($response);
@@ -88,11 +103,22 @@ class Request
         return;
     }
 
+    /**
+     * Dispatch request, finding corresponting modules, controllers and actions
+     *
+     * @param Response $response
+     */
     public function dispatch(Response $response)
     {
+        /**
+         * Load a module by frontname.
+         */
         if ($module = $this->getConfig()->getModuleByFrontname($this->frontName)) {
             $this->module = $module;
 
+            /**
+             * Check if the module has any controllers defined
+             */
             if ($router = $module->getRouter()) {
                 if ($class = $router->getClass()) {
                     $class = rtrim($class, '\\') . '\\' . ucfirst($this->controller);
