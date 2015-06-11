@@ -22,6 +22,8 @@
  */
 namespace Jcode\Db;
 
+use Jcode\Application;
+
 class Adapter
 {
 
@@ -40,12 +42,6 @@ class Adapter
 	protected $registry;
 
 	/**
-	 * @inject \Jcode\ObjectManager
-	 * @var \Jcode\ObjectManager
-	 */
-	protected $objectmanager;
-
-	/**
 	 * @var \Jcode\Db\AdapterInterface
 	 */
 	protected $instance;
@@ -55,7 +51,7 @@ class Adapter
 		$config = $this->config;
 
 		if ($config->getDatabase() && $config->getDatabase()->hasData()) {
-			$this->instance = $this->objectmanager->get($config->getDatabase()->getAdapter());
+			$this->instance = Application::objectManager()->get($config->getDatabase()->getAdapter());
 			$this->instance->connect($config->getDatabase());
 		}
 	}

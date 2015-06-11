@@ -68,12 +68,6 @@ class Controller
 	protected $config;
 
 	/**
-	 * @inject \Jcode\ObjectManager
-	 * @var \Jcode\ObjectManager
-	 */
-	protected $objectManager;
-
-	/**
 	 * @inject \Jcode\Registry
 	 * @var \Jcode\Registry
 	 */

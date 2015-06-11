@@ -43,12 +43,6 @@ class Environment
 	protected $config;
 
 	/**
-	 * @var \Jcode\ObjectManager
-	 * @inject \Jcode\ObjectManager
-	 */
-	protected $objectManager;
-
-	/**
 	 * @var \Jcode\Router\Front
 	 */
 	protected $front;
@@ -77,7 +71,7 @@ class Environment
 	 */
 	public function dispatch()
 	{
-		$this->front = $this->objectManager->get('Jcode\Router\Front');
+		$this->front = Application::objectManager()->get('Jcode\Router\Front');
 
 		$this->front->dispatch();
 
@@ -91,7 +85,7 @@ class Environment
 	public function getResponse()
 	{
 		if (!$this->front) {
-			$this->front = $this->objectManager->get('Jcode\Router\Front');
+			$this->front = Application::objectManager()->get('Jcode\Router\Front');
 		}
 
 		return $this->front->getResponse();
@@ -103,7 +97,7 @@ class Environment
 	public function getRequest()
 	{
 		if (!$this->front) {
-			$this->front = $this->objectManager->get('Jcode\Router\Front');
+			$this->front = Application::objectManager()->get('Jcode\Router\Front');
 		}
 
 		return $this->front->getRequest();
@@ -136,7 +130,7 @@ class Environment
 
 	protected function parseLayoutElement(SimpleXMLElement $element)
 	{
-		$object = $this->objectManager->get('Jcode\Object');
+		$object = Application::objectManager()->get('Jcode\Object');
 
 		if (isset($element['extends'])) {
 			$child = $this->getLayout($element['extends']);
@@ -158,11 +152,11 @@ class Environment
 		if (isset($reference['extends'])) {
 			$referenceObject = $this->getLayout((string)$reference['extends'])->getData((string)$reference['name']);
 		} else {
-			$referenceObject = $this->objectManager->get('Jcode\Object\Collection');
+			$referenceObject = Application::objectManager()->get('Jcode\Object\Collection');
 		}
 
 		if (!$referenceObject->getItemById('child_html') instanceof \Jcode\Object\Collection) {
-			$referenceObject->addItem($this->objectManager->get('Jcode\Object\Collection'), 'child_html');
+			$referenceObject->addItem(Application::objectManager()->get('Jcode\Object\Collection'), 'child_html');
 		}
 
 		foreach ($reference->block as $block) {
@@ -191,7 +185,7 @@ class Environment
 	 */
 	protected function getLayoutBlock(SimpleXMLElement $element)
 	{
-		$blockObject = $this->objectManager->get((string)$element['class']);
+		$blockObject = Application::objectManager()->get((string)$element['class']);
 
 		$blockObject->setName((string)$element['name']);
 
@@ -200,7 +194,7 @@ class Environment
 		}
 
 		if ($element->method) {
-			$methodCollection = $this->objectManager->get('Jcode\Object\Collection');
+			$methodCollection = Application::objectManager()->get('Jcode\Object\Collection');
 
 			foreach ($element->method as $method) {
 				$args = [];
@@ -216,7 +210,7 @@ class Environment
 		}
 
 		if ($element->block) {
-			$collection = $this->objectManager->get('Jcode\Object\Collection');
+			$collection = Application::objectManager()->get('Jcode\Object\Collection');
 
 			foreach ($element->block as $block) {
 				$collection->addItem($this->getLayoutBlock($block), (string)$block['name']);
@@ -232,7 +226,7 @@ class Environment
 	{
 		$files = glob(BP . DS . 'application' . DS . '*' . DS . '*' . DS . 'View' . DS . 'Layout' . DS . Application::env()->getConfig('layout/name') . DS . '*.xml');
 
-		$layoutArray = $this->objectManager->get('Jcode\Object');
+		$layoutArray = Application::objectManager()->get('Jcode\Object');
 
 		foreach ($files as $file) {
 			$xml = simplexml_load_file($file);

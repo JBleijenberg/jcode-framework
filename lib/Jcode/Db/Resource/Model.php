@@ -36,12 +36,6 @@ abstract class Model extends Object
 	protected $resource;
 
 	/**
-	 * @inject \Jcode\ObjectManager
-	 * @var \Jcode\ObjectManager
-	 */
-	protected $objectManager;
-
-	/**
 	 * @return \Jcode\Db\Resource
 	 * @throws \Exception
 	 */
@@ -50,7 +44,7 @@ abstract class Model extends Object
 		if (!$this->resource) {
 			$resourceClass = str_replace('\Resource\Model\\', '\Resource\\', get_called_class());
 
-			$this->resource = $this->objectManager->get($resourceClass);
+			$this->resource = Application::objectManager()->get($resourceClass);
 		}
 
 		return $this->resource;

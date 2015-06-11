@@ -20,37 +20,41 @@
  * @copyright   Copyright (c) 2015 MaxServ (http://www.maxserv.com)
  * @license     http://opensource.org/licenses/GPL-3.0 General Public License (GPL 3.0)
  */
-namespace Jcode\Layout\Block;
+namespace Jmod\Cms\Block\Page;
 
 use Jcode\Application;
+use Jcode\Application\Environment;
 use Jcode\Layout\Resource\Template;
 
-class Messages extends Template
+class Footer extends Template
 {
 
-	/**
-	 * @inject \Jcode\Resource\Session
-	 * @var \Jcode\Resource\Session
-	 */
-	protected $session;
+	protected $jsFiles = [];
 
 	/**
-	 * Retrieve messages from all registered sessions
-	 *
-	 * @throws \Exception
+	 * Return all added JS files
+	 * @return array
 	 */
-	public function getMessages()
+	public function getJsFiles()
 	{
-		$messages = [];
+		$html = '';
 
-		foreach ($this->session->getRegisteredNamespaces() as $sessionClass) {
-			$session = Application::objectManager()->get($sessionClass);
-
-			foreach ($session->getMessages() as $message) {
-				$messages[] = $message;
-			};
+		foreach ($this->jsFiles as $file) {
+			$html .= '<link rel="stylesheet" type="text/css" href="'. Application::getBaseUrl(Environment::URL_TYPE_JS) . '/' . $file .'">';
 		}
 
-		return $messages;
+		return $html;
+	}
+
+	/**
+	 * @param $file
+	 *
+	 * @return $this
+	 */
+	public function addJs($file)
+	{
+		$this->jsFiles[] = $file;
+
+		return $this;
 	}
 }

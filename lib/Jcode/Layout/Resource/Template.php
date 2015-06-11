@@ -45,12 +45,6 @@ class Template extends Object
 	protected $helper;
 
 	/**
-	 * @inject \Jcode\ObjectManager
-	 * @var \Jcode\ObjectManager
-	 */
-	protected $objectManager;
-
-	/**
 	 * @inject \Jcode\Registry
 	 * @var \Jcode\Registry
 	 */
@@ -127,7 +121,7 @@ class Template extends Object
 
 		foreach ($layout->getItemById('child_html') as $block) {
 			if ($block->getName() == $this->getName()) {
-				return $this->renderBlock($block->getChildHtml()->getItemById($name));
+				return $this->renderBlock($block->getData('child_html')->getItemById($name));
 			}
 		}
 

@@ -22,6 +22,8 @@
  */
 namespace Jcode\Resource;
 
+use Jcode\Application;
+
 class Session extends \Jcode\Object
 {
 
@@ -42,12 +44,6 @@ class Session extends \Jcode\Object
 	 * @var \Jcode\Registry
 	 */
 	protected $registry;
-
-	/**
-	 * @inject \Jcode\ObjectManager
-	 * @var \Jcode\ObjectManager
-	 */
-	protected $objectManager;
 
 	/**
 	 * Initialize sessions
@@ -123,7 +119,7 @@ class Session extends \Jcode\Object
 			$session['messages'] = [];
 		}
 
-		$msgObj = $this->objectManager->get('Jcode\Object');
+		$msgObj = Application::objectManager()->get('Jcode\Object');
 
 		$msgObj->setType($type);
 		$msgObj->setMessage($msg);

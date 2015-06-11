@@ -69,6 +69,14 @@ final class Application
 	}
 
 	/**
+	 * @return ObjectManager
+	 */
+	public static function objectManager()
+	{
+		return self::$objectManager;
+	}
+
+	/**
 	 * Retrieve initialized application environment.
 	 *
 	 * @return \Jcode\Application\Environment
@@ -94,7 +102,14 @@ final class Application
 		$logger->writeException($e);
 
 		if (self::$isDeveloperMode) {
-			debug($e->getMessage(), true);
+			echo "<pre>\r\n";
+
+			echo $e->getMessage() ."\r\n\n";
+
+			foreach ($e->getTrace() as $trace) {
+				echo $trace['file'] . "(" . $trace['line'] . "): " . $trace['function'] . "()\r\n";
+			}
+			echo "</pre>";
 		}
 	}
 

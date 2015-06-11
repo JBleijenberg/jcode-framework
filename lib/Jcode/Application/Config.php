@@ -21,6 +21,7 @@
  */
 namespace Jcode\Application;
 
+use Jcode\Application;
 use \Jcode\Cache\CacheInterface;
 use \Jcode\Object;
 use \Exception;
@@ -33,12 +34,6 @@ class Config extends Object
 	 * @var bool
 	 */
 	protected $isSharedInstance = true;
-
-	/**
-	 * @inject \Jcode\ObjectManager
-	 * @var \Jcode\ObjectManager
-	 */
-	protected $objectManager;
 
 	/**
 	 * @inject \Jcode\Event\Manager
@@ -97,7 +92,7 @@ class Config extends Object
 		if ($this->getCache() && $this->getCache()->getEnabled() == 1) {
 			$cacheConfig = $this->getCache();
 			/* @var \Jcode\Cache\CacheInterface $class */
-			$class = $this->objectManager->get($cacheConfig->getClass());
+			$class = Application::objectManager()->get($cacheConfig->getClass());
 
 			$class->connect($cacheConfig);
 
@@ -141,15 +136,14 @@ class Config extends Object
 	public function initModuleConfiguration()
 	{
 		$registry = $this->registry;
-		$objectManager = $this->objectManager;
 
 		$moduleJsons = glob(BP . DS . 'application' . DS . '*' . DS . '*'. DS . 'module.json');
 
 		/* @var \Jcode\Object $urlRewrites */
-		$urlRewrites = $objectManager->get('\Jcode\Object');
+		$urlRewrites = Application::objectManager()->get('\Jcode\Object');
 
-		$registry->set('module_collection', $objectManager->get('\Jcode\Object\Collection'));
-		$registry->set('frontnames', $objectManager->get('\Jcode\Object'));
+		$registry->set('module_collection', Application::objectManager()->get('\Jcode\Object\Collection'));
+		$registry->set('frontnames', Application::objectManager()->get('\Jcode\Object'));
 		$registry->set('url_rewrites', $urlRewrites);
 
 		foreach ($moduleJsons as $moduleJson) {
@@ -163,7 +157,7 @@ class Config extends Object
 
 				if (is_array($configuraton) && !empty($configuraton)) {
 					/* @var \Jcode\Object $module */
-					$module = $objectManager->get('\Jcode\Object');
+					$module = Application::objectManager()->get('\Jcode\Object');
 
 					$module->importArray($configuraton['module']);
 					$module->setModulePath(dirname($moduleJson));
@@ -172,7 +166,7 @@ class Config extends Object
 				}
 			} else {
 				if ($this->isCacheEnabled()) {
-					$module = $objectManager->get('\Jcode\Object');
+					$module = Application::objectManager()->get('\Jcode\Object');
 					$module->importArray($this->getCacheInstance()->get($cacheKey));
 				}
 			}

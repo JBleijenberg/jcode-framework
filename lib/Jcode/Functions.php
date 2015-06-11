@@ -28,7 +28,12 @@ function debug($data, $exit = false)
 {
 	echo '<pre>';
 
+	if ($data instanceof \Jcode\Object) {
+		$data->cleanObject();
+	}
+
 	print_r($data);
+
 
 	echo '</pre>';
 

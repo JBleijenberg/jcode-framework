@@ -22,16 +22,11 @@
  */
 namespace Jcode\Db\Adapter\Mysql;
 
+use Jcode\Application;
 use Jcode\Db\TableInterface;
 
 class Table implements TableInterface
 {
-
-	/**
-	 * @inject \Jcode\ObjectManager
-	 * @var \Jcode\ObjectManager
-	 */
-	protected $objectmanager;
 
 	protected $tableName;
 
@@ -138,7 +133,7 @@ class Table implements TableInterface
 	public function addColumn($name, $type, $length = null, array $options = [])
 	{
 		/* @var \Jcode\Db\Adapter\Mysql\Table\Column $column */
-		$column = $this->objectmanager->get('Jcode\Db\Adapter\Mysql\Table\Column');
+		$column = Application::objectManager()->get('Jcode\Db\Adapter\Mysql\Table\Column');
 
 		$column->setName($name);
 		$column->setType($type);
@@ -160,7 +155,7 @@ class Table implements TableInterface
 	public function alterColumn($name, array $options)
 	{
 		/* @var \Jcode\Db\Adapter\Mysql\Table\Column $column */
-		$column = $this->objectmanager->get('Jcode\Db\Model\Adapter\Mysql\Table\Column');
+		$column = Application::objectManager()->get('Jcode\Db\Model\Adapter\Mysql\Table\Column');
 
 		$column->setName($name);
 		$column->setOptions($options);

@@ -51,12 +51,6 @@ class Request
 	 */
 	protected $rewrite;
 
-	/**
-	 * @inject \Jcode\ObjectManager
-	 * @var \Jcode\ObjectManager
-	 */
-	protected $objectManager;
-
 	protected $route;
 
 	/**
@@ -104,7 +98,7 @@ class Request
 					$class = rtrim($class, '\\') . '\\' . ucfirst($this->controller);
 
 					try {
-						$controller = $this->objectManager->get($class, [$this, $response]);
+						$controller = Application::objectManager()->get($class, [$this, $response]);
 
 						if ($controller instanceof Controller) {
 							$action = $this->action . "Action";
@@ -113,15 +107,15 @@ class Request
 								$this->route = sprintf('%s/%s/%s', $this->frontName, $this->controller, $this->action);
 
 								/* @var \Jcode\Object $get */
-								$get = $this->objectManager->get('Jcode\Object');
+								$get = Application::objectManager()->get('Jcode\Object');
 								$get->importArray($_GET);
 
 								/* @var \Jcode\Object $post */
-								$post = $this->objectManager->get('Jcode\Object');
+								$post = Application::objectManager()->get('Jcode\Object');
 								$post->importArray($_POST);
 
 								/* @var \Jcode\Object $files */
-								$files = $this->objectManager->get('Jcode\Object');
+								$files = Application::objectManager()->get('Jcode\Object');
 								$files->importArray($_FILES);
 
 								$controller->preDispatch($get, $post, $files);

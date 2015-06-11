@@ -20,37 +20,12 @@
  * @copyright   Copyright (c) 2015 MaxServ (http://www.maxserv.com)
  * @license     http://opensource.org/licenses/GPL-3.0 General Public License (GPL 3.0)
  */
-namespace Jcode\Layout\Block;
+namespace Jcode\Data\Form\Element;
 
-use Jcode\Application;
-use Jcode\Layout\Resource\Template;
+use Jcode\Data\Form\Element;
 
-class Messages extends Template
+class Text extends Element
 {
 
-	/**
-	 * @inject \Jcode\Resource\Session
-	 * @var \Jcode\Resource\Session
-	 */
-	protected $session;
-
-	/**
-	 * Retrieve messages from all registered sessions
-	 *
-	 * @throws \Exception
-	 */
-	public function getMessages()
-	{
-		$messages = [];
-
-		foreach ($this->session->getRegisteredNamespaces() as $sessionClass) {
-			$session = Application::objectManager()->get($sessionClass);
-
-			foreach ($session->getMessages() as $message) {
-				$messages[] = $message;
-			};
-		}
-
-		return $messages;
-	}
+	protected $template = 'Jmod_Cms::Form/Element/Text.phtml';
 }

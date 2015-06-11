@@ -39,12 +39,6 @@ class Mysql extends PDO implements AdapterInterface
 
 	protected $bindIncrement = 1;
 
-	/**
-	 * @inject \Jcode\ObjectManager
-	 * @var \Jcode\ObjectManager
-	 */
-	protected $objectManager;
-
 	protected $query;
 
 	/**
@@ -88,7 +82,7 @@ class Mysql extends PDO implements AdapterInterface
 	public function getTable($tableName, $engine = 'innoDB')
 	{
 		/* @var \Jcode\Db\Adapter\Mysql\Table $table */
-		$table = $this->objectManager->get('Jcode\Db\Adapter\Mysql\Table');
+		$table = Application::objectManager()->get('Jcode\Db\Adapter\Mysql\Table');
 
 		$table->setTableName($tableName);
 		$table->setEngine($engine);

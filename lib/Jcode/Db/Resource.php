@@ -22,6 +22,7 @@
  */
 namespace Jcode\Db;
 
+use Jcode\Application;
 use Jcode\Object\Collection;
 use \Exception;
 
@@ -32,12 +33,6 @@ abstract class Resource extends Collection
 	 * @var object
 	 */
 	protected $adapter;
-
-	/**
-	 * @inject \Jcode\ObjectManager
-	 * @var \Jcode\ObjectManager
-	 */
-	protected $objectmanager;
 
 	/**
 	 * @var string
@@ -121,7 +116,7 @@ abstract class Resource extends Collection
 		}
 
 		/* @var \Jcode\Db\\Adapter $adapter */
-		$adapter = $this->objectmanager->get('\Jcode\Db\Adapter');
+		$adapter = Application::objectManager()->get('\Jcode\Db\Adapter');
 
 		$this->adapter = $adapter->getInstance();
 	}
@@ -429,7 +424,7 @@ abstract class Resource extends Collection
 			if (!empty($result)) {
 				foreach ($result as $item) {
 					/* @var \Jcode\Object $itemObject */
-					$itemObject = $this->objectmanager->get($this->modelClass);
+					$itemObject = Application::objectManager()->get($this->modelClass);
 					$itemObject->importArray($item);
 					$itemObject->copyToOrigData();
 					$itemObject->hasChangedData(false);

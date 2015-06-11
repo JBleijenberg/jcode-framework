@@ -20,37 +20,37 @@
  * @copyright   Copyright (c) 2015 MaxServ (http://www.maxserv.com)
  * @license     http://opensource.org/licenses/GPL-3.0 General Public License (GPL 3.0)
  */
-namespace Jcode\Layout\Block;
+namespace Jcode\Data\Form;
 
-use Jcode\Application;
-use Jcode\Layout\Resource\Template;
+use \Jcode\Layout\Resource\Template;
 
-class Messages extends Template
+class Container extends Template
 {
 
-	/**
-	 * @inject \Jcode\Resource\Session
-	 * @var \Jcode\Resource\Session
-	 */
-	protected $session;
+	protected $template = 'Jmod_Cms::Form/Container.phtml';
 
 	/**
-	 * Retrieve messages from all registered sessions
-	 *
-	 * @throws \Exception
+	 * @inject \Jcode\Data\Form
+	 * @var \Jcode\Data\Form
 	 */
-	public function getMessages()
+	protected $form;
+
+	protected function prepareForm()
 	{
-		$messages = [];
 
-		foreach ($this->session->getRegisteredNamespaces() as $sessionClass) {
-			$session = Application::objectManager()->get($sessionClass);
+	}
 
-			foreach ($session->getMessages() as $message) {
-				$messages[] = $message;
-			};
-		}
+	public function getForm()
+	{
+		return $this->form;
+	}
 
-		return $messages;
+	public function render()
+	{
+		$this->prepareForm();
+
+		parent::render();
+
+		return $this;
 	}
 }

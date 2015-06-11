@@ -22,6 +22,8 @@
  */
 namespace Jcode\Router;
 
+use Jcode\Application;
+
 class Front
 {
 
@@ -39,16 +41,10 @@ class Front
 	 */
 	protected $response;
 
-	/**
-	 * @inject \Jcode\ObjectManager
-	 * @var \Jcode\ObjectManager
-	 */
-	protected $objectManager;
-
 	public function dispatch()
 	{
-		$this->response = $this->objectManager->get('Jcode\Router\Http\Response');
-		$this->request = $this->objectManager->get('Jcode\Router\Http\Request');
+		$this->response = Application::objectManager()->get('Jcode\Router\Http\Response');
+		$this->request = Application::objectManager()->get('Jcode\Router\Http\Request');
 
 		$this->request->buildHttpRequest($this->response);
 
