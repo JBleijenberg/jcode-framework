@@ -22,129 +22,159 @@
  */
 namespace Jcode\Data\Form;
 
+use Jcode\Layout\Resource\Template;
 use Jcode\Object;
 
-class Element
+class Element extends Template
 {
 
-	protected $id;
+    /**
+     * @var string|int $id
+     */
+    protected $id;
 
-	protected $name;
+    /**
+     * @var string $name
+     */
+    protected $name;
 
-	protected $label;
+    /**
+     * @var string $label
+     */
+    protected $label;
 
-	protected $class;
+    /**
+     * Element classes
+     *
+     * @var string $class
+     */
+    protected $class;
 
-	protected $value;
+    /**
+     * (pre)defined value for input field
+     *
+     * @var mixed $value
+     */
+    protected $value;
 
-	protected $disabled = false;
+    protected $disabled = false;
 
-	protected $template;
+    protected $required = false;
 
-	public function __construct($options)
-	{
-		foreach ($options as $option => $value) {
-			if (property_exists($this, $option)) {
-				$this->$option = $value;
-			}
-		}
+    /**
+     * Extra field for input field, eg for data-attributes.
+     * Will be placed a string within <input/>
+     *
+     * @var string $extra
+     */
+    protected $extra;
 
-		return $this;
-	}
+    protected $template;
 
-	/**
-	 * @return mixed
-	 */
-	public function getId()
-	{
-		return $this->id;
-	}
+    public function __construct($options)
+    {
+        foreach ($options as $option => $value) {
+            if (property_exists($this, $option)) {
+                $this->$option = $value;
+            }
+        }
 
-	/**
-	 * @param mixed $id
-	 */
-	public function setId($id)
-	{
-		$this->id = $id;
-	}
+        return $this;
+    }
 
-	/**
-	 * @return mixed
-	 */
-	public function getName()
-	{
-		return $this->name;
-	}
+    /**
+     * @return mixed
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
 
-	/**
-	 * @param mixed $name
-	 */
-	public function setName($name)
-	{
-		$this->name = $name;
-	}
+    /**
+     * @param mixed $id
+     */
+    public function setId($id)
+    {
+        $this->id = $id;
+    }
 
-	/**
-	 * @return mixed
-	 */
-	public function getLabel()
-	{
-		return $this->label;
-	}
+    /**
+     * @return mixed
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
 
-	/**
-	 * @param mixed $label
-	 */
-	public function setLabel($label)
-	{
-		$this->label = $label;
-	}
+    /**
+     * @param mixed $name
+     */
+    public function setName($name)
+    {
+        $this->name = $name;
+    }
 
-	/**
-	 * @return mixed
-	 */
-	public function getClass()
-	{
-		return $this->class;
-	}
+    /**
+     * @return mixed
+     */
+    public function getLabel()
+    {
+        return $this->label;
+    }
 
-	/**
-	 * @param mixed $class
-	 */
-	public function setClass($class)
-	{
-		$this->class = $class;
-	}
+    /**
+     * @param mixed $label
+     */
+    public function setLabel($label)
+    {
+        $this->label = $label;
+    }
 
-	/**
-	 * @return mixed
-	 */
-	public function getValue()
-	{
-		return $this->value;
-	}
+    /**
+     * @return mixed
+     */
+    public function getClass()
+    {
+        return $this->class;
+    }
 
-	/**
-	 * @param mixed $value
-	 */
-	public function setValue($value)
-	{
-		$this->value = $value;
-	}
+    /**
+     * @param mixed $class
+     */
+    public function setClass($class)
+    {
+        $this->class = $class;
+    }
 
-	/**
-	 * @return boolean
-	 */
-	public function isDisabled()
-	{
-		return $this->disabled;
-	}
+    /**
+     * @return mixed
+     */
+    public function getValue()
+    {
+        return $this->value;
+    }
 
-	/**
-	 * @param boolean $disabled
-	 */
-	public function setDisabled($disabled)
-	{
-		$this->disabled = $disabled;
-	}
+    /**
+     * @param mixed $value
+     */
+    public function setValue($value)
+    {
+        $this->value = $value;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function isDisabled()
+    {
+        return $this->disabled;
+    }
+
+    /**
+     * @param boolean $disabled
+     */
+    public function setDisabled($disabled)
+    {
+        $this->disabled = $disabled;
+    }
 }

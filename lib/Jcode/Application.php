@@ -42,6 +42,11 @@ final class Application
      */
     protected static $objectManager;
 
+    /**
+     * @var \Jcode\Registry
+     */
+    protected static $registry;
+
     protected static $isDeveloperMode = false;
 
     public static function isDeveloperMode($bool = true)
@@ -56,6 +61,7 @@ final class Application
     {
         if (!self::$environment) {
             self::$objectManager = new ObjectManager;
+            self::$registry = self::objectManager()->get('Jcode\Registry');
             self::$environment = self::$objectManager->get('Jcode\Application\Environment');
 
             try {
@@ -198,5 +204,30 @@ final class Application
         }
 
         return $location;
+    }
+
+    /**
+     * Add value to registry
+     *
+     * @param $key
+     * @param $value
+     * @param bool $grace
+     * @throws Exception
+     */
+    public static function register($key, $value, $grace = true)
+    {
+        self::$registry->set($key, $value, $grace);
+    }
+
+    /**
+     * Get value from register. If key is not present, return $default
+     *
+     * @param $key
+     * @param null $default
+     * @return bool
+     */
+    public static function registry($key, $default = null)
+    {
+        return self::$registry->get($key, $default);
     }
 }

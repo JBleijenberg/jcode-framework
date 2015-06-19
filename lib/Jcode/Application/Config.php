@@ -40,11 +40,6 @@ class Config extends Object
      * @var \Jcode\Event\Manager
      */
     protected $eventManager;
-    /**
-     * @inject \Jcode\Registry
-     * @var \Jcode\Registry
-     */
-    protected $registry;
 
     /**
      * @var \Jcode\Cache\CacheInterface
@@ -135,16 +130,14 @@ class Config extends Object
      */
     public function initModuleConfiguration()
     {
-        $registry = $this->registry;
-
         $moduleJsons = glob(BP . DS . 'application' . DS . '*' . DS . '*' . DS . 'module.json');
 
         /* @var \Jcode\Object $urlRewrites */
         $urlRewrites = Application::objectManager()->get('\Jcode\Object');
 
-        $registry->set('module_collection', Application::objectManager()->get('\Jcode\Object\Collection'));
-        $registry->set('frontnames', Application::objectManager()->get('\Jcode\Object'));
-        $registry->set('url_rewrites', $urlRewrites);
+        Application::register('module_collection', Application::objectManager()->get('\Jcode\Object\Collection'));
+        Application::register('frontnames', Application::objectManager()->get('\Jcode\Object'));
+        Application::register('url_rewrites', $urlRewrites);
 
         foreach ($moduleJsons as $moduleJson) {
             $cacheKey = 'moduleConfig:' . md5($moduleJson);
@@ -173,10 +166,10 @@ class Config extends Object
 
 
             if ($module instanceof Object && $module->hasData()) {
-                $registry->get('module_collection')->addItem($module, $module->getIdentifier());
+                Application::registry('module_collection')->addItem($module, $module->getIdentifier());
 
                 if ($module->getRouter() && $module->getRouter()->getFrontname()) {
-                    $registry->get('frontnames')
+                    Application::registry('frontnames')
                         ->setData($module->getRouter()->getFrontname(), $module->getIdentifier());
                 }
 
@@ -195,11 +188,9 @@ class Config extends Object
      */
     protected function initUrlRewrites(Object $module)
     {
-        $registry = $this->registry;
-
         if (($router = $module->getRouter()) && ($rewrites = $router->getRewrite())) {
             foreach ($rewrites as $source => $destination) {
-                $registry->get('url_rewrites')->setData($source, $destination);
+                Application::registry('url_rewrites')->setData($source, $destination);
             }
         }
 
@@ -251,11 +242,9 @@ class Config extends Object
      */
     public function getModuleByFrontname($frontName)
     {
-        $registry = $this->registry;
-
-        if ($registry->get('frontnames')->getData($frontName)) {
+        if (Application::registry('frontnames')->getData($frontName)) {
             /* @var \Jcode\Object $module */
-            $module = $registry->get('module_collection')->getItemById($frontName);
+            $module = Application::registry('module_collection')->getItemById($frontName);
 
             if ($module instanceof \Jcode\Object) {
                 return $module;
@@ -267,6 +256,6 @@ class Config extends Object
 
     public function getModule($moduleName)
     {
-        return $this->registry->get('module_collection')->getItemByColumnValue('name', $moduleName);
+        return Application::registry('module_collection')->getItemByColumnValue('name', $moduleName);
     }
 }

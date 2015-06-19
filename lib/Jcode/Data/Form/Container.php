@@ -27,30 +27,52 @@ use \Jcode\Layout\Resource\Template;
 class Container extends Template
 {
 
-	protected $template = 'Jmod_Cms::Form/Container.phtml';
+    protected $template = 'Jmod_Cms::Form/Container.phtml';
 
-	/**
-	 * @inject \Jcode\Data\Form
-	 * @var \Jcode\Data\Form
-	 */
-	protected $form;
+    /**
+     * @inject \Jcode\Data\Form
+     * @var \Jcode\Data\Form
+     */
+    protected $form;
 
-	protected function prepareForm()
-	{
+    protected function prepareForm()
+    {
 
-	}
+    }
 
-	public function getForm()
-	{
-		return $this->form;
-	}
+    public function getForm($id, array $options = [])
+    {
+        $form = $this->form;
 
-	public function render()
-	{
-		$this->prepareForm();
+        $form->setId($id);
 
-		parent::render();
+        if (array_key_exists('method', $options)) {
+            $form->setMethod($options['method']);
+        }
 
-		return $this;
-	}
+        if (array_key_exists('action', $options)) {
+            $form->setAction($options['action']);
+        }
+
+        if (array_key_exists('enctype', $options)) {
+            $form->setEncType($options['enctype']);
+        }
+
+        return $this->form;
+    }
+
+    public function render()
+    {
+        $this->prepareForm();
+
+        parent::render();
+
+        return $this;
+    }
+
+    public function getPreparedForm()
+    {
+        return $this->form;
+    }
+
 }

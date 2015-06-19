@@ -36,12 +36,6 @@ class Adapter
     protected $config;
 
     /**
-     * @inject \Jcode\Registry
-     * @var \Jcode\Registry
-     */
-    protected $registry;
-
-    /**
      * @var \Jcode\Db\AdapterInterface
      */
     protected $instance;

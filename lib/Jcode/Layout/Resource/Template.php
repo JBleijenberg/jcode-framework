@@ -28,27 +28,7 @@ use Jcode\Object;
 class Template extends Object
 {
 
-    protected $isSharedInstance = true;
-
-    /**
-     * @inject \Jcode\Application\Config
-     * @var \Jcode\Application\Config
-     */
-    protected $config;
-
     protected $template;
-
-    /**
-     * @inject \Jcode\Resource\Helper
-     * @var \Jcode\Resource\Helper
-     */
-    protected $helper;
-
-    /**
-     * @inject \Jcode\Registry
-     * @var \Jcode\Registry
-     */
-    protected $registry;
 
     public function setTemplate($template)
     {
@@ -80,9 +60,11 @@ class Template extends Object
     public function render()
     {
         if ($this->getTemplate()) {
+            $config = Application::objectManager()->get('Jcode\Application\Config');
+
             $templateArgs = explode('::', $this->getTemplate());
 
-            $module = $this->config->getModule(current($templateArgs));
+            $module = $config->getModule(current($templateArgs));
 
             next($templateArgs);
 
@@ -102,7 +84,7 @@ class Template extends Object
      */
     public function getReferenceHtml($reference)
     {
-        $layout = $this->registry->get('current_layout');
+        $layout = Application::registry('current_layout');
 
         if ($element = $layout->getData($reference)) {
             foreach ($element->getItemById('child_html') as $childHtml) {
@@ -117,7 +99,7 @@ class Template extends Object
      */
     public function getChildHtml($name)
     {
-        $layout = $this->registry->get('current_layout')->getData($this->getReference());
+        $layout =  Application::registry('current_layout')->getData($this->getReference());
 
         foreach ($layout->getItemById('child_html') as $block) {
             if ($block->getName() == $this->getName()) {
@@ -151,11 +133,22 @@ class Template extends Object
      */
     public function sanitize($string)
     {
-        return $this->helper->sanitize($string);
+        return $this->getHelper()->sanitize($string);
     }
 
     public function translate()
     {
-        return $this->helper->translate(func_get_args());
+        return $this->getHelper()->translate(func_get_args());
+    }
+
+    /**
+     * Get helper
+     *
+     * @return \Jcode\Resource\Helper
+     * @throws \Exception
+     */
+    public function getHelper()
+    {
+        return Application::objectManager()->get('Jcode\Resource\Helper');
     }
 }

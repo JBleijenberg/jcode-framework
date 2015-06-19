@@ -67,12 +67,6 @@ class Controller
      */
     protected $config;
 
-    /**
-     * @inject \Jcode\Registry
-     * @var \Jcode\Registry
-     */
-    protected $registry;
-
     protected $layout;
 
     public function __construct(Request $request, Response $response)
@@ -192,7 +186,7 @@ class Controller
     public function renderLayout()
     {
         if ($layout = $this->layout) {
-            $this->registry->set('current_layout', $layout);
+            Application::register('current_layout', $layout);
 
             if ($root = $layout->getRoot()) {
                 foreach ($root->getItemById('child_html') as $childHtml) {

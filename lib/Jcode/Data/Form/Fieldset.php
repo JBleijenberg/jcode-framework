@@ -28,49 +28,66 @@ use Jcode\Object;
 class Fieldset extends Object
 {
 
-	protected $label;
+    protected $label;
 
-	protected $fields = [];
+    protected $fields = [];
 
-	/**
-	 * Set fieldset options while instantiating object
-	 *
-	 * @param array $options
-	 */
-	public function __construct($options = [])
-	{
-		foreach ($options as $option => $value) {
-			if (property_exists($this, $option)) {
-				$this->$option = $value;
-			}
-		}
+    /**
+     * Set fieldset options while instantiating object
+     *
+     * @param array $options
+     */
+    public function __construct($options = [])
+    {
+        foreach ($options as $option => $value) {
+            if (property_exists($this, $option)) {
+                $this->$option = $value;
+            } else {
+                $this->setData($option, $value);
+            }
+        }
 
-		return $this;
-	}
+        return $this;
+    }
 
-	/**
-	 * Create a new input field with the given options and add it to the fieldset
-	 *
-	 * @param $id
-	 * @param $type
-	 * @param array $options
-	 * @return $this
-	 * @throws \Exception
-	 */
-	public function addField($id, $type, array $options = [])
-	{
-		$type = ucfirst($type);
+    public function getLabel()
+    {
+        return $this->label;
+    }
 
-		$className = "Jcode\\Data\\Form\\Element\\{$type}";
+    /**
+     * Create a new input field with the given options and add it to the fieldset
+     *
+     * @param $id
+     * @param $type
+     * @param array $options
+     * @return $this
+     * @throws \Exception
+     */
+    public function addField($id, $type, array $options = [])
+    {
+        $type = ucfirst($type);
 
-		$instance = Application::objectManager()->get($className, [$options]);
+        $className = "Jcode\\Data\\Form\\Element\\{$type}";
 
-		if (is_a($instance, $className)) {
-			$instance->setId($id);
+        $instance = Application::objectManager()->get($className, [$options]);
 
-			$this->fields[$id] = $instance;
-		}
+        if (is_a($instance, $className)) {
+            $instance->setId($id);
 
-		return $this;
-	}
+            $this->fields[$id] = $instance;
+        }
+
+        return $this;
+    }
+
+    /**
+     * Return all added fields
+     *
+     * @return array
+     */
+    public function getFields()
+    {
+        return $this->fields;
+    }
 }

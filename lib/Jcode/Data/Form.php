@@ -28,84 +28,109 @@ use Jcode\Object;
 class Form extends Object
 {
 
-	protected $fieldsets = [];
+    protected $id;
 
-	protected $method = 'POST';
+    protected $fieldsets = [];
 
-	protected $action;
+    protected $method = 'POST';
 
-	protected $encType = 'application/x-www-form-urlencoded';
+    protected $action;
 
-	/**
-	 * Instantiate a new fieldset and return it
-	 *
-	 * @param $name
-	 * @param array $options
-	 * @return object
-	 * @throws \Exception
-	 */
-	public function addFieldset($name, array $options = [])
-	{
-		$fieldset = Application::objectManager()->get('Jcode\Data\Form\Fieldset', [$options]);
+    protected $encType = 'application/x-www-form-urlencoded';
 
-		$this->fieldsets[$name] = $fieldset;
+    /**
+     * Instantiate a new fieldset and return it
+     *
+     * @param $name
+     * @param array $options
+     * @return object
+     * @throws \Exception
+     */
+    public function addFieldset($name, array $options = [])
+    {
+        $fieldset = Application::objectManager()->get('Jcode\Data\Form\Fieldset', [$options]);
 
-		return $fieldset;
-	}
+        $this->fieldsets[$name] = $fieldset;
 
-	/**
-	 * Return all added fieldsets
-	 *
-	 * @return array
-	 */
-	public function getFieldsets()
-	{
-		return $this->fieldsets;
-	}
+        return $fieldset;
+    }
 
-	/**
-	 * Set form action
-	 *
-	 * @param $action
-	 * @return $this
-	 */
-	public function setAction($action)
-	{
-		$this->action = (!in_array($action, ['POST', 'GET'])) ?: $action;
+    /**
+     * Return all added fieldsets
+     *
+     * @return array
+     */
+    public function getFieldsets()
+    {
+        return $this->fieldsets;
+    }
 
-		return $this;
-	}
+    /**
+     * Set form action
+     *
+     * @param $method
+     * @return $this
+     */
+    public function setMethod($method)
+    {
+        $this->method = (!in_array($method, ['POST', 'GET'])) ?: $method;
 
-	/**
-	 * Return form action
-	 *
-	 * @return mixed
-	 */
-	public function getAction()
-	{
-		return $this->action;
-	}
+        return $this;
+    }
 
-	/**
-	 * Set encoding type
-	 *
-	 * @param $encType
-	 * @return $this
-	 */
-	public function setEncType($encType)
-	{
-		$this->encType = $encType;
+    /**
+     * Return form action
+     *
+     * @return mixed
+     */
+    public function getAction()
+    {
+        return $this->action;
+    }
 
-		return $this;
-	}
+    /**
+     * Set encoding type
+     *
+     * @param $encType
+     * @return $this
+     */
+    public function setEncType($encType)
+    {
+        $this->encType = $encType;
 
-	/**
-	 * Return form encoding type
-	 *
-	 * @return string
-	 */
-	public function getEncType()
-	{
-		return $this->encType;
-	}
+        return $this;
+    }
+
+    /**
+     * Return form encoding type
+     *
+     * @return string
+     */
+    public function getEncType()
+    {
+        return $this->encType;
+    }
+
+    /**
+     * @param string|int $id
+     * @return $this
+     */
+    public function setId($id)
+    {
+        $this->id = $id;
+
+        return $this;
+    }
+
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    public function setAction($action)
+    {
+        $this->action = $action;
+
+        return $this;
+    }
 }

@@ -75,7 +75,11 @@ class ObjectManager
             }
 
             if ($property->getName() == 'isSharedInstance' && $property->isProtected()) {
-                $this->sharedInstances[$class] = $instance;
+                $property->setAccessible(true);
+
+                if ($property->getValue($instance) === true) {
+                    $this->sharedInstances[$class] = $instance;
+                }
             }
 
             if ($property->getName() == 'eventId' && $property->isProtected()) {

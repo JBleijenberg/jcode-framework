@@ -24,8 +24,8 @@ namespace Jcode\Data\Form\Element;
 
 use Jcode\Data\Form\Element;
 
-class Text extends Element
+class Password extends Element
 {
 
-    protected $template = 'Jmod_Cms::Form/Element/Text.phtml';
+    protected $template = 'Jmod_Cms::Form/Element/Password.phtml';
 }

@@ -23,6 +23,7 @@
 namespace Jcode\Resource;
 
 use Jcode\Application;
+use \Exception;
 
 class Session extends \Jcode\Object
 {
@@ -38,12 +39,6 @@ class Session extends \Jcode\Object
     protected $isSharedInstance = true;
 
     protected $namespace = 'application';
-
-    /**
-     * @inject \Jcode\Registry
-     * @var \Jcode\Registry
-     */
-    protected $registry;
 
     /**
      * Initialize sessions
@@ -233,7 +228,7 @@ class Session extends \Jcode\Object
      */
     public function getRegisteredNamespaces()
     {
-        return $this->registry->get('registered_session_namespaces', []);
+        return Application::registry('registered_session_namespaces', []);
     }
 
     protected function registerSessionNamespace()
@@ -242,7 +237,7 @@ class Session extends \Jcode\Object
 
         $registeredNamespaces[$this->namespace] = get_called_class();
 
-        $this->registry->set('registered_session_namespaces', $registeredNamespaces);
+        Application::register('registered_session_namespaces', $registeredNamespaces);
 
         return $this;
     }
