@@ -1,4 +1,2 @@
-# Created by .gitignore support plugin (hsz.mobi)
-
-/.idea/
+.idea/
 application/application.json
