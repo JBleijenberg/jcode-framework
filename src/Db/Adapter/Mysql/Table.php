@@ -15,9 +15,9 @@
  *
  * @category    J!Code: Framework
  * @package     J!Code: Framework
- * @author      Jeroen Bleijenberg <jeroen@maxserv.com>
+ * @author      Jeroen Bleijenberg <jeroen@jcode.nl>
  *
- * @copyright   Copyright (c) 2015 MaxServ (http://www.maxserv.com)
+ * @copyright   Copyright (c) 2017 J!Code (http://www.jcode.nl)
  * @license     http://opensource.org/licenses/GPL-3.0 General Public License (GPL 3.0)
  */
 namespace Jcode\Db\Adapter\Mysql;

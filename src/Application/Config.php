@@ -15,7 +15,7 @@
  *
  * @category    J!Code Framework
  * @package     J!Code Framework
- * @author      Jeroen Bleijenberg <jeroen@maxserv.com>
+ * @author      Jeroen Bleijenberg <jeroen@jcode.nl>
  *
  * @license     http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
