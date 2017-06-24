@@ -144,26 +144,18 @@ class Config extends Object
 
             $module = null;
 
-            if (($this->isCacheEnabled() && !$this->getCacheInstance()->exists($cacheKey)) || !$this->isCacheEnabled()) {
-                $configuraton = file_get_contents($moduleJson);
-                $configuraton = json_decode($configuraton, true);
-
-                if (is_array($configuraton) && !empty($configuraton)) {
-                    /* @var \Jcode\Object $module */
-                    $module = Application::objectManager()->get('\Jcode\Object');
-
-                    $module->importArray($configuraton['module']);
-                    $module->setModulePath(dirname($moduleJson));
-
-                    $this->getCacheInstance()->set($cacheKey, $module->toArray());
-                }
-            } else {
-                if ($this->isCacheEnabled()) {
+            if ($this->isCacheEnabled()) {
+                if ($this->getCacheInstance()->exists($cacheKey)) {
                     $module = Application::objectManager()->get('\Jcode\Object');
                     $module->importArray($this->getCacheInstance()->get($cacheKey));
-                }
-            }
+                } else {
+                    $module = $this->loadModuleConfiguration($moduleJson);
 
+                    $this->getCacheInstance()->set($cacheKey, $module);
+                }
+            } else {
+                $module = $this->loadModuleConfiguration($moduleJson);
+            }
 
             if ($module instanceof Object && $module->hasData()) {
                 Application::registry('module_collection')->addItem($module, $module->getIdentifier());
@@ -178,6 +170,29 @@ class Config extends Object
         }
 
         return $this;
+    }
+
+    /**
+     * Return parsed module configuration
+     *
+     * @param $moduleJson
+     * @return \Jcode\object
+     */
+    protected function loadModuleConfiguration($moduleJson)
+    {
+        $configuration = file_get_contents($moduleJson);
+        $configuration = json_decode($configuration, true);
+
+        $module = Application::objectManager()->get('\Jcode\Object');
+
+        if (is_array($configuration) && !empty($configuration)) {
+            /* @var \Jcode\Object $module */
+
+            $module->importArray($configuration['module']);
+            $module->setModulePath(dirname($moduleJson));
+        }
+
+        return $module;
     }
 
     /**
