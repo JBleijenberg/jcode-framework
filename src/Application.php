@@ -223,8 +223,8 @@ final class Application
      * Get value from register. If key is not present, return $default
      *
      * @param $key
-     * @param null $default
-     * @return bool
+     * @param mixed $default
+     * @return mixed
      */
     public static function registry($key, $default = null)
     {

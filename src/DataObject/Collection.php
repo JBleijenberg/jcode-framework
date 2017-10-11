@@ -19,25 +19,25 @@
  *
  * @license     http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
-namespace Jcode\Object;
+namespace Jcode\DataObject;
 
-use \Jcode\Object;
+use \Jcode\DataObject;
 use \Exception;
 
-class Collection extends Object
+class Collection extends DataObject
 {
 
     protected $items = [];
 
-    protected $eventId = 'jcode.object.collection';
+    protected $eventId = 'jcode.dataobject.collection';
 
     /**
-     * @param \Jcode\Object $item
+     * @param \Jcode\DataObject $item
      * @param null $key
      * @return $this
      * @throws Exception
      */
-    public function addItem(Object $item, $key = null)
+    public function addItem(DataObject $item, $key = null)
     {
         if ($key === null) {
             $this->items[] = $item;

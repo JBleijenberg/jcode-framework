@@ -23,6 +23,8 @@
 namespace Jcode\Application;
 
 use Jcode\Application;
+use Jcode\DataObject;
+use Jcode\DataObject\Collection;
 use \SimpleXMLElement;
 
 class Environment
@@ -48,7 +50,7 @@ class Environment
     protected $front;
 
     /**
-     * @var \Jcode\Object\Collection
+     * @var \Jcode\DataObject\Collection
      */
     protected $layout;
 
@@ -130,7 +132,7 @@ class Environment
 
     protected function parseLayoutElement(SimpleXMLElement $element)
     {
-        $object = Application::objectManager()->get('Jcode\Object');
+        $object = Application::objectManager()->get('Jcode\DataObject');
 
         if (isset($element['extends'])) {
             $child = $this->getLayout($element['extends']);
@@ -152,15 +154,15 @@ class Environment
         if (isset($reference['extends'])) {
             $referenceObject = $this->getLayout((string)$reference['extends'])->getData((string)$reference['name']);
         } else {
-            $referenceObject = Application::objectManager()->get('Jcode\Object\Collection');
+            $referenceObject = Application::objectManager()->get('Jcode\DataObject\Collection');
         }
 
-        if (!$referenceObject->getItemById('child_html') instanceof \Jcode\Object\Collection) {
-            $referenceObject->addItem(Application::objectManager()->get('Jcode\Object\Collection'), 'child_html');
+        if (!$referenceObject->getItemById('child_html') instanceof Collection) {
+            $referenceObject->addItem(Application::objectManager()->get('Jcode\DataObject\Collection'), 'child_html');
         }
 
         foreach ($reference->block as $block) {
-            /* @var \Jcode\Object\Collection $childHtml */
+            /* @var \Jcode\DataObject\Collection $childHtml */
             $childHtml = $referenceObject->getItemById('child_html');
 
             if ($childHtml->getItemById((string)$block['name'])) {
@@ -180,11 +182,12 @@ class Environment
     /**
      * @param \SimpleXMLElement $element
      *
-     * @return object
+     * @return DataObject
      * @throws \Exception
      */
     protected function getLayoutBlock(SimpleXMLElement $element)
     {
+        /** @var DataObject $blockObject */
         $blockObject = Application::objectManager()->get((string)$element['class']);
 
         $blockObject->setName((string)$element['name']);
@@ -194,7 +197,7 @@ class Environment
         }
 
         if ($element->method) {
-            $methodCollection = Application::objectManager()->get('Jcode\Object\Collection');
+            $methodCollection = Application::objectManager()->get('Jcode\DataObject\Collection');
 
             foreach ($element->method as $method) {
                 $args = [];
@@ -210,7 +213,7 @@ class Environment
         }
 
         if ($element->block) {
-            $collection = Application::objectManager()->get('Jcode\Object\Collection');
+            $collection = Application::objectManager()->get('Jcode\DataObject\Collection');
 
             foreach ($element->block as $block) {
                 $collection->addItem($this->getLayoutBlock($block), (string)$block['name']);
@@ -226,7 +229,7 @@ class Environment
     {
         $files = glob(BP . DS . 'application' . DS . '*' . DS . '*' . DS . 'View' . DS . 'Layout' . DS . Application::env()->getConfig('layout/name') . DS . '*.xml');
 
-        $layoutArray = Application::objectManager()->get('Jcode\Object');
+        $layoutArray = Application::objectManager()->get('Jcode\DataObject');
 
         foreach ($files as $file) {
             $xml = simplexml_load_file($file);

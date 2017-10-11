@@ -23,10 +23,10 @@ namespace Jcode\Application;
 
 use Jcode\Application;
 use \Jcode\Cache\CacheInterface;
-use \Jcode\Object;
+use \Jcode\DataObject;
 use \Exception;
 
-class Config extends Object
+class Config extends DataObject
 {
 
     /**
@@ -132,11 +132,11 @@ class Config extends Object
     {
         $moduleJsons = glob(BP . DS . 'application' . DS . '*' . DS . '*' . DS . 'module.json');
 
-        /* @var \Jcode\Object $urlRewrites */
-        $urlRewrites = Application::objectManager()->get('\Jcode\Object');
+        /* @var \Jcode\DataObject $urlRewrites */
+        $urlRewrites = Application::objectManager()->get('\Jcode\DataObject');
 
-        Application::register('module_collection', Application::objectManager()->get('\Jcode\Object\Collection'));
-        Application::register('frontnames', Application::objectManager()->get('\Jcode\Object'));
+        Application::register('module_collection', Application::objectManager()->get('\Jcode\DataObject\Collection'));
+        Application::register('frontnames', Application::objectManager()->get('\Jcode\DataObject'));
         Application::register('url_rewrites', $urlRewrites);
 
         foreach ($moduleJsons as $moduleJson) {
@@ -146,7 +146,7 @@ class Config extends Object
 
             if ($this->isCacheEnabled()) {
                 if ($this->getCacheInstance()->exists($cacheKey)) {
-                    $module = Application::objectManager()->get('\Jcode\Object');
+                    $module = Application::objectManager()->get('\Jcode\DataObject');
                     $module->importArray($this->getCacheInstance()->get($cacheKey));
                 } else {
                     $module = $this->loadModuleConfiguration($moduleJson);
@@ -157,7 +157,7 @@ class Config extends Object
                 $module = $this->loadModuleConfiguration($moduleJson);
             }
 
-            if ($module instanceof Object && $module->hasData()) {
+            if ($module instanceof DataObject && $module->hasData()) {
                 Application::registry('module_collection')->addItem($module, $module->getIdentifier());
 
                 if ($module->getRouter() && $module->getRouter()->getFrontname()) {
@@ -176,17 +176,17 @@ class Config extends Object
      * Return parsed module configuration
      *
      * @param $moduleJson
-     * @return \Jcode\object
+     * @return \Jcode\DataObject
      */
     protected function loadModuleConfiguration($moduleJson)
     {
         $configuration = file_get_contents($moduleJson);
         $configuration = json_decode($configuration, true);
 
-        $module = Application::objectManager()->get('\Jcode\Object');
+        $module = Application::objectManager()->get('\Jcode\DataObject');
 
         if (is_array($configuration) && !empty($configuration)) {
-            /* @var \Jcode\Object $module */
+            /* @var \Jcode\DataObject $module */
 
             $module->importArray($configuration['module']);
             $module->setModulePath(dirname($moduleJson));
@@ -198,10 +198,10 @@ class Config extends Object
     /**
      * Add url rewrites to the system, which are defined in the module.json files
      *
-     * @param \Jcode\Object $module
+     * @param \Jcode\DataObject $module
      * @return $this
      */
-    protected function initUrlRewrites(Object $module)
+    protected function initUrlRewrites(DataObject $module)
     {
         if (($router = $module->getRouter()) && ($rewrites = $router->getRewrite())) {
             foreach ($rewrites as $source => $destination) {
@@ -253,7 +253,7 @@ class Config extends Object
     /**
      * @param $frontName
      *
-     * @return \Jcode\Object|null
+     * @return \Jcode\DataObject|null
      */
     public function getModuleByFrontname($frontName)
     {
@@ -261,7 +261,7 @@ class Config extends Object
             /* @var \Jcode\Object $module */
             $module = Application::registry('module_collection')->getItemById($frontName);
 
-            if ($module instanceof \Jcode\Object) {
+            if ($module instanceof DataObject) {
                 return $module;
             }
         }

@@ -37,7 +37,7 @@ class Registry
      *
      * @param $key
      * @param mixed $default
-     * @return bool
+     * @return mixed
      */
     public function get($key, $default = false)
     {

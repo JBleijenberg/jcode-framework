@@ -24,7 +24,7 @@ namespace Jcode;
 use \Iterator;
 use \Countable;
 
-class Object implements Iterator, Countable
+class DataObject implements Iterator, Countable
 {
 
     /**
@@ -33,7 +33,7 @@ class Object implements Iterator, Countable
      */
     protected $hasChangedData = false;
 
-    protected $eventId = 'jcode.object';
+    protected $eventId = 'jcode.dataobject';
 
     /**
      * Hold object data
@@ -68,7 +68,7 @@ class Object implements Iterator, Countable
         return $this;
     }
 
-    public function importObject(Object $object)
+    public function importObject(DataObject $object)
     {
         foreach ($object as $key => $value) {
             $this->setData($key, $value);
@@ -193,7 +193,7 @@ class Object implements Iterator, Countable
      *
      * @param $key
      * @param $value
-     * @return Object|null
+     * @return DataObject|null
      */
     public function __call($key, $value)
     {

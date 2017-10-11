@@ -24,8 +24,9 @@ namespace Jcode\Resource;
 
 use Jcode\Application;
 use \Exception;
+use Jcode\DataObject;
 
-class Session extends \Jcode\Object
+class Session extends DataObject
 {
 
     const MSG_TYPE_SUCCESS = 'success';
@@ -114,7 +115,7 @@ class Session extends \Jcode\Object
             $session['messages'] = [];
         }
 
-        $msgObj = Application::objectManager()->get('Jcode\Object');
+        $msgObj = Application::objectManager()->get('Jcode\DataObject');
 
         $msgObj->setType($type);
         $msgObj->setMessage($msg);
