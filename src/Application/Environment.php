@@ -204,15 +204,12 @@ class Environment
             $methodCollection = Application::objectManager()->get('Jcode\DataObject\Collection');
 
             foreach ($element->method as $method) {
-                $args = [];
-
-                foreach ($method as $arg => $value) {
-                    $args[$arg] = (string)$value;
-                }
-
-                $func = (string)$method['name'];
+                $args[(string)$method['name']] = (string)$method;
+                $func                          = (string)$method['name'];
 
                 $blockObject->$func(current($args));
+
+                unset($args);
             }
         }
 
