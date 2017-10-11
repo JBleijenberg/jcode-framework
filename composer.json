@@ -14,12 +14,12 @@
   ],
   "require": {
     "php": ">=7.0.0",
-    "jcode/framework-cache": "0.0.*",
-    "jcode/framework-data": "0.0.*",
-    "jcode/framework-dbresource": "0.0.*",
-    "jcode/framework-eventhandler": "0.0.*",
-    "jcode/framework-layout": "0.0.*",
-    "jcode/framework-router": "0.0.*"
+    "jcode/framework-cache": "dev-master",
+    "jcode/framework-data": "dev-master",
+    "jcode/framework-dbresource": "dev-master",
+    "jcode/framework-eventhandler": "dev-master",
+    "jcode/framework-layout": "dev-master",
+    "jcode/framework-router": "dev-master"
   },
   "autoload": {
     "psr-4": {
