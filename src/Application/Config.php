@@ -187,7 +187,6 @@ class Config extends DataObject
 
         if (is_array($configuration) && !empty($configuration)) {
             /* @var \Jcode\DataObject $module */
-
             $module->importArray($configuration['module']);
             $module->setModulePath(dirname($moduleJson));
         }
@@ -203,9 +202,12 @@ class Config extends DataObject
      */
     protected function initUrlRewrites(DataObject $module)
     {
+        /** @var \Jcode\Router\Rewrite $rewriteClass */
+        $rewriteClass = Application::objectManager()->get('\Jcode\Router\Rewrite');
+
         if (($router = $module->getRouter()) && ($rewrites = $router->getRewrite())) {
             foreach ($rewrites as $source => $destination) {
-                Application::registry('url_rewrites')->setData($source, $destination);
+                $rewriteClass->addRewrite($source, $destination);
             }
         }
 
