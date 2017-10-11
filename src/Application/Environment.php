@@ -227,7 +227,7 @@ class Environment
 
     protected function collectLayoutXml()
     {
-        $files = glob(BP . DS . 'application' . DS . '*' . DS . '*' . DS . 'View' . DS . 'Layout' . DS . Application::env()->getConfig('layout/name') . DS . '*.xml');
+        $files = glob(BP . DS . 'application' . DS . '*' . DS . '*' . DS . 'View' . DS . 'Layout' . DS . Application::env()->getConfig('layout') . DS . '*.xml');
 
         $layoutArray = Application::objectManager()->get('Jcode\DataObject');
 
