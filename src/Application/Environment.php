@@ -187,8 +187,12 @@ class Environment
      */
     protected function getLayoutBlock(SimpleXMLElement $element)
     {
+        $class = explode('::', (string)$element['class']);
+        $subs  = array_map('ucfirst', explode('/', $class[1]));
+        $class = '\\' . str_replace('_', '\\', $class[0]) . '\Block\\' . implode('\\', $subs);
+
         /** @var DataObject $blockObject */
-        $blockObject = Application::objectManager()->get((string)$element['class']);
+        $blockObject = Application::objectManager()->get($class);
 
         $blockObject->setName((string)$element['name']);
 
