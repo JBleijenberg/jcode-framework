@@ -135,7 +135,7 @@ class Environment
         $object = Application::objectManager()->get('Jcode\DataObject');
 
         if (isset($element['extends'])) {
-            $child = $this->getLayout($element['extends']);
+            $child = $this->getLayout((string)$element['extends']);
 
             foreach ($child as $childName => $childElement) {
                 $object->setData($childName, $childElement);
@@ -231,7 +231,10 @@ class Environment
 
     protected function collectLayoutXml()
     {
-        $files = glob(BP . DS . 'application' . DS . '*' . DS . '*' . DS . 'View' . DS . 'Layout' . DS . Application::env()->getConfig('layout') . DS . '*.xml');
+        $files = array_merge(
+            glob(BP . DS . 'application' . DS . '*' . DS . '*' . DS . 'View' . DS . 'Layout' . DS . '*.xml'),
+            glob(BP . DS . 'application' . DS . '*' . DS . '*' . DS . 'View' . DS . 'Layout' . DS . Application::env()->getConfig('layout') . DS . '*.xml')
+        );
 
         $layoutArray = Application::objectManager()->get('Jcode\DataObject');
 
