@@ -146,7 +146,7 @@ final class Application
     {
         $layoutName = self::env()->getConfig('layout');
 
-        if ($secure === true) {
+        if ($secure === true || self::env()->getConfig('force_ssl') == true) {
             $baseUrl = self::env()->getConfig('secure_base_url');
         } else {
             $baseUrl = self::env()->getConfig('unsecure_base_url');
