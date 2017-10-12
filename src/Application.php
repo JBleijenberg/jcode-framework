@@ -135,18 +135,6 @@ final class Application
     }
 
     /**
-     * Return layout element
-     *
-     * @param $element
-     *
-     * @return mixed
-     */
-    public static function getLayout($element)
-    {
-        return self::env()->getLayout($element);
-    }
-
-    /**
      * Return baseurl's
      *
      * @param string $type
@@ -156,12 +144,12 @@ final class Application
      */
     public static function getBaseUrl($type = Environment::URL_TYPE_DEFAULT, $secure = true)
     {
-        $layoutName = self::env()->getConfig('layout/name');
+        $layoutName = self::env()->getConfig('layout');
 
         if ($secure === true) {
             $baseUrl = self::env()->getConfig('secure_base_url');
         } else {
-            $baseUrl = self::env()->getConfig('base_url');
+            $baseUrl = self::env()->getConfig('unsecure_base_url');
         }
         switch ($type) {
             case Environment::URL_TYPE_DEFAULT:
@@ -169,11 +157,11 @@ final class Application
 
                 break;
             case Environment::URL_TYPE_CSS:
-                $url = $baseUrl . '/design/' . $layoutName . '/css';
+                $url = $baseUrl . 'assets/css/';
 
                 break;
             case Environment::URL_TYPE_JS:
-                $url = $baseUrl . '/js';
+                $url = $baseUrl . 'assets/js/';
 
                 break;
             default:
