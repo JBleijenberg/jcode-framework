@@ -22,6 +22,8 @@
  */
 namespace Jcode\Resource;
 
+use Jcode\Application;
+
 class Helper
 {
     protected $isSharedInstance = true;
@@ -46,5 +48,17 @@ class Helper
         $string = array_shift($args);
 
         return vsprintf($string, $args);
+    }
+
+    /**
+     * Get application url
+     *
+     * @param $path
+     * @param array $parameters
+     * @return string
+     */
+    public function getUrl($path, array $parameters = []) :string
+    {
+        return Application::getUrl($path, $parameters);
     }
 }
