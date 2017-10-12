@@ -34,15 +34,16 @@ class Collection extends DataObject
     /**
      * @param \Jcode\DataObject $item
      * @param null $key
+     * @param bool $grace
      * @return $this
      * @throws Exception
      */
-    public function addItem(DataObject $item, $key = null)
+    public function addItem(DataObject $item, $key = null, $grace = true)
     {
         if ($key === null) {
             $this->items[] = $item;
         } else {
-            if (!array_key_exists($key, $this->items)) {
+            if (!array_key_exists($key, $this->items) || $grace == false) {
                 $this->items[$key] = $item;
             } else {
                 throw new Exception('An item with the same key already exists');
