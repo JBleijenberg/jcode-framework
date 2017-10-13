@@ -50,7 +50,7 @@ class ObjectManager
     public function get($class, array $args = [])
     {
         if (!class_exists($class)) {
-            throw new Exception("Class {$class} does not exists");
+            #throw new Exception("Class {$class} does not exists");
         }
 
         if (array_key_exists($class, $this->sharedInstances)) {
