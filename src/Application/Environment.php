@@ -59,7 +59,47 @@ class Environment
 
     public function setup()
     {
+        $modules        = Application::registry('module_collection');
+        $moduleVersions = (file_exists(BP . '/modules.json'))
+            ? json_decode(file_get_contents(BP . '/modules.json'), true)
+            : [];
 
+        foreach ($modules as $module) {
+            if (!array_key_exists($module->getName(), $moduleVersions)) {
+                $moduleVersions[$module->getName()] = '';
+            }
+
+            $setupFiles = glob($module->getModulePath() . '/Setup/*.php');
+
+            while ($module->getVersion() !== $moduleVersions[$module->getName()]) {
+                if ($moduleVersions[$module->getName()] == '') {
+                    $filename = "install-([\d\.]+)\.php";
+                } else {
+                    $installedVersion = $moduleVersions[$module->getName()];
+                    $filename         = "upgrade-{$installedVersion}-([\d\.]+)\.php$";
+                }
+
+                $file = array_filter(array_map(function($f) use($filename) {
+                    preg_match("/{$filename}$/", $f, $matches);
+
+                    return $matches;
+                }, $setupFiles));
+
+                if (!empty($file)) {
+                    $fileArray    = current($file);
+                    $fileLocation = $fileArray[0];
+                    $newVersion   = $fileArray[1];
+
+                    require_once $module->getModulePath() . '/Setup/' . $fileLocation;
+
+                    $moduleVersions[$module->getName()] = $newVersion;
+                } else {
+                    $moduleVersions[$module->getName()] = $module->getVersion();
+                }
+            }
+
+            file_put_contents(BP . '/modules.json', json_encode($moduleVersions, JSON_PRETTY_PRINT));
+        }
     }
 
     /**
