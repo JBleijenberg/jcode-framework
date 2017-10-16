@@ -26,6 +26,23 @@ use \Jcode\Cache\CacheInterface;
 use \Jcode\DataObject;
 use \Exception;
 
+/**
+ * Class Config
+ * @package Jcode\Application
+ *
+ * @mathod getLayout();
+ * @method getUnsecureBaseUrl();
+ * @method getSecureBaseUrl();
+ * @method getUseSsl();
+ * @method getForceSsl();
+ * @method getEncryptionKey();
+ * @method getTitle();
+ * @method getDefaultRoute();
+ * @method getDatabase();
+ * @method getCache();
+ * @method getTimezone();
+ * @method getSessionDuration();
+ */
 class Config extends DataObject
 {
 

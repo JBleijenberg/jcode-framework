@@ -100,6 +100,11 @@ class Session extends DataObject
         }
     }
 
+    public function getSessionId()
+    {
+        return session_id();
+    }
+
     /**
      * Add message to Session object
      *
