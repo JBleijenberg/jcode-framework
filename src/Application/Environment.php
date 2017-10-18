@@ -26,6 +26,8 @@ use Jcode\Application;
 use Jcode\DataObject;
 use Jcode\DataObject\Collection;
 use \SimpleXMLElement;
+use Symfony\Component\Finder\Finder;
+use Symfony\Component\Finder\Tests\Iterator\Iterator;
 
 class Environment
 {
@@ -69,7 +71,18 @@ class Environment
                 $moduleVersions[$module->getName()] = '';
             }
 
-            $setupFiles = glob($module->getModulePath() . '/Setup/*.php');
+            if (is_dir($module->getModulePath() . DS . 'Setup')) {
+                $finder = new Finder();
+
+                $finder
+                    ->files()
+                    ->ignoreUnreadableDirs()
+                    ->followLinks()
+                    ->name('*.php')
+                    ->in($module->getModulePath() . DS . 'Setup');
+            } else {
+                $finder =  new Iterator();
+            }
 
             while ($module->getVersion() !== $moduleVersions[$module->getName()]) {
                 if ($moduleVersions[$module->getName()] == '') {
@@ -83,7 +96,7 @@ class Environment
                     preg_match("/{$filename}$/", $f, $matches);
 
                     return $matches;
-                }, $setupFiles));
+                }, array_keys(iterator_to_array($finder))));
 
                 if (!empty($file)) {
                     $fileArray    = current($file);

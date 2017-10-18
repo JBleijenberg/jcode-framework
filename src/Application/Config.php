@@ -25,6 +25,7 @@ use Jcode\Application;
 use \Jcode\Cache\CacheInterface;
 use \Jcode\DataObject;
 use \Exception;
+use Symfony\Component\Finder\Finder;
 
 /**
  * Class Config
@@ -147,7 +148,15 @@ class Config extends DataObject
      */
     public function initModuleConfiguration()
     {
-        $moduleJsons = glob(BP . DS . 'application' . DS . '*' . DS . '*' . DS . 'module.json');
+        $finder = new Finder();
+
+        $finder
+            ->files()
+            ->ignoreUnreadableDirs()
+            ->followLinks()
+            ->name('module.json')
+            ->depth('> 2')
+            ->in(BP);
 
         /* @var \Jcode\DataObject $urlRewrites */
         $urlRewrites = Application::objectManager()->get('\Jcode\DataObject');
@@ -156,8 +165,8 @@ class Config extends DataObject
         Application::register('frontnames', Application::objectManager()->get('\Jcode\DataObject'));
         Application::register('url_rewrites', $urlRewrites);
 
-        foreach ($moduleJsons as $moduleJson) {
-            $cacheKey = 'moduleConfig:' . md5($moduleJson);
+        foreach ($finder as $moduleJson) {
+            $cacheKey = 'moduleConfig:' . md5($moduleJson->getPathname());
 
             $module = null;
 
@@ -166,12 +175,12 @@ class Config extends DataObject
                     $module = Application::objectManager()->get('\Jcode\DataObject');
                     $module->importArray($this->getCacheInstance()->get($cacheKey));
                 } else {
-                    $module = $this->loadModuleConfiguration($moduleJson);
+                    $module = $this->loadModuleConfiguration($moduleJson->getPathname());
 
                     $this->getCacheInstance()->set($cacheKey, $module);
                 }
             } else {
-                $module = $this->loadModuleConfiguration($moduleJson);
+                $module = $this->loadModuleConfiguration($moduleJson->getPathname());
             }
 
             if ($module instanceof DataObject && $module->hasData()) {
