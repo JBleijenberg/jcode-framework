@@ -44,7 +44,7 @@ class Helper
      */
     public function translate()
     {
-        $args = func_get_arg(0);
+        $args = (array) func_get_arg(0);
         $string = array_shift($args);
 
         return vsprintf($string, $args);
