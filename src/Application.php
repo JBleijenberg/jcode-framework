@@ -49,9 +49,20 @@ final class Application
 
     protected static $isDeveloperMode = false;
 
+    protected static $showTemplateHints = false;
+
     public static function isDeveloperMode($bool = true)
     {
         self::$isDeveloperMode = $bool;
+    }
+
+    public static function showTemplateHints($bool = null)
+    {
+        if ($bool !== null) {
+            self::$showTemplateHints = $bool;
+        }
+
+        return self::$showTemplateHints;
     }
 
     /**
