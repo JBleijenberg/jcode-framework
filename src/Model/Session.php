@@ -184,18 +184,19 @@ class Session extends DataObject
      */
     public function getMessages($purge = true)
     {
-        $session = $this->getSession();
+        $session  = $this->getSession();
+        $messages = [];
 
-        if (!array_key_exists('messages', $session) || !is_array($session['messages'])) {
-            $messages = [];
-        } else {
-            $messages = $session['messages'];
-        }
+        foreach ($_SESSION as $namespace => $session) {
+            if (!isset($session['messages'])) {
+                $session['messages'] = [];
+            }
 
-        if ($purge === true) {
-            $session['messages'] = [];
+            $messages = array_merge($messages, $session['messages']);
 
-            $this->setSession($session);
+            if ($purge == true) {
+                $_SESSION[$namespace]['messages'] = [];
+            }
         }
 
         return $messages;
