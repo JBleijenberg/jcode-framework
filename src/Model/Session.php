@@ -176,6 +176,17 @@ class Session extends DataObject
     }
 
     /**
+     * Alias for alert
+     *
+     * @param $msg
+     * @return Session
+     */
+    public function addError($msg)
+    {
+        return $this->addAlert($msg);
+    }
+
+    /**
      * Get all messages for the current selected namespaces.
      * By default the messages are cleared after they are fetched
      *
