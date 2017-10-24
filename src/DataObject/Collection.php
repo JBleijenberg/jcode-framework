@@ -32,13 +32,13 @@ class Collection extends DataObject
     protected $eventId = 'jcode.dataobject.collection';
 
     /**
-     * @param \Jcode\DataObject $item
+     * @param mixed $item
      * @param null $key
      * @param bool $grace
      * @return $this
      * @throws Exception
      */
-    public function addItem(DataObject $item, $key = null, $grace = true)
+    public function addItem($item, $key = null, $grace = true)
     {
         if ($key === null) {
             $this->items[] = $item;
@@ -122,5 +122,20 @@ class Collection extends DataObject
         }
 
         return null;
+    }
+
+    public function toArray()
+    {
+        $arr = [];
+
+        foreach ($this->items as $key => $val) {
+            if ($val instanceof $this) {
+                $arr[$key] = $val->toArray();
+            } else {
+                $arr[$key] = $val;
+            }
+        }
+
+        return $arr;
     }
 }
