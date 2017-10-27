@@ -24,6 +24,7 @@ namespace Jcode;
 
 use \Exception;
 use Jcode\Application\Environment;
+use Jcode\Event\Manager;
 
 final class Application
 {
@@ -46,6 +47,11 @@ final class Application
      * @var \Jcode\Registry
      */
     protected static $registry;
+
+    /**
+     * @var Manager
+     */
+    protected static $eventManager;
 
     protected static $isDeveloperMode = false;
 
@@ -72,17 +78,27 @@ final class Application
     {
         if (!self::$environment) {
             self::$objectManager = new ObjectManager;
+            self::$eventManager = new Manager();
             self::$registry = self::objectManager()->get('Jcode\Registry');
             self::$environment = self::$objectManager->get('Jcode\Application\Environment');
 
             try {
                 self::$environment->configure();
                 self::$environment->setup();
+
+                self::dispatchEvent('application.init.after', self::objectManager()->get('\Jcode\DataObject'));
+                self::dispatchEvent('application.dispatch.before', self::objectManager()->get('\Jcode\DataObject'));
+
                 self::$environment->dispatch();
             } catch (Exception $e) {
                 self::logException($e);
             }
         }
+    }
+
+    public static function dispatchEvent($eventID, $eventObject)
+    {
+        self::$eventManager->dispatchEvent($eventID, $eventObject);
     }
 
     /**
@@ -106,6 +122,11 @@ final class Application
         }
 
         return self::$environment;
+    }
+
+    public static function getConfig($value = null)
+    {
+        return self::env()->getConfig($value);
     }
 
     /**

@@ -31,20 +31,8 @@ use Symfony\Component\Finder\Finder;
  * Class Config
  * @package Jcode\Application
  *
- * @mathod getLayout();
- * @method getUnsecureBaseUrl();
- * @method getSecureBaseUrl();
- * @method getUseSsl();
- * @method getForceSsl();
- * @method getEncryptionKey();
- * @method getTitle();
- * @method getDefaultRoute();
- * @method getDatabase();
- * @method getCache();
- * @method getTimezone();
- * @method getSessionDuration();
  */
-class Config extends DataObject
+class Config
 {
 
     /**
@@ -59,12 +47,127 @@ class Config extends DataObject
      */
     protected $eventManager;
 
-    /**
-     * @var \Jcode\Cache\CacheInterface
-     */
     protected $cache;
 
     protected $eventId = 'jcode.application.configuration';
+
+    protected $layout;
+
+    protected $unsecure_base_url;
+
+    protected $secure_base_url;
+
+    protected $use_ssl;
+
+    protected $force_ssl;
+
+    protected $encryption_key;
+
+    protected $title;
+
+    protected $default_route;
+
+    protected $database;
+
+    protected $timezone;
+
+    protected $session_duration;
+
+    /**
+     * @return DataObject
+     */
+    public function getCache(): DataObject
+    {
+        return $this->cache;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getLayout() :String
+    {
+        return $this->layout;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getUnsecureBaseUrl() :String
+    {
+        return $this->unsecure_base_url;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getSecureBaseUrl() :String
+    {
+        return $this->secure_base_url;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getUseSsl() :Bool
+    {
+        return $this->use_ssl;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getForceSsl() :Bool
+    {
+        return $this->force_ssl;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getEncryptionKey() :String
+    {
+        return $this->encryption_key;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getTitle() :String
+    {
+        return $this->title;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getDefaultRoute() :String
+    {
+        return $this->default_route;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getDatabase() :DataObject
+    {
+        return $this->database;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getTimezone() :String
+    {
+        return $this->timezone;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getSessionDuration() :Int
+    {
+        return $this->session_duration;
+    }
 
     /**
      * Load application configuration file into the application
@@ -84,7 +187,12 @@ class Config extends DataObject
         $configuration = json_decode($configuration, true);
 
         if (is_array($configuration) && !empty($configuration)) {
-            $this->importArray($configuration['application']);
+            foreach ($configuration['application'] as $key => $value) {
+                if (is_array($value)) {
+                    $value = Application::objectManager()->get('\Jcode\DataObject')->importArray($value);
+                }
+                $this->$key = $value;
+            }
         }
 
         date_default_timezone_set($this->getTimezone());
@@ -113,6 +221,22 @@ class Config extends DataObject
         }
 
         return $this;
+    }
+
+    /**
+     * Create data key for use with setData(), addData() or __call
+     * @param $key
+     * @param string $method
+     * @return String|void
+     */
+    public static function convertStringToMethod($key, $method = 'set') :?String
+    {
+        $parts = explode('_', $key);
+        $parts = array_map('ucfirst', $parts);
+
+        array_unshift($parts, $method);
+
+        return implode('', $parts);
     }
 
     public function isCacheEnabled()
@@ -172,7 +296,7 @@ class Config extends DataObject
 
             if ($this->isCacheEnabled()) {
                 if ($this->getCacheInstance()->exists($cacheKey)) {
-                    $module = Application::objectManager()->get('\Jcode\DataObject');
+                    $module = Application::objectManager()->get('\Jcode\Application\Module');
                     $module->importArray($this->getCacheInstance()->get($cacheKey));
                 } else {
                     $module = $this->loadModuleConfiguration($moduleJson->getPathname());
@@ -183,7 +307,7 @@ class Config extends DataObject
                 $module = $this->loadModuleConfiguration($moduleJson->getPathname());
             }
 
-            if ($module instanceof DataObject && $module->hasData()) {
+            if ($module instanceof Module) {
                 Application::registry('module_collection')->addItem($module, $module->getIdentifier());
 
                 if ($module->getRouter() && $module->getRouter()->getFrontname()) {
@@ -202,18 +326,23 @@ class Config extends DataObject
      * Return parsed module configuration
      *
      * @param $moduleJson
-     * @return \Jcode\DataObject
+     * @return Module
      */
     protected function loadModuleConfiguration($moduleJson)
     {
         $configuration = file_get_contents($moduleJson);
         $configuration = json_decode($configuration, true);
 
-        $module = Application::objectManager()->get('\Jcode\DataObject');
+        /** @var Module $module */
+        $module = Application::objectManager()->get('\Jcode\Application\Module');
 
         if (is_array($configuration) && !empty($configuration)) {
-            /* @var \Jcode\DataObject $module */
-            $module->importArray($configuration['module']);
+            foreach ($configuration['module'] as $key => $value) {
+                $method = self::convertStringToMethod($key);
+
+                $module->$method($value);
+            }
+
             $module->setModulePath(dirname($moduleJson));
         }
 
@@ -223,16 +352,16 @@ class Config extends DataObject
     /**
      * Add url rewrites to the system, which are defined in the module.json files
      *
-     * @param \Jcode\DataObject $module
+     * @param Module|DataObject $module
      * @return $this
      */
-    protected function initUrlRewrites(DataObject $module)
+    protected function initUrlRewrites(Module $module)
     {
         /** @var \Jcode\Router\Rewrite $rewriteClass */
         $rewriteClass = Application::objectManager()->get('\Jcode\Router\Rewrite');
 
         if (($router = $module->getRouter()) && ($rewrites = $router->getRewrite())) {
-            foreach ($rewrites as $source => $destination) {
+            foreach ($rewrites->getRewrites() as $source => $destination) {
                 $rewriteClass->addRewrite($source, $destination);
             }
         }
@@ -248,11 +377,11 @@ class Config extends DataObject
      */
     public function getBaseUrl($secure = false)
     {
-        if (($secure == true && parent::getData('use_ssl') == true) || parent::getData('force_ssl') == true) {
-            return parent::getData('secure_base_url');
+        if (($secure == true && $this->getUseSsl() == true) || $this->getForceSsl() == true) {
+            return $this->getSecureBaseUrl();
         }
 
-        return parent::getData('unsecure_base_url');
+        return $this->getUnsecureBaseUrl();
     }
 
     /**
@@ -280,16 +409,15 @@ class Config extends DataObject
 
     /**
      * @param $frontName
-     *
-     * @return \Jcode\DataObject|null
+     * @return Module|null
      */
-    public function getModuleByFrontname($frontName)
+    public function getModuleByFrontname($frontName) :?Module
     {
         if (Application::registry('frontnames')->getData($frontName)) {
             /* @var \Jcode\Object $module */
             $module = Application::registry('module_collection')->getItemById($frontName);
 
-            if ($module instanceof DataObject) {
+            if ($module instanceof Module) {
                 return $module;
             }
         }
@@ -297,8 +425,13 @@ class Config extends DataObject
         return null;
     }
 
-    public function getModule($moduleName)
+    public function getModule($moduleName) :?Module
     {
-        return Application::registry('module_collection')->getItemByColumnValue('name', $moduleName);
+        /** @var Module $module */
+        foreach (Application::registry('module_collection') as $module) {
+            if ($module->getName() == $moduleName) {
+                return $module;
+            }
+        }
     }
 }

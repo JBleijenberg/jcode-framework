@@ -166,11 +166,9 @@ class Environment
         $config = $this->config;
 
         if ($path !== null) {
-            $path = explode('/', $path);
+            $method = $config::convertStringToMethod($path, 'get');
 
-            foreach ($path as $p) {
-                $config = $config->getData($p);
-            }
+            return $config->$method();
         }
 
         return $config;
