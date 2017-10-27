@@ -141,12 +141,19 @@ class Module
 
     public function setPermissions(array $permissions)
     {
-        $this->permissions = $permissions;
+        /** @var Application\Module\Permissions $permissionObj */
+        $permissionObj = Application::objectManager()->get('\Jcode\Application\Module\Permissions');
+
+        foreach ($permissions as $path => $description) {
+            $permissionObj->addPermission($path, $description);
+        }
+
+        $this->permissions = $permissionObj;
 
         return $this;
     }
 
-    public function getPermissions() :?DataObject
+    public function getPermissions() :?Application\Module\Permissions
     {
         return $this->permissions;
     }
