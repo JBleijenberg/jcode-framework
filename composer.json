@@ -13,13 +13,15 @@
     }
   ],
   "require": {
-    "php": ">=7.0.0",
+    "php": ">=7.1.0",
     "jcode/framework-cache": "dev-master",
     "jcode/framework-data": "dev-master",
     "jcode/framework-dbresource": "dev-master",
     "jcode/framework-eventhandler": "dev-master",
     "jcode/framework-layout": "dev-master",
-    "jcode/framework-router": "dev-master"
+    "jcode/framework-router": "dev-master",
+    "symfony/finder": "^3.3",
+    "symfony/yaml": "^3.3"
   },
   "autoload": {
     "psr-4": {

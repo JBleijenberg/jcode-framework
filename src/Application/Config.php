@@ -26,6 +26,7 @@ use \Jcode\Cache\CacheInterface;
 use \Jcode\DataObject;
 use \Exception;
 use Symfony\Component\Finder\Finder;
+use Symfony\Component\Yaml\Yaml;
 
 /**
  * Class Config
@@ -177,17 +178,16 @@ class Config
      */
     public function initApplicationConfiguration()
     {
-        $applicationJson = BP . DS . 'application.json';
+        $appkicationYaml = BP . DS . 'application.yaml';
 
-        if (!stream_resolve_include_path($applicationJson)) {
-            throw new Exception('Missing application.json file');
+        if (!stream_resolve_include_path($appkicationYaml)) {
+            throw new Exception('Missing application.yaml file');
         }
 
-        $configuration = file_get_contents($applicationJson);
-        $configuration = json_decode($configuration, true);
+        $configuration = Yaml::parseFile($appkicationYaml);
 
         if (is_array($configuration) && !empty($configuration)) {
-            foreach ($configuration['application'] as $key => $value) {
+            foreach ($configuration as $key => $value) {
                 if (is_array($value)) {
                     $value = Application::getClass('\Jcode\DataObject')->importArray($value);
                 }
