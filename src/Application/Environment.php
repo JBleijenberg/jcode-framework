@@ -121,7 +121,7 @@ class Environment
      */
     public function dispatch()
     {
-        $this->front = Application::objectManager()->get('Jcode\Router\Front');
+        $this->front = Application::getClass('Jcode\Router\Front');
 
         $this->front->dispatch();
 
@@ -135,7 +135,7 @@ class Environment
     public function getResponse()
     {
         if (!$this->front) {
-            $this->front = Application::objectManager()->get('Jcode\Router\Front');
+            $this->front = Application::getClass('Jcode\Router\Front');
         }
 
         return $this->front->getResponse();
@@ -147,7 +147,7 @@ class Environment
     public function getRequest()
     {
         if (!$this->front) {
-            $this->front = Application::objectManager()->get('Jcode\Router\Front');
+            $this->front = Application::getClass('Jcode\Router\Front');
         }
 
         return $this->front->getRequest();

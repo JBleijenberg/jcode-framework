@@ -39,11 +39,11 @@ class Setup
 
         switch($config->getAdapter()) {
             case 'mysql':
-                $this->adapter = Application::objectManager()->get('\Jcode\DBAdapter\Mysql');
+                $this->adapter = Application::getClass('\Jcode\DBAdapter\Mysql');
 
                 break;
             case 'postgresql':
-                $this->adapter = Application::objectManager()->get('\Jcode\DBAdapter\Postgresql');
+                $this->adapter = Application::getClass('\Jcode\DBAdapter\Postgresql');
 
                 break;
             default:

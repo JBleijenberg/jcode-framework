@@ -189,7 +189,7 @@ class Config
         if (is_array($configuration) && !empty($configuration)) {
             foreach ($configuration['application'] as $key => $value) {
                 if (is_array($value)) {
-                    $value = Application::objectManager()->get('\Jcode\DataObject')->importArray($value);
+                    $value = Application::getClass('\Jcode\DataObject')->importArray($value);
                 }
                 $this->$key = $value;
             }
@@ -213,7 +213,7 @@ class Config
         if ($this->getCache() && $this->getCache()->getEnabled() == 1) {
             $cacheConfig = $this->getCache();
             /* @var \Jcode\Cache\CacheInterface $class */
-            $class = Application::objectManager()->get($cacheConfig->getClass());
+            $class = Application::getClass($cacheConfig->getClass());
 
             $class->connect($cacheConfig);
 
@@ -283,10 +283,10 @@ class Config
             ->in(BP);
 
         /* @var \Jcode\DataObject $urlRewrites */
-        $urlRewrites = Application::objectManager()->get('\Jcode\DataObject');
+        $urlRewrites = Application::getClass('\Jcode\DataObject');
 
-        Application::register('module_collection', Application::objectManager()->get('\Jcode\DataObject\Collection'));
-        Application::register('frontnames', Application::objectManager()->get('\Jcode\DataObject'));
+        Application::register('module_collection', Application::getClass('\Jcode\DataObject\Collection'));
+        Application::register('frontnames', Application::getClass('\Jcode\DataObject'));
         Application::register('url_rewrites', $urlRewrites);
 
         foreach ($finder as $moduleJson) {
@@ -296,7 +296,7 @@ class Config
 
             if ($this->isCacheEnabled()) {
                 if ($this->getCacheInstance()->exists($cacheKey)) {
-                    $module = Application::objectManager()->get('\Jcode\Application\Module');
+                    $module = Application::getClass('\Jcode\Application\Module');
                     $module->importArray($this->getCacheInstance()->get($cacheKey));
                 } else {
                     $module = $this->loadModuleConfiguration($moduleJson->getPathname());
@@ -334,7 +334,7 @@ class Config
         $configuration = json_decode($configuration, true);
 
         /** @var Module $module */
-        $module = Application::objectManager()->get('\Jcode\Application\Module');
+        $module = Application::getClass('\Jcode\Application\Module');
 
         if (is_array($configuration) && !empty($configuration)) {
             foreach ($configuration['module'] as $key => $value) {
@@ -358,7 +358,7 @@ class Config
     protected function initUrlRewrites(Module $module)
     {
         /** @var \Jcode\Router\Rewrite $rewriteClass */
-        $rewriteClass = Application::objectManager()->get('\Jcode\Router\Rewrite');
+        $rewriteClass = Application::getClass('\Jcode\Router\Rewrite');
 
         if (($router = $module->getRouter()) && ($rewrites = $router->getRewrite())) {
             foreach ($rewrites->getRewrites() as $source => $destination) {

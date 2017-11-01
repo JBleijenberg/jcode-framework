@@ -138,4 +138,15 @@ class Collection extends DataObject
 
         return $arr;
     }
+
+    public function getColumn($column) :array
+    {
+        $values = [];
+
+        foreach ($this->items as $item) {
+            $values[] = $item->getData($column);
+        }
+
+        return $values;
+    }
 }

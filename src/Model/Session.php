@@ -120,7 +120,7 @@ class Session extends DataObject
             $session['messages'] = [];
         }
 
-        $msgObj = Application::objectManager()->get('Jcode\DataObject');
+        $msgObj = Application::getClass('Jcode\DataObject');
 
         $msgObj->setType($type);
         $msgObj->setMessage($msg);

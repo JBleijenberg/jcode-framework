@@ -93,13 +93,13 @@ class Module
 
     public function setRouter(array $router)
     {
-        $routerObj = Application::objectManager()->get('\Jcode\Application\Module\Router');
+        $routerObj = Application::getClass('\Jcode\Application\Module\Router');
 
         $routerObj->setClass($router['class']);
         $routerObj->setFrontname($router['frontname']);
 
         if (isset($router['rewrite'])) {
-            $rewrite = Application::objectManager()->get('\Jcode\Application\Module\Router\Rewrite');
+            $rewrite = Application::getClass('\Jcode\Application\Module\Router\Rewrite');
 
             foreach ($router['rewrite'] as $source => $destination) {
                 $rewrite->addRewrite($source, $destination);
@@ -121,7 +121,7 @@ class Module
     public function setEvents(array $events)
     {
         /** @var Application\Module\Events $eventsObj */
-        $eventsObj = Application::objectManager()->get('\Jcode\Application\Module\Events');
+        $eventsObj = Application::getClass('\Jcode\Application\Module\Events');
 
         foreach ($events as $id => $targets) {
             foreach ($targets as $target) {
@@ -142,7 +142,7 @@ class Module
     public function setPermissions(array $permissions)
     {
         /** @var Application\Module\Permissions $permissionObj */
-        $permissionObj = Application::objectManager()->get('\Jcode\Application\Module\Permissions');
+        $permissionObj = Application::getClass('\Jcode\Application\Module\Permissions');
 
         foreach ($permissions as $path => $description) {
             $permissionObj->addPermission($path, $description);

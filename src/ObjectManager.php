@@ -49,6 +49,10 @@ class ObjectManager
      */
     public function get($class, array $args = [])
     {
+        if (is_object($class)) {
+            $class = get_class($class);
+        }
+
         if (!class_exists($class)) {
             #throw new Exception("Class {$class} does not exists");
         }

@@ -24,6 +24,7 @@ namespace Jcode;
 
 use \Exception;
 use Jcode\Application\Environment;
+use Jcode\Db\Resource;
 use Jcode\Event\Manager;
 
 final class Application
@@ -104,9 +105,29 @@ final class Application
     /**
      * @return ObjectManager
      */
-    public static function objectManager()
+    protected static function objectManager()
     {
         return self::$objectManager;
+    }
+
+    public static function getClass($name, array $args = [])
+    {
+        return self::objectManager()->get($name, $args);
+    }
+
+    /**
+     * @param $name
+     * @param array $args
+     * @return \Jcode\Db\Resource
+     */
+    public static function getResourceClass($name, array $args = [])
+    {
+        return self::getClass($name, $args)->getResource();
+    }
+
+    public static function getModule($name)
+    {
+        return self::$environment->getConfig()->getModule($name);
     }
 
     /**
@@ -220,7 +241,13 @@ final class Application
         }
 
         if (array_key_exists('params', $options)) {
-            $location = $location . '?' . http_build_query($options['params']);
+            $params = '/';
+
+            foreach ($options['params'] as $key => $value) {
+                $params .= "{$key}/{$value}/";
+            }
+
+            $location = $location . $params;
         }
 
         return $location;
