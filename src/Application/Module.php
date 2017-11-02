@@ -31,10 +31,6 @@ class Module
 
     private $version;
 
-    private $active;
-
-    private $identifier;
-
     private $router;
 
     private $events;
@@ -65,30 +61,6 @@ class Module
     public function getVersion() :String
     {
         return $this->version;
-    }
-
-    public function setActive(Bool $active)
-    {
-        $this->active = $active;
-
-        return $this;
-    }
-
-    public function getActive() :Bool
-    {
-        return $this->active;
-    }
-
-    public function setIdentifier(String $identifier)
-    {
-        $this->identifier = $identifier;
-
-        return $this;
-    }
-
-    public function getIdentifier() :String
-    {
-        return $this->identifier;
     }
 
     public function setRouter(array $router)

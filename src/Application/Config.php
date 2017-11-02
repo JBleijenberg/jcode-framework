@@ -202,7 +202,7 @@ class Config
         $this->eventManager->dispatchEvent($this->eventId . '.after.init', $this);
 
         if ($this->isCacheEnabled() && !$this->getCacheInstance()->exists('application.configuration')) {
-            $this->getCacheInstance()->set('application.configuration', $this->getData());
+            $this->getCacheInstance()->set('application.configuration', $this->getAllData());
         }
 
         return $this;
@@ -278,7 +278,7 @@ class Config
             ->files()
             ->ignoreUnreadableDirs()
             ->followLinks()
-            ->name('module.json')
+            ->name('module.yaml')
             ->depth('> 2')
             ->in(BP);
 
@@ -289,8 +289,8 @@ class Config
         Application::register('frontnames', Application::getClass('\Jcode\DataObject'));
         Application::register('url_rewrites', $urlRewrites);
 
-        foreach ($finder as $moduleJson) {
-            $cacheKey = 'moduleConfig:' . md5($moduleJson->getPathname());
+        foreach ($finder as $moduleFile) {
+            $cacheKey = 'moduleConfig:' . md5($moduleFile->getPathname());
 
             $module = null;
 
@@ -299,20 +299,20 @@ class Config
                     $module = Application::getClass('\Jcode\Application\Module');
                     $module->importArray($this->getCacheInstance()->get($cacheKey));
                 } else {
-                    $module = $this->loadModuleConfiguration($moduleJson->getPathname());
+                    $module = $this->loadModuleConfiguration($moduleFile->getPathname());
 
                     $this->getCacheInstance()->set($cacheKey, $module);
                 }
             } else {
-                $module = $this->loadModuleConfiguration($moduleJson->getPathname());
+                $module = $this->loadModuleConfiguration($moduleFile->getPathname());
             }
 
             if ($module instanceof Module) {
-                Application::registry('module_collection')->addItem($module, $module->getIdentifier());
+                Application::registry('module_collection')->addItem($module, $module->getName());
 
                 if ($module->getRouter() && $module->getRouter()->getFrontname()) {
                     Application::registry('frontnames')
-                        ->setData($module->getRouter()->getFrontname(), $module->getIdentifier());
+                        ->setData($module->getRouter()->getFrontname(), $module->getName());
                 }
 
                 $this->initUrlRewrites($module);
@@ -325,25 +325,24 @@ class Config
     /**
      * Return parsed module configuration
      *
-     * @param $moduleJson
+     * @param $moduleFile
      * @return Module
      */
-    protected function loadModuleConfiguration($moduleJson)
+    protected function loadModuleConfiguration($moduleFile)
     {
-        $configuration = file_get_contents($moduleJson);
-        $configuration = json_decode($configuration, true);
+        $configuration = Yaml::parseFile($moduleFile);
 
         /** @var Module $module */
         $module = Application::getClass('\Jcode\Application\Module');
 
         if (is_array($configuration) && !empty($configuration)) {
-            foreach ($configuration['module'] as $key => $value) {
+            foreach ($configuration as $key => $value) {
                 $method = self::convertStringToMethod($key);
 
                 $module->$method($value);
             }
 
-            $module->setModulePath(dirname($moduleJson));
+            $module->setModulePath(dirname($moduleFile));
         }
 
         return $module;
@@ -413,13 +412,8 @@ class Config
      */
     public function getModuleByFrontname($frontName) :?Module
     {
-        if (Application::registry('frontnames')->getData($frontName)) {
-            /* @var \Jcode\Object $module */
-            $module = Application::registry('module_collection')->getItemById($frontName);
-
-            if ($module instanceof Module) {
-                return $module;
-            }
+        if (($name = Application::registry('frontnames')->getData($frontName))) {
+            return $this->getModule($name);
         }
 
         return null;

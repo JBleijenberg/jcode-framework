@@ -105,16 +105,17 @@ class DataObject implements Iterator, Countable
      * @param $key
      * @return null
      */
-    public function getData($key = null)
+    public function getData($key)
     {
-        if ($key !== null) {
-            if (array_key_exists($key, $this->data)) {
-                return $this->data[$key];
-            } else {
-                return false;
-            }
+        if (array_key_exists($key, $this->data)) {
+            return $this->data[$key];
         }
 
+        return null;
+    }
+
+    public function getAllData()
+    {
         return $this->data;
     }
 
