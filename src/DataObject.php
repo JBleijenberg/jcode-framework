@@ -85,7 +85,7 @@ class DataObject implements Iterator, Countable
      * @param $value
      * @return $this
      */
-    public function setData($key, $value)
+    protected function setData($key, $value)
     {
         if ((array_key_exists($key, $this->data)
                 && $this->data[$key] != $value)

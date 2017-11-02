@@ -311,8 +311,9 @@ class Config
                 Application::registry('module_collection')->addItem($module, $module->getName());
 
                 if ($module->getRouter() && $module->getRouter()->getFrontname()) {
-                    Application::registry('frontnames')
-                        ->setData($module->getRouter()->getFrontname(), $module->getName());
+                    $key = self::convertStringToMethod($module->getRouter()->getFrontname());
+
+                    Application::registry('frontnames')->$key($module->getName());
                 }
 
                 $this->initUrlRewrites($module);
