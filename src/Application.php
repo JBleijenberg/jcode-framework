@@ -58,6 +58,8 @@ final class Application
 
     protected static $showTemplateHints = false;
 
+    protected static $logMysqlQueries = false;
+
     public static function isDeveloperMode($bool = true)
     {
         self::$isDeveloperMode = $bool;
@@ -70,6 +72,15 @@ final class Application
         }
 
         return self::$showTemplateHints;
+    }
+
+    public static function logMysqlQueries($bool = null)
+    {
+        if ($bool !== null) {
+            self::$logMysqlQueries = $bool;
+        }
+
+        return self::$logMysqlQueries;
     }
 
     /**
