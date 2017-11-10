@@ -87,11 +87,18 @@ class DataObject implements Iterator, Countable
      */
     protected function setData($key, $value)
     {
-        if ((array_key_exists($key, $this->data)
-                && $this->data[$key] != $value)
-            || (!array_key_exists($key, $this->data))
-        ) {
-            $this->hasChangedData = true;
+        if (array_key_exists($key, $this->data)) {
+            if ($this->data[$key] !== $value) {
+                $this->hasChangedData = true;
+            }
+        } else {
+            if (array_key_exists($key, $this->origData)) {
+                if ($this->origData[$key] !== $value) {
+                    $this->hasChangedData = true;
+                }
+            } else {
+                $this->hasChangedData = true;
+            }
         }
 
         $this->data[$key] = $value;
