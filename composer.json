@@ -15,7 +15,7 @@
   "require": {
     "php": ">=7.1.0",
     "jcode/framework-cache": "dev-master",
-    "jcode/framework-data": "dev-master",
+    "jcode/framework-form": "dev-master",
     "jcode/framework-dbresource": "dev-master",
     "jcode/framework-eventhandler": "dev-master",
     "jcode/framework-layout": "dev-master",
