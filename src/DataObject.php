@@ -110,11 +110,18 @@ class DataObject implements Iterator, Countable
      * Get data
      *
      * @param $key
+     * @param bool $unsecure
      * @return null
      */
-    public function getData($key)
+    public function getData($key, $unsecure = false)
     {
         if (array_key_exists($key, $this->data)) {
+            if ($unsecure == false) {
+                if (is_string($this->data[$key])) {
+                    return $this->data[$key];
+                }
+            }
+
             return $this->data[$key];
         }
 
@@ -215,7 +222,7 @@ class DataObject implements Iterator, Countable
             return $this->setData($key, $value);
         } else {
             if ($type == 'get' && array_key_exists($key, $this->data)) {
-                return $this->getData($key);
+                return $this->getData($key, $value);
             }
         }
 

@@ -13,20 +13,19 @@
  * Do not edit or add to this file if you wish to upgrade this module to newer
  * versions in the future.
  *
- * @category    docroot
- * @package     docroot
- * @author      Jeroen Bleijenberg <jeroen@jcode.nl>
+ * @author      Jeroen Bleijenberg
  *
- * @copyright   Copyright (c) 2017 J!Code (http://www.jcode.nl)
+ * @copyright   Copyright (c) 2017
  * @license     http://opensource.org/licenses/GPL-3.0 General Public License (GPL 3.0)
  */
-namespace Jcode\Model;
-
-use Jcode\Application;
+namespace Jcode;
 
 class Helper
 {
+
     protected $isSharedInstance = true;
+
+    protected static $encryptionMethod = 'AES-256-CBC';
 
     /**
      * Escape HTML characters from given string
@@ -60,5 +59,37 @@ class Helper
     public function getUrl($path, array $parameters = []) :string
     {
         return Application::getUrl($path, $parameters);
+    }
+
+    /**
+     * Encrypt value
+     *
+     * @param $value
+     * @return string
+     */
+    public static function encrypt($value)
+    {
+        $secret = Application::getConfig('encryption_key');
+        $iv     = openssl_random_pseudo_bytes(openssl_cipher_iv_length(self::$encryptionMethod));
+
+        $data = openssl_encrypt($value, self::$encryptionMethod, $secret, 0, $iv);
+
+        $encryptedValue = sprintf('%s:%s', $data, $iv);
+
+        return $encryptedValue;
+    }
+
+    /**
+     * Decrypt value
+     *
+     * @param $value
+     * @param $iv
+     * @return string
+     */
+    public static function decrypt($value, $iv)
+    {
+        $secret = Application::getConfig('encryption_key');
+
+        return openssl_decrypt($value, self::$encryptionMethod, $secret, 0, $iv);
     }
 }
