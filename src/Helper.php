@@ -28,14 +28,19 @@ class Helper
     protected static $encryptionMethod = 'AES-256-CBC';
 
     /**
-     * Escape HTML characters from given string
+     * Santize given string
      *
      * @param $string
+     * @param null $allowedChars
      * @return string
      */
-    public function sanitize($string)
+    public static function sanitize($string, $allowedChars = null)
     {
-        return filter_var($string, FILTER_SANITIZE_STRING);
+        if ($allowedChars == null) {
+            return filter_var($string, FILTER_SANITIZE_STRING);
+        } else {
+            return preg_replace("/([^{$allowedChars}]+)/", '', $string);
+        }
     }
 
     /**

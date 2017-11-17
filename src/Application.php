@@ -221,11 +221,13 @@ final class Application
 
                 break;
             case Environment::URL_TYPE_CSS:
-                $url = $baseUrl . 'assets/css/';
+                $layout = self::getConfig('layout');
+                $url = $baseUrl . "assets/{$layout}/css/";
 
                 break;
             case Environment::URL_TYPE_JS:
-                $url = $baseUrl . 'assets/js/';
+                $layout = self::getConfig('layout');
+                $url = $baseUrl . "assets/{$layout}/js/";
 
                 break;
             default:
