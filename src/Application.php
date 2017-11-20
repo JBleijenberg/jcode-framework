@@ -83,25 +83,32 @@ final class Application
         return self::$logMysqlQueries;
     }
 
+    public static function prepare()
+    {
+        self::$objectManager = new ObjectManager;
+        self::$eventManager = new Manager();
+        self::$registry = self::objectManager()->get('Jcode\Registry');
+        self::$environment = self::$objectManager->get('Jcode\Application\Environment');
+
+        self::$environment->configure();
+        self::$environment->setup();
+
+        self::dispatchEvent('application.init.after', self::objectManager()->get('\Jcode\DataObject'));
+        self::dispatchEvent('application.dispatch.before', self::objectManager()->get('\Jcode\DataObject'));
+    }
+
     /**
      * Initialize application and dispatch it
      */
     public static function run()
     {
         if (!self::$environment) {
-            self::$objectManager = new ObjectManager;
-            self::$eventManager = new Manager();
-            self::$registry = self::objectManager()->get('Jcode\Registry');
-            self::$environment = self::$objectManager->get('Jcode\Application\Environment');
-
             try {
-                self::$environment->configure();
-                self::$environment->setup();
+                self::prepare();
 
-                self::dispatchEvent('application.init.after', self::objectManager()->get('\Jcode\DataObject'));
-                self::dispatchEvent('application.dispatch.before', self::objectManager()->get('\Jcode\DataObject'));
-
-                self::$environment->dispatch();
+                if (php_sapi_name() != 'cli') {
+                    self::$environment->dispatch();
+                }
             } catch (Exception $e) {
                 self::logException($e);
             }
