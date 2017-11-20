@@ -74,6 +74,8 @@ class Config
 
     protected $session_duration;
 
+    protected $mail;
+
     /**
      * @return DataObject
      */
@@ -168,6 +170,11 @@ class Config
     public function getSessionDuration() :Int
     {
         return $this->session_duration;
+    }
+
+    public function getMail() :DataObject
+    {
+        return $this->mail;
     }
 
     /**
