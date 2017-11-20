@@ -61,57 +61,61 @@ class Environment
 
     public function setup()
     {
-        $modules        = Application::registry('module_collection');
-        $moduleVersions = (file_exists(BP . '/modules.json'))
-            ? json_decode(file_get_contents(BP . '/modules.json'), true)
-            : [];
+        if (file_exists(BP . DS . 'setup.flag')) {
+            $modules = Application::registry('module_collection');
+            $moduleVersions = (file_exists(BP . '/modules.json'))
+                ? json_decode(file_get_contents(BP . '/modules.json'), true)
+                : [];
 
-        foreach ($modules as $module) {
-            if (!array_key_exists($module->getName(), $moduleVersions)) {
-                $moduleVersions[$module->getName()] = '';
-            }
-
-            if (is_dir($module->getModulePath() . DS . 'Setup')) {
-                $finder = new Finder();
-
-                $finder
-                    ->files()
-                    ->ignoreUnreadableDirs()
-                    ->followLinks()
-                    ->name('*.php')
-                    ->in($module->getModulePath() . DS . 'Setup');
-            } else {
-                $finder =  new Iterator();
-            }
-
-            while ($module->getVersion() !== $moduleVersions[$module->getName()]) {
-                if ($moduleVersions[$module->getName()] == '') {
-                    $filename = "install-([\d\.]+)\.php";
-                } else {
-                    $installedVersion = $moduleVersions[$module->getName()];
-                    $filename         = "upgrade-{$installedVersion}-([\d\.]+)\.php$";
+            foreach ($modules as $module) {
+                if (!array_key_exists($module->getName(), $moduleVersions)) {
+                    $moduleVersions[$module->getName()] = '';
                 }
 
-                $file = array_filter(array_map(function($f) use($filename) {
-                    preg_match("/{$filename}$/", $f, $matches);
+                if (is_dir($module->getModulePath() . DS . 'Setup')) {
+                    $finder = new Finder();
 
-                    return $matches;
-                }, array_keys(iterator_to_array($finder))));
-
-                if (!empty($file)) {
-                    $fileArray    = current($file);
-                    $fileLocation = $fileArray[0];
-                    $newVersion   = $fileArray[1];
-
-                    require_once $module->getModulePath() . '/Setup/' . $fileLocation;
-
-                    $moduleVersions[$module->getName()] = $newVersion;
+                    $finder
+                        ->files()
+                        ->ignoreUnreadableDirs()
+                        ->followLinks()
+                        ->name('*.php')
+                        ->in($module->getModulePath() . DS . 'Setup');
                 } else {
-                    $moduleVersions[$module->getName()] = $module->getVersion();
+                    $finder = new Iterator();
                 }
+
+                while ($module->getVersion() !== $moduleVersions[$module->getName()]) {
+                    if ($moduleVersions[$module->getName()] == '') {
+                        $filename = "install-([\d\.]+)\.php";
+                    } else {
+                        $installedVersion = $moduleVersions[$module->getName()];
+                        $filename = "upgrade-{$installedVersion}-([\d\.]+)\.php$";
+                    }
+
+                    $file = array_filter(array_map(function ($f) use ($filename) {
+                        preg_match("/{$filename}$/", $f, $matches);
+
+                        return $matches;
+                    }, array_keys(iterator_to_array($finder))));
+
+                    if (!empty($file)) {
+                        $fileArray = current($file);
+                        $fileLocation = $fileArray[0];
+                        $newVersion = $fileArray[1];
+
+                        require_once $module->getModulePath() . '/Setup/' . $fileLocation;
+
+                        $moduleVersions[$module->getName()] = $newVersion;
+                    } else {
+                        $moduleVersions[$module->getName()] = $module->getVersion();
+                    }
+                }
+
+                file_put_contents(BP . '/modules.json', json_encode($moduleVersions, JSON_PRETTY_PRINT));
             }
 
-            file_put_contents(BP . '/modules.json', json_encode($moduleVersions, JSON_PRETTY_PRINT));
+            unlink(BP . DS . 'setup.flag');
         }
     }
 
