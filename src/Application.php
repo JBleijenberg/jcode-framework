@@ -60,9 +60,13 @@ final class Application
 
     protected static $logMysqlQueries = false;
 
-    public static function isDeveloperMode($bool = true)
+    public static function isDeveloperMode($bool = null)
     {
-        self::$isDeveloperMode = $bool;
+        if ($bool !== null) {
+            self::$isDeveloperMode = $bool;
+        }
+
+        return self::$isDeveloperMode;
     }
 
     public static function showTemplateHints($bool = null)
