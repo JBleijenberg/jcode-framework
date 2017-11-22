@@ -76,12 +76,19 @@ class Config
 
     protected $mail;
 
+    protected $cacheInstance;
+
     /**
      * @return DataObject
      */
-    public function getCache(): DataObject
+    public function getCache() :DataObject
     {
         return $this->cache;
+    }
+
+    public function getCacheInstance() :?CacheInterface
+    {
+        return $this->cacheInstance;
     }
 
     /**
@@ -209,7 +216,7 @@ class Config
         $this->eventManager->dispatchEvent($this->eventId . '.after.init', $this);
 
         if ($this->isCacheEnabled() && !$this->getCacheInstance()->exists('application.configuration')) {
-            $this->getCacheInstance()->set('application.configuration', $this->getAllData());
+            $this->getCacheInstance()->set('application.configuration', serialize($this));
         }
 
         return $this;
@@ -258,17 +265,9 @@ class Config
      */
     public function setCacheInstance(CacheInterface $cache)
     {
-        $this->cache = $cache;
+        $this->cacheInstance = $cache;
 
         return $this;
-    }
-
-    /**
-     * @return \Jcode\Cache\CacheInterface
-     */
-    public function getCacheInstance()
-    {
-        return $this->cache;
     }
 
     /**
@@ -289,41 +288,49 @@ class Config
             ->depth('> 2')
             ->in(BP);
 
-        /* @var \Jcode\DataObject $urlRewrites */
-        $urlRewrites = Application::getClass('\Jcode\DataObject');
+        if ($this->isCacheEnabled() && $this->getCacheInstance()->exists('module_collection')) {
+            Application::register('module_collection', unserialize($this->getCacheInstance()->get('module_collection')));
+            Application::register('frontnames', unserialize($this->getCacheInstance()->get('frontnames')));
+        } else {
+            $moduleCollection = Application::getClass('\Jcode\DataObject\Collection');
+            $frontnames       = Application::getClass('\Jcode\DataObject');
 
-        Application::register('module_collection', Application::getClass('\Jcode\DataObject\Collection'));
-        Application::register('frontnames', Application::getClass('\Jcode\DataObject'));
-        Application::register('url_rewrites', $urlRewrites);
+            foreach ($finder as $moduleFile) {
+                $cacheKey = 'moduleConfig:' . md5($moduleFile->getPathname());
 
-        foreach ($finder as $moduleFile) {
-            $cacheKey = 'moduleConfig:' . md5($moduleFile->getPathname());
+                $module = null;
 
-            $module = null;
+                if ($this->isCacheEnabled()) {
+                    if ($this->getCacheInstance()->exists($cacheKey)) {
+                        $module = unserialize($this->getCacheInstance()->get($cacheKey));
+                    } else {
+                        $module = $this->loadModuleConfiguration($moduleFile->getPathname());
 
-            if ($this->isCacheEnabled()) {
-                if ($this->getCacheInstance()->exists($cacheKey)) {
-                    $module = Application::getClass('\Jcode\Application\Module');
-                    $module->importArray($this->getCacheInstance()->get($cacheKey));
+                        $this->getCacheInstance()->set($cacheKey, serialize($module));
+                    }
                 } else {
                     $module = $this->loadModuleConfiguration($moduleFile->getPathname());
-
-                    $this->getCacheInstance()->set($cacheKey, $module);
                 }
-            } else {
-                $module = $this->loadModuleConfiguration($moduleFile->getPathname());
+
+                if ($module instanceof Module) {
+                    $moduleCollection->addItem($module, $module->getName());
+
+                    if ($module->getRouter() && $module->getRouter()->getFrontname()) {
+                        $key = self::convertStringToMethod($module->getRouter()->getFrontname());
+
+                        $frontnames->$key($module->getName());
+                    }
+
+                    $this->initUrlRewrites($module);
+                }
             }
 
-            if ($module instanceof Module) {
-                Application::registry('module_collection')->addItem($module, $module->getName());
+            Application::register('module_collection', $moduleCollection);
+            Application::register('frontnames', $frontnames);
 
-                if ($module->getRouter() && $module->getRouter()->getFrontname()) {
-                    $key = self::convertStringToMethod($module->getRouter()->getFrontname());
-
-                    Application::registry('frontnames')->$key($module->getName());
-                }
-
-                $this->initUrlRewrites($module);
+            if ($this->isCacheEnabled() && !$this->getCacheInstance()->exists('module_collection')) {
+                $this->getCacheInstance()->set('module_collection', serialize($moduleCollection));
+                $this->getCacheInstance()->set('frontnames', serialize($frontnames));
             }
         }
 
