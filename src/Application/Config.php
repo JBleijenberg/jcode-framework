@@ -192,13 +192,23 @@ class Config
      */
     public function initApplicationConfiguration()
     {
-        $appkicationYaml = BP . DS . 'application.yaml';
+        $configuration = array_merge([], Yaml::parseFile(BP . '/configuration/default.yaml'));
 
-        if (!stream_resolve_include_path($appkicationYaml)) {
-            throw new Exception('Missing application.yaml file');
+        if (($env = getenv('ENVIRONMENT'))) {
+            $path = BP . '/configuration/' . $env;
+
+            if (file_exists($path . '/site.yaml')) {
+                $configuration = array_merge($configuration, Yaml::parseFile($path . '/site.yaml'));
+            }
+
+            if (file_exists($path . '/database.yaml')) {
+                $configuration = array_merge($configuration, Yaml::parseFile($path . '/database.yaml'));
+            }
+
+            if (file_exists($path . '/cache.yaml')) {
+                $configuration = array_merge($configuration, Yaml::parseFile($path . '/cache.yaml'));
+            }
         }
-
-        $configuration = Yaml::parseFile($appkicationYaml);
 
         if (is_array($configuration) && !empty($configuration)) {
             foreach ($configuration as $key => $value) {
