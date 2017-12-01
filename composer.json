@@ -14,12 +14,12 @@
   ],
   "require": {
     "php": "^7.0",
-    "jcode/framework-cache": "dev-master",
-    "jcode/framework-form": "dev-master",
-    "jcode/framework-dbresource": "dev-master",
-    "jcode/framework-eventhandler": "dev-master",
-    "jcode/framework-layout": "dev-master",
-    "jcode/framework-router": "dev-master",
+    "jcode/framework-cache": "^1.0.0",
+    "jcode/framework-form": "^1.0.0",
+    "jcode/framework-dbresource": "^1.0.0",
+    "jcode/framework-eventhandler": "^1.0.0",
+    "jcode/framework-layout": "^1.0.0",
+    "jcode/framework-router": "^1.0.0",
     "symfony/finder": "^3.3",
     "symfony/yaml": "^3.3"
   },
