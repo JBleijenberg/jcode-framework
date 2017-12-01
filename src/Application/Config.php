@@ -86,7 +86,7 @@ class Config
         return $this->cache;
     }
 
-    public function getCacheInstance() :?CacheInterface
+    public function getCacheInstance()
     {
         return $this->cacheInstance;
     }
@@ -253,7 +253,7 @@ class Config
      * @param string $method
      * @return String|void
      */
-    public static function convertStringToMethod($key, $method = 'set') :?String
+    public static function convertStringToMethod($key, $method = 'set')
     {
         $parts = explode('_', $key);
         $parts = array_map('ucfirst', $parts);
@@ -435,7 +435,7 @@ class Config
      * @param $frontName
      * @return Module|null
      */
-    public function getModuleByFrontname($frontName) :?Module
+    public function getModuleByFrontname($frontName)
     {
         if (($name = Application::registry('frontnames')->getData($frontName))) {
             return $this->getModule($name);
@@ -444,7 +444,7 @@ class Config
         return null;
     }
 
-    public function getModule($moduleName) :?Module
+    public function getModule($moduleName)
     {
         /** @var Module $module */
         foreach (Application::registry('module_collection') as $module) {

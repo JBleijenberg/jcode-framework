@@ -82,7 +82,7 @@ class Router
         return $this;
     }
 
-    public function getRewrite() :?Rewrite
+    public function getRewrite()
     {
         return $this->rewrite;
     }

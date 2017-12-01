@@ -13,7 +13,7 @@
     }
   ],
   "require": {
-    "php": ">=7.1.0",
+    "php": "^7.0",
     "jcode/framework-cache": "dev-master",
     "jcode/framework-form": "dev-master",
     "jcode/framework-dbresource": "dev-master",

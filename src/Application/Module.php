@@ -85,7 +85,7 @@ class Module
         return $this;
     }
 
-    public function getRouter() :?Router
+    public function getRouter()
     {
         return $this->router;
     }
@@ -106,7 +106,7 @@ class Module
         return $this;
     }
 
-    public function getEvents() :?Application\Module\Events
+    public function getEvents()
     {
         return $this->events;
     }
@@ -125,7 +125,7 @@ class Module
         return $this;
     }
 
-    public function getPermissions() :?Application\Module\Permissions
+    public function getPermissions()
     {
         return $this->permissions;
     }

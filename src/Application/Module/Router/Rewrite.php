@@ -32,7 +32,7 @@ class Rewrite implements \Iterator
         return $this;
     }
 
-    public function getRewrite($source) :?String
+    public function getRewrite($source)
     {
         if (array_key_exists($source, $this->rewrites)) {
             return $this->rewrites[$source];

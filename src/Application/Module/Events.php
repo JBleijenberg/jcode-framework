@@ -32,7 +32,7 @@ class Events implements \Iterator
         return $this;
     }
 
-    public function getEvent($id) :?array
+    public function getEvent($id)
     {
         if (array_key_exists($id, $this->events)) {
             return $this->events[$id];
