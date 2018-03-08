@@ -149,4 +149,31 @@ class Collection extends DataObject
 
         return $values;
     }
+
+    /**
+     * Remove single item from index
+     *
+     * @param $key
+     * @return $this
+     */
+    public function removeItem($key)
+    {
+        if (isset($this->items[$key])) {
+            unset($this->items[$key]);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Remove all items from collection
+     *
+     * @return $this
+     */
+    public function removeAllItems()
+    {
+        $this->items = [];
+
+        return $this;
+    }
 }

@@ -39,6 +39,8 @@ class Module
 
     private $modulePath;
 
+    private $layout;
+
     public function setName(String $name)
     {
         $this->name = $name;
@@ -49,6 +51,18 @@ class Module
     public function getName() :String
     {
         return $this->name;
+    }
+
+    public function setLayout(String $layout)
+    {
+        $this->layout = $layout;
+
+        return $this;
+    }
+
+    public function getLayout()
+    {
+        return $this->layout;
     }
 
     public function setVersion(String $version)

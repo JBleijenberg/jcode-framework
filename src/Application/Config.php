@@ -78,6 +78,10 @@ class Config
 
     protected $cacheInstance;
 
+    protected $environment;
+
+    protected $extra = [];
+
     /**
      * @return DataObject
      */
@@ -97,6 +101,11 @@ class Config
     public function getLayout() :String
     {
         return $this->layout;
+    }
+
+    public function getEnvironment()
+    {
+        return $this->environment;
     }
 
     /**
@@ -194,19 +203,21 @@ class Config
     {
         $configuration = array_merge([], Yaml::parseFile(BP . '/configuration/default.yaml'));
 
+        Application::dispatchEvent('collect.config.before', $this);
+
         if (($env = getenv('ENVIRONMENT'))) {
             $path = BP . '/configuration/' . $env;
 
-            if (file_exists($path . '/site.yaml')) {
-                $configuration = array_merge($configuration, Yaml::parseFile($path . '/site.yaml'));
-            }
+            $this->environment = $env;
 
-            if (file_exists($path . '/database.yaml')) {
-                $configuration = array_merge($configuration, Yaml::parseFile($path . '/database.yaml'));
-            }
+            $finder = new Finder();
 
-            if (file_exists($path . '/cache.yaml')) {
-                $configuration = array_merge($configuration, Yaml::parseFile($path . '/cache.yaml'));
+            $finder->in($path)
+                    ->ignoreDotFiles(true)
+                    ->name('*.yaml');
+
+            foreach ($finder as $configYaml) {
+                $configuration = array_merge($configuration, Yaml::parseFile($configYaml));
             }
         }
 
@@ -215,9 +226,16 @@ class Config
                 if (is_array($value)) {
                     $value = Application::getClass('\Jcode\DataObject')->importArray($value);
                 }
-                $this->$key = $value;
+
+                if (property_exists($this, $key)) {
+                    $this->$key = $value;
+                } else {
+                    $this->extra[$key] = $value;
+                }
             }
         }
+
+        Application::dispatchEvent('collect.config.after', $this);
 
         date_default_timezone_set($this->getTimezone());
 
@@ -230,6 +248,32 @@ class Config
         }
 
         return $this;
+    }
+
+    /**
+     * Called when set.. or get.. is called
+     *
+     * @param $key
+     * @param $value
+     * @return DataObject|null
+     */
+    public function __call($key, $value)
+    {
+        $type = substr($key, 0, 3);
+        $key = substr($key, 3);
+        $value = current($value);
+
+        $ey = self::convertStringToMethod($key);
+
+        if ($type == 'set') {
+            return $this->extra[$key] = $value;
+        } else {
+            if ($type == 'get' && array_key_exists($key, $this->extra)) {
+                return $this->extra[$key];
+            }
+        }
+
+        return null;
     }
 
     public function initCache()

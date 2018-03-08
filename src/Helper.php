@@ -97,4 +97,18 @@ class Helper
 
         return openssl_decrypt($value, self::$encryptionMethod, $secret, 0, $iv);
     }
+
+    /**
+     * Format date
+     *
+     * @param $date
+     * @param string $format
+     * @return string
+     */
+    public static function formatMysqlDateTime($date, $format = 'd-m-Y H:i')
+    {
+        $dateObject = \DateTime::createFromFormat('Y-m-d H:i:s', $date);
+
+        return $dateObject->format($format);
+    }
 }
